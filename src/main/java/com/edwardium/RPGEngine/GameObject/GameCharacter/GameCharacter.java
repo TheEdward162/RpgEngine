@@ -1,25 +1,29 @@
-package com.edwardium.RPGEngine.GameObject;
+package com.edwardium.RPGEngine.GameObject.GameCharacter;
 
+import com.edwardium.RPGEngine.GameObject.GameInventory;
+import com.edwardium.RPGEngine.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public class GameCharacter extends GameObject {
-	protected float maxWalkSpeed = 500f;
+	protected float maxWalkSpeed = 350f;
 	private Vector2D walkVector = new Vector2D(0, 0);
 
-	private String name = "";
+	public String name = "";
+	public GameInventory inventory;
 
 	public GameCharacter() {
-		super();
+		this(new Vector2D(0, 0));
 	}
 	public GameCharacter(Vector2D position) {
-		super(position);
+		this(position, "", 0);
 	}
-	public GameCharacter(Vector2D position, String name) {
-		this(position);
+	public GameCharacter(Vector2D position, String name, int inventorySize) {
+		super(position);
 
 		this.name = name;
+		this.inventory = new GameInventory(inventorySize);
 	}
 
 	public void walkTo(Vector2D target) {
@@ -56,13 +60,5 @@ public class GameCharacter extends GameObject {
 		gameRenderer.drawLine(this.position, Vector2D.add(this.position, this.getFacingDirection().setMagnitude(30)), 2f, new float[] { 1f, 0f, 0f, 1f });
 
 		gameRenderer.drawString(gameRenderer.basicFont, "Hello, world!", new Vector2D(0, 100), new Vector2D(1, 1), new float[] { 0f, 1f, 0f, 1f });
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 }
