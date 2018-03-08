@@ -24,8 +24,10 @@ public abstract class GameObject {
 		this.velocity = new Vector2D();
 	}
 
-	public void update(float elapsedTime) {
-		this.position.add(velocity);
+	public void update(float elapsedTime, float velocityDiminishFactor) {
+		this.position.add(Vector2D.multiply(this.velocity, elapsedTime));
+
+		this.velocity.multiply(velocityDiminishFactor * elapsedTime);
 	}
 	public void render(Renderer gameRenderer) {}
 

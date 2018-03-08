@@ -21,16 +21,17 @@ public class Engine implements Runnable {
 	private Thread gameThread;
 	private Renderer gameRenderer;
 	private Input gameInput;
+	private Config gameConfig;
 
 	private Vector2D cameraPos;
 
 	private ArrayList<GameObject> gameObjects;
 	private GameCharacter player;
 
-	private Config gameConfig;
-
 	private boolean running = false;
 	private GameStage gameStage = GameStage.GAME;
+
+	private float velocityDiminishFactor = 0.99f;
 
 	public Engine() {
 
@@ -57,7 +58,7 @@ public class Engine implements Runnable {
 		cameraPos = new Vector2D();
 
 		gameObjects = new ArrayList<>();
-		player = new GameCharacter(new Vector2D(5, 7));
+		player = new GameCharacter(new Vector2D(5, 7), "player");
 		gameObjects.add(player);
 
 		gameObjects.add(new GameCharacter());
@@ -130,18 +131,22 @@ public class Engine implements Runnable {
 
 	private void updateInput() {
 		if (gameStage == GameStage.GAME) {
+			float walkX = 0;
+			float walkY = 0;
 			if (gameInput.getKeyPressed(GLFW_KEY_W)) {
-				//player.walkTowards(new Vector2D(0, -1));
-				player.walkTowards(new Vector2D(0, -1));
-			} else if (gameInput.getKeyPressed(GLFW_KEY_S)) {
-				player.walkTowards(new Vector2D(0, 1));
+				walkY -= 1;
+			}
+			if (gameInput.getKeyPressed(GLFW_KEY_S)) {
+				walkY += 1;
 			}
 
 			if (gameInput.getKeyPressed(GLFW_KEY_D)) {
-				player.walkTowards(new Vector2D(1, 0));
-			} else if (gameInput.getKeyPressed(GLFW_KEY_A)) {
-				player.walkTowards(new Vector2D(-1, 0));
+				walkX += 1;
+			} if (gameInput.getKeyPressed(GLFW_KEY_A)) {
+				walkX -= 1;
 			}
+			if (walkX != 0 || walkY != 0)
+				player.walkTowards(new Vector2D(walkX, walkY));
 
 			// calculate cursor position relative to the center of the screen and camera position
 			Vector2D cursorPos = gameInput.getCursorPos().subtract(gameRenderer.getWindowSize().divide(2)).add(cameraPos);
@@ -151,7 +156,7 @@ public class Engine implements Runnable {
 
 	private void update(float elapsedTime) {
 		for (GameObject gameObject : gameObjects) {
-			gameObject.update(elapsedTime);
+			gameObject.update(elapsedTime, velocityDiminishFactor);
 		}
 	}
 
