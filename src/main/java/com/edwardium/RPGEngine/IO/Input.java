@@ -1,21 +1,56 @@
 package com.edwardium.RPGEngine.IO;
 
+import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.Vector2D;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
 import java.nio.DoubleBuffer;
+import java.security.Key;
+import java.sql.Struct;
+import java.util.HashMap;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Input {
+	public class KeyState {
+		public int key = 0;
+		public int scancode = 0;
+		public int action = GLFW_RELEASE;
+		public int mods = 0;
+
+		public double actionTime = 0;
+
+		public KeyState(int key) {
+			this.key = key;
+		}
+
+		public KeyState(KeyState copy) {
+			set(copy);
+		}
+
+		public void set(KeyState copy) {
+			set(copy.key, copy.scancode, copy.action, copy.mods, copy.actionTime);
+		}
+
+		public void set(int key, int scancode, int action, int mods, double actionTime) {
+			this.key = key;
+			this.scancode = scancode;
+			this.action = action;
+			this.mods = mods;
+			this.actionTime = actionTime;
+		}
+	}
+
 	private final long window;
 
 	private Vector2D lastMousePos;
+	private HashMap<Integer, KeyState> watchedKeys;
 
 	public Input(long window) {
 		this.window = window;
 		lastMousePos = new Vector2D();
+		watchedKeys = new HashMap<>();
 
 		// setup callbacks
 		// window key callback
@@ -23,9 +58,11 @@ public class Input {
 			@Override
 			public void invoke(long window, int key, int scancode, int action, int mods) {
 			// Bind the release of Ctrl+Q to window close
-			if (key == GLFW_KEY_Q && ((mods & GLFW_MOD_CONTROL) != 0) && action == GLFW_RELEASE) {
-				glfwSetWindowShouldClose(window, true);
-			}
+				if (key == GLFW_KEY_Q && ((mods & GLFW_MOD_CONTROL) != 0) && action == GLFW_RELEASE) {
+					glfwSetWindowShouldClose(window, true);
+				} else if ((action == GLFW_PRESS || action == GLFW_RELEASE) && watchedKeys.containsKey(key)) {
+					watchedKeys.get(key).set(key, scancode, action, mods, System.nanoTime() * Engine.NANO_TIME_MULT);
+				}
 			}
 		});
 
@@ -36,6 +73,15 @@ public class Input {
 				lastMousePos.set((float)x, (float)y);
 			}
 		});
+	}
+
+	public void watchKey(int key) {
+		if (!watchedKeys.containsKey(key)) {
+			watchedKeys.put(key, new KeyState(key));
+		}
+	}
+	public void unwatchKey(int key) {
+		watchedKeys.remove(key);
 	}
 
 	public int getKeyState(int code) {
@@ -50,6 +96,30 @@ public class Input {
 	}
 	public boolean getMousePressed(int code) {
 		return getMouseState(code) == GLFW_PRESS;
+	}
+
+	public KeyState getWatchedKeyState(int code) {
+		KeyState state = watchedKeys.getOrDefault(code, null);
+		if (state != null)
+			state = new KeyState(state);
+
+		return state;
+	}
+	public boolean getWatchedKeyJustPressed(int code, double timeThreshold) {
+		KeyState state = watchedKeys.getOrDefault(code, null);
+		if (state == null)
+			return false;
+
+		double timeDiff = System.nanoTime() * Engine.NANO_TIME_MULT - state.actionTime;
+		return state.action == GLFW_PRESS && (timeDiff <= timeThreshold);
+	}
+	public boolean getWatchedKeyJustReleased(int code, double timeThreshold) {
+		KeyState state = watchedKeys.getOrDefault(code, null);
+		if (state == null)
+			return false;
+
+		double timeDiff = System.nanoTime() * Engine.NANO_TIME_MULT - state.actionTime;
+		return state.action == GLFW_RELEASE && (timeDiff <= timeThreshold);
 	}
 
 	public Vector2D getCursorPos() {

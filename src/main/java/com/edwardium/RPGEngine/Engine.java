@@ -1,21 +1,21 @@
 package com.edwardium.RPGEngine;
 
 import com.edwardium.RPGEngine.GameObject.*;
+import com.edwardium.RPGEngine.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.IO.Config;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.Renderer.*;
 import com.edwardium.RPGEngine.Renderer.OpenGL.OpenGLRenderer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Engine implements Runnable {
 	private enum GameStage { MAIN_MENU, PAUSED_MENU, GAME };
 
-	private final float UPDATE_CAP = 1.0f / 60.0f;
-	private final float PRECISION_MULTIPLIER = 10e-9f;
+	private static final float UPDATE_CAP = 1.0f / 60.0f;
+	public static final float NANO_TIME_MULT = 10e-9f;
 
 	// Game objects
 	private Thread gameThread;
@@ -58,7 +58,7 @@ public class Engine implements Runnable {
 		cameraPos = new Vector2D();
 
 		gameObjects = new ArrayList<>();
-		player = new GameCharacter(new Vector2D(5, 7), "player");
+		player = new GameCharacter(new Vector2D(5, 7), "player", 10);
 		gameObjects.add(player);
 
 		gameObjects.add(new GameCharacter());
@@ -69,7 +69,7 @@ public class Engine implements Runnable {
 		// time that is now
 		double nowTime;
 		// last time the loop was run
-		double lastTime = System.nanoTime() * PRECISION_MULTIPLIER;
+		double lastTime = System.nanoTime() * NANO_TIME_MULT;
 		// how much time has elapsed since last time
 		// divide by UPDATE_CAP to see how many updates we have missed
 		double unprocessedTime = 0;
@@ -80,9 +80,13 @@ public class Engine implements Runnable {
 				gameRenderer = new OpenGLRenderer(gameConfig.getString("window-title", "RPGEngine"),
 						gameConfig.getInt("window-width", 800),
 						gameConfig.getInt("window-height", 600));
-				gameInput = new Input(gameRenderer.getWindowHandle());
 				break;
 		}
+
+		gameInput = new Input(gameRenderer.getWindowHandle());
+		gameInput.watchKey(GLFW_KEY_UP);
+		gameInput.watchKey(GLFW_KEY_DOWN);
+
 		gameRenderer.show();
 
 		running = true;
@@ -92,7 +96,7 @@ public class Engine implements Runnable {
 				break;
 			}
 
-			nowTime = System.nanoTime() * PRECISION_MULTIPLIER;
+			nowTime = System.nanoTime() * NANO_TIME_MULT;
 			unprocessedTime += nowTime - lastTime;
 			lastTime = nowTime;
 
@@ -151,6 +155,17 @@ public class Engine implements Runnable {
 			// calculate cursor position relative to the center of the screen and camera position
 			Vector2D cursorPos = gameInput.getCursorPos().subtract(gameRenderer.getWindowSize().divide(2)).add(cameraPos);
 			player.rotateToPoint(cursorPos);
+
+			// inventory
+			int inventoryShift = 0;
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_UP, UPDATE_CAP)) {
+				inventoryShift -= 1;
+			}
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_DOWN, UPDATE_CAP * 2)) {
+				inventoryShift += 1;
+			}
+			if (inventoryShift != 0)
+				player.inventory.shiftActiveIndex(inventoryShift);
 		}
 	}
 
@@ -165,6 +180,10 @@ public class Engine implements Runnable {
 
 		for (GameObject gameObject : gameObjects) {
 			gameObject.render(gameRenderer);
+		}
+
+		if (gameStage == GameStage.GAME) {
+			GameInventory.renderInventory(player.inventory, gameRenderer, gameRenderer.getWindowSize().divide(2).inverse(), new Vector2D(1, 1));
 		}
 
 		gameRenderer.afterLoop();
