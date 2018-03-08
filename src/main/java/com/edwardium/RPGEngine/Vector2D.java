@@ -43,6 +43,9 @@ public class Vector2D {
 		return new Vector2D(a).divide(d);
 	}
 
+	public static Vector2D scale(Vector2D a, float x, float y) { return new Vector2D(a).scale(x, y); }
+	public static Vector2D scale(Vector2D a, Vector2D scaleVector) { return new Vector2D(a).scale(scaleVector); }
+
 	public static float distance(Vector2D a, Vector2D b) { return a.distance(b); }
 
 	public static float dot(Vector2D a, Vector2D b) {
@@ -181,6 +184,16 @@ public class Vector2D {
 
 	public Vector2D divide(float d) {
 		return this.multiply(1 / d);
+	}
+
+	public Vector2D scale(float x, float y) {
+		this.posX *= x;
+		this.posY *= y;
+
+		return this;
+	}
+	public Vector2D scale(Vector2D scaleVector) {
+		return scale(scaleVector.getX(), scaleVector.getY());
 	}
 
 	public float distance(Vector2D other) {
