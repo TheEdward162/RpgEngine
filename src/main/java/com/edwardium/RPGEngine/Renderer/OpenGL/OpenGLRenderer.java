@@ -205,7 +205,7 @@ public class OpenGLRenderer extends Renderer {
 
 	private void setupFonts() {
 		String fontPath = "Assets/Fonts/NotoSans-Medium.ttf";
-		basicFont = new OpenGLFont(fontPath, 24);
+		basicFont = new OpenGLFont(fontPath, 20);
 
 		fontVAO = glGenVertexArrays();
 		glBindVertexArray(fontVAO);
