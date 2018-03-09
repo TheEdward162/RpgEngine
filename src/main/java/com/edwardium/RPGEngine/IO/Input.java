@@ -4,6 +4,7 @@ import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.Vector2D;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.GLFWScrollCallback;
 
 import java.nio.DoubleBuffer;
 import java.security.Key;
@@ -42,10 +43,28 @@ public class Input {
 		}
 	}
 
+	public class ScrollState {
+		public double offsetX = 0;
+		public double offsetY = 0;
+
+		public double actionTime = 0;
+
+		public ScrollState() {
+
+		}
+
+		public void set(double x, double y, double time) {
+			this.offsetX = x;
+			this.offsetY = y;
+			this.actionTime = time;
+		}
+	}
+
 	private final long window;
 
 	private Vector2D lastMousePos;
 	private HashMap<Integer, KeyState> watchedKeys;
+	private ScrollState scrollState = new ScrollState();
 
 	public Input(long window) {
 		this.window = window;
@@ -71,6 +90,13 @@ public class Input {
 			@Override
 			public void invoke(long window, double x, double y) {
 				lastMousePos.set((float)x, (float)y);
+			}
+		});
+
+		glfwSetScrollCallback(window, new GLFWScrollCallback() {
+			@Override
+			public void invoke(long window, double offsetX, double offsetY) {
+				scrollState.set(offsetX, offsetY, System.nanoTime() * Engine.NANO_TIME_MULT);
 			}
 		});
 	}
@@ -120,6 +146,15 @@ public class Input {
 
 		double timeDiff = System.nanoTime() * Engine.NANO_TIME_MULT - state.actionTime;
 		return state.action == GLFW_RELEASE && (timeDiff <= timeThreshold);
+	}
+
+	public boolean getScrollUpJustNow(double timeThreshold) {
+		double timeDiff = System.nanoTime() * Engine.NANO_TIME_MULT - scrollState.actionTime;
+		return scrollState.offsetY > 0 && (timeDiff <= timeThreshold);
+	}
+	public boolean getScrollDownJustNow(double timeThreshold) {
+		double timeDiff = System.nanoTime() * Engine.NANO_TIME_MULT - scrollState.actionTime;
+		return scrollState.offsetY < 0 && (timeDiff <= timeThreshold);
 	}
 
 	public Vector2D getCursorPos() {

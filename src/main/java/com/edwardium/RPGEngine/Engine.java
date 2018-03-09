@@ -38,6 +38,7 @@ public class Engine implements Runnable {
 	private GameStage gameStage = GameStage.GAME;
 
 	private float velocityDiminishFactor = 0.95f;
+	private float timeFactor = 1f;
 
 	public Engine() {
 		if (gameEngine != null)
@@ -103,6 +104,8 @@ public class Engine implements Runnable {
 		gameInput = new Input(gameRenderer.getWindowHandle());
 		gameInput.watchKey(GLFW_KEY_UP);
 		gameInput.watchKey(GLFW_KEY_DOWN);
+		gameInput.watchKey(GLFW_KEY_KP_ADD);
+		gameInput.watchKey(GLFW_KEY_KP_SUBTRACT);
 
 		gameRenderer.show();
 
@@ -127,7 +130,7 @@ public class Engine implements Runnable {
 				if (gameRenderer.shouldClose())
 					break;
 
-				update(UPDATE_CAP);
+				update(UPDATE_CAP * timeFactor);
 				unprocessedTime -= UPDATE_CAP;
 
 				// Since we updated, we also want to render
@@ -152,6 +155,15 @@ public class Engine implements Runnable {
 
 	private void updateInput() {
 		if (gameStage == GameStage.GAME) {
+			float timeChange = 0;
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_ADD, UPDATE_CAP) || gameInput.getScrollUpJustNow(UPDATE_CAP)) {
+				timeChange += 0.1f;
+			}
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_SUBTRACT, UPDATE_CAP) || gameInput.getScrollDownJustNow(UPDATE_CAP)) {
+				timeChange -= 0.1f;
+			}
+			this.shiftTimeFactor(timeChange);
+
 			float walkX = 0;
 			float walkY = 0;
 			if (gameInput.getKeyPressed(GLFW_KEY_W)) {
@@ -178,7 +190,7 @@ public class Engine implements Runnable {
 			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_UP, UPDATE_CAP)) {
 				inventoryShift -= 1;
 			}
-			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_DOWN, UPDATE_CAP * 2)) {
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_DOWN, UPDATE_CAP)) {
 				inventoryShift += 1;
 			}
 			if (inventoryShift != 0)
@@ -230,6 +242,8 @@ public class Engine implements Runnable {
 			GameInventory.renderInventory(player.inventory, gameRenderer, gameRenderer.getWindowSize().divide(2).inverse(), new Vector2D(1, 1));
 		}
 
+		gameRenderer.drawString(gameRenderer.basicFont, "Time factor: " + String.format("%.2f", this.timeFactor), gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), null, new float[] { 1, 1, 1, 1 });
+
 		gameRenderer.afterLoop();
 	}
 
@@ -239,6 +253,16 @@ public class Engine implements Runnable {
 
 		gameObjects.add(newObject);
 		return true;
+	}
+	public void setTimeFactor(Float value) {
+		if (value == null) {
+			this.timeFactor = 1f;
+		} else {
+			this.timeFactor = Math.max(0, value);
+		}
+	}
+	public void shiftTimeFactor(float value) {
+		setTimeFactor(this.timeFactor + value);
 	}
 
 	// dispose of all created instances and stuff
