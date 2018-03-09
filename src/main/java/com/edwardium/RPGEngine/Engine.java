@@ -1,10 +1,11 @@
 package com.edwardium.RPGEngine;
 
-import com.edwardium.RPGEngine.GameObject.*;
-import com.edwardium.RPGEngine.GameObject.GameCharacter.GameCharacter;
-import com.edwardium.RPGEngine.GameObject.GameItem.GameItem;
-import com.edwardium.RPGEngine.GameObject.GameItem.GameItemPistol;
-import com.edwardium.RPGEngine.GameObject.GameItem.IGameUsableItem;
+import com.edwardium.RPGEngine.GameEntity.GameInventory;
+import com.edwardium.RPGEngine.GameEntity.GameObject.*;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemPistol;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.IO.Config;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.Renderer.*;
@@ -76,6 +77,8 @@ public class Engine implements Runnable {
 		gameObjects.add(player);
 
 		gameObjects.add(new GameCharacter());
+		gameObjects.add(new GameWall(new Vector2D(500, 0), new Rectangle(new Vector2D(-15, -50), new Vector2D(15, 50))));
+		gameObjects.add(new GameWall(new Vector2D(700, 0), new Rectangle(new Vector2D(-2, -30), new Vector2D(2, 30))));
 
 		// whether to render this tick or skip rendering because nothing has updated
 		boolean doRender = false;
@@ -192,11 +195,23 @@ public class Engine implements Runnable {
 	private void update(float elapsedTime) {
 		ArrayList<GameObject> toRemove = new ArrayList<>();
 
-		for (GameObject gameObject : gameObjects) {
-			gameObject.update(elapsedTime, velocityDiminishFactor);
+		for (int i = 0; i < gameObjects.size(); i++) {
+			GameObject currentObject = gameObjects.get(i);
 
-			if (gameObject.toDelete)
-				toRemove.add(gameObject);
+			// collisions
+			for (int j = i + 1; j < gameObjects.size(); j++) {
+				GameObject currentObjectCollision = gameObjects.get(j);
+				if (currentObject.checkCollision(currentObjectCollision)) {
+					currentObject.checkCollision(currentObjectCollision);
+					currentObject.collideWith(currentObjectCollision);
+					currentObjectCollision.collideWith(currentObject);
+				}
+			}
+
+			currentObject.update(elapsedTime, velocityDiminishFactor);
+
+			if (currentObject.toDelete)
+				toRemove.add(currentObject);
 		}
 
 		for (GameObject gameObject : toRemove) {
