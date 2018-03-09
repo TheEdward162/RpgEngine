@@ -1,48 +1,74 @@
-package com.edwardium.RPGEngine.GameObject;
+package com.edwardium.RPGEngine.GameEntity.GameObject;
 
+import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Vector2D;
 
 public abstract class GameObject {
 
 	public Vector2D position;
+	public String name;
 
-	protected float maxRotationSpeed = -0.1f;
-	protected float rotation = 0;
+	public float maxRotationSpeed = -0.1f;
+	public float rotation = 0;
 
-	protected float mass = 1;
-	protected Vector2D velocity;
+	public float mass = 1;
+	public Vector2D velocity;
+
+	public boolean doesCollide = true;
+	public GameHitbox hitbox = new GameHitbox(20f);
 
 	public boolean isDrawn = true;
+	public boolean toDelete = false;
 
 	protected GameObject() {
 		this(new Vector2D(0, 0));
 	}
 
 	protected GameObject(Vector2D position) {
+		this(position, "");
+	}
+
+	protected GameObject(Vector2D position, String name) {
 		this.position = position;
 		this.velocity = new Vector2D();
+		this.name = name;
 	}
 
 	public void update(float elapsedTime, float velocityDiminishFactor) {
 		this.position.add(Vector2D.multiply(this.velocity, elapsedTime));
-
-		this.velocity.multiply(velocityDiminishFactor * elapsedTime);
+		this.velocity.multiply((float)Math.pow(velocityDiminishFactor, elapsedTime));
 	}
-	public void render(Renderer gameRenderer) {}
+	public void render(Renderer gameRenderer) {
+		if (isDrawn) {
+			if (this.hitbox != null) {
+				GameHitbox.renderHitbox(gameRenderer, this.position, this.rotation, this.hitbox);
+			}
+		}
+	}
 
 	protected GameObject applyForce(Vector2D force) {
 		this.velocity.add(Vector2D.divide(force, this.mass));
 
 		return this;
 	}
-
 	public GameObject changeMass(float newMass) {
 		float m = newMass / mass;
 		this.mass = newMass;
 		this.velocity.divide(m);
 
 		return this;
+	}
+
+	public boolean checkCollision(GameObject other) {
+		if (doesCollide && this.hitbox != null && other.doesCollide && other.hitbox != null) {
+			return this.hitbox.checkCollision(this.position, this.velocity, this.rotation, other.hitbox, other.position, other.velocity, other.rotation);
+			//return this.hitbox.checkBroad(this.position, other.hitbox, other.position) && this.hitbox.checkNarrow(this.position, other.hitbox, other.position);
+		} else {
+			return false;
+		}
+	}
+	public void collideWith(GameObject other) {
 	}
 
 	public Vector2D getFacingDirection() {
@@ -72,18 +98,15 @@ public abstract class GameObject {
 
 		return this;
 	}
-
 	public GameObject rotateToPoint(Vector2D target) {
 		float rotationDelta = Vector2D.subtract(target, this.position).angleBetween(Vector2D.fromAM(this.rotation, 1));
 		return rotateBy(rotationDelta);
 	}
-
 	public GameObject rotateTo(float angle) {
 		Vector2D angledVector = Vector2D.fromAM(angle, 1);
 		float rotationDelta = angledVector.angleBetween(Vector2D.fromAM(this.rotation, 1));
 		return rotateBy(rotationDelta);
 	}
-
 	public GameObject rotateToward(boolean left) {
 		float rotationDelta = new Vector2D(1, 0).setAngle(this.rotation + (left ? 1 : -1)).angleBetween(new Vector2D(1, 0).setAngle(this.rotation));
 		if (maxRotationSpeed >= 0) {

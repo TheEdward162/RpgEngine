@@ -13,6 +13,14 @@ public class Vector2D {
 	public static Vector2D rotatedBy(Vector2D a, float angle) {
 		return new Vector2D(a).rotateBy(angle);
 	}
+	public static Vector2D[] rotatedBy(Vector2D[] array, float angle) {
+		Vector2D[] newArray = new Vector2D[array.length];
+		for (int i = 0; i < array.length; i++) {
+			newArray[i] = rotatedBy(array[i], angle);
+		}
+
+		return newArray;
+	}
 
 	// static methods for arithmetic
 	public static Vector2D inverse(Vector2D a) {
@@ -25,7 +33,7 @@ public class Vector2D {
 	public static Vector2D add(Vector2D a, Vector2D b) {
 		return new Vector2D(a).add(b);
 	}
-	public static Vector2D[] add(Vector2D shift, Vector2D[] array) {
+	public static Vector2D[] add(Vector2D[] array, Vector2D shift) {
 		Vector2D[] newArray = new Vector2D[array.length];
 		for (int i = 0; i < array.length; i++) {
 			newArray[i] = add(array[i], shift);

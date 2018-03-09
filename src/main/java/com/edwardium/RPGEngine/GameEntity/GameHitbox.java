@@ -38,18 +38,18 @@ public class GameHitbox {
 		});
 	}
 
-	public boolean checkCollision(Vector2D myPosition, Vector2D myVelocity, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity) {
+	public boolean checkCollision(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
 		//return checkBroadVelocity(myPosition, myVelocity, other, otherPosition, otherVelocity);
-		return checkBroad(myPosition, other, otherPosition) && checkNarrow(myPosition, other, otherPosition) && checkNarrow(myPosition, other, otherPosition);
+		return checkBroad(myPosition, other, otherPosition) && checkNarrow(myPosition, myRotation, other, otherPosition, otherRotation);
 	}
 
-	public boolean checkBroad(Vector2D myPosition, GameHitbox other, Vector2D otherPosition) {
+	private boolean checkBroad(Vector2D myPosition, GameHitbox other, Vector2D otherPosition) {
 		if (other == null)
 			return false;
 		return Vector2D.distance(myPosition, otherPosition) <= this.broadRadius + other.broadRadius;
 	}
 
-	public boolean checkBroadVelocity(Vector2D myPosition, Vector2D myVelocity, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity) {
+	public boolean checkBroadVelocity(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
 		// Math saves the day
 		// A(u) = myPosition + u * myVelocity
 		// B(u) = otherPosition + u * otherVelocity
@@ -77,7 +77,7 @@ public class GameHitbox {
 		float C = this.broadRadius + other.broadRadius;
 
 		if (B == 0)
-			return checkBroad(myPosition, other, otherPosition) && checkNarrow(myPosition, other, otherPosition);
+			return checkBroad(myPosition, other, otherPosition) && checkNarrow(myPosition, myRotation, other, otherPosition, otherRotation);
 
 		float uMin = -C / B - A / B;
 		float uMax = C / B - A / B;
@@ -90,7 +90,7 @@ public class GameHitbox {
 		return false;
 	}
 
-	public boolean checkNarrow(Vector2D myPosition, GameHitbox other, Vector2D otherPosition) {
+	private boolean checkNarrow(Vector2D myPosition, float myRotation, GameHitbox other, Vector2D otherPosition, float otherRotation) {
 		if (other == null)
 			return false;
 
@@ -100,22 +100,22 @@ public class GameHitbox {
 			if (other.radius != null) {
 				return Vector2D.add(myPosition, points[0]).distance(Vector2D.add(otherPosition, other.points[0])) <= this.radius + other.radius;
 			} else {
-				return checkSATCircle(this.radius, Vector2D.add(myPosition, points[0]), other.points, otherPosition);
+				return checkSATCircle(this.radius, Vector2D.add(myPosition, points[0]), other.points, otherPosition, otherRotation);
 			}
 		} else {
 			if (other.radius != null) {
-				return checkSATCircle(other.radius, Vector2D.add(otherPosition, other.points[0]), this.points, myPosition);
+				return checkSATCircle(other.radius, Vector2D.add(otherPosition, other.points[0]), this.points, myPosition, myRotation);
 			} else {
-				return checkConvexConvex(this.points, myPosition, other.points, otherPosition);
+				return checkConvexConvex(this.points, myPosition, myRotation, other.points, otherPosition, otherRotation);
 			}
 		}
 	}
 
-	private static boolean checkSATCircle(float circleRadius, Vector2D circleCenter, Vector2D[] convexShape, Vector2D convexShift) {
+	private static boolean checkSATCircle(float circleRadius, Vector2D circleCenter, Vector2D[] convexShape, Vector2D convexShift, float convexRotation) {
 		if (convexShape.length < 2)
 			return false;
 
-		Vector2D[] convexShifted = Vector2D.add(convexShift, convexShape);
+		Vector2D[] convexShifted = Vector2D.add(Vector2D.rotatedBy(convexShape, convexRotation), convexShift);
 		Vector2D closesPoint = null;
 		for (Vector2D v : convexShifted) {
 			if (closesPoint == null || circleCenter.distance(v) < circleCenter.distance(closesPoint)) {
@@ -157,13 +157,13 @@ public class GameHitbox {
 		return true;
 	}
 
-	private static boolean checkConvexConvex(Vector2D[] a, Vector2D aShift, Vector2D[] b, Vector2D bShift) {
+	private static boolean checkConvexConvex(Vector2D[] a, Vector2D aShift, float aRotation, Vector2D[] b, Vector2D bShift, float bRotation) {
 		if (a.length < 2 || b.length < 2)
 			return false;
 
 		// first shift all vectors
-		Vector2D[] aShifted = Vector2D.add(aShift, a);
-		Vector2D[] bShifted = Vector2D.add(bShift, b);
+		Vector2D[] aShifted = Vector2D.add(Vector2D.rotatedBy(a, aRotation), aShift);
+		Vector2D[] bShifted = Vector2D.add(Vector2D.rotatedBy(b, bRotation), bShift);
 
 		return checkSAT(aShifted, bShifted) || checkSAT(bShifted, aShifted);
 	}
@@ -229,7 +229,7 @@ public class GameHitbox {
 		return (projA[1] < projB[0] || projB[1] < projA[0]);
 	}
 
-	public static void renderHitbox(Renderer renderer, Vector2D position, GameHitbox hitbox) {
+	public static void renderHitbox(Renderer renderer, Vector2D position, float rotation, GameHitbox hitbox) {
 		if (hitbox.radius != null) {
 			renderer.drawCircle(hitbox.radius - 2f, hitbox.radius, 4f, position, new float[]{1, 0, 0, 1}, new TextureInfo("default"));
 		} else {
@@ -239,8 +239,8 @@ public class GameHitbox {
 					if (previousIndex < 0)
 						previousIndex += hitbox.points.length;
 
-					Vector2D sideA = new Vector2D(hitbox.points[previousIndex]).add(position);
-					Vector2D sideB = new Vector2D(hitbox.points[i]).add(position);
+					Vector2D sideA = new Vector2D(hitbox.points[previousIndex]).rotateBy(rotation).add(position);
+					Vector2D sideB = new Vector2D(hitbox.points[i]).rotateBy(rotation).add(position);
 
 					renderer.drawLine(sideA, sideB, 2f, new float[] { 1f, 0f, 0f, 1f });
 				}
