@@ -1,7 +1,8 @@
-package com.edwardium.RPGEngine.GameObject;
+package com.edwardium.RPGEngine.GameEntity;
 
-import com.edwardium.RPGEngine.GameObject.GameItem.GameItem;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.Renderer.Renderer;
+import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public class GameInventory {
@@ -52,7 +53,11 @@ public class GameInventory {
 	public boolean insertItem(GameItem item) {
 		int firstEmpty = findFirstEmpty();
 		if (firstEmpty >= 0) {
+
 			items[firstEmpty] = item;
+			item.isDrawn = false;
+			item.doesCollide = false;
+
 			return true;
 		} else {
 			return false;
@@ -63,6 +68,8 @@ public class GameInventory {
 		GameItem lastItem = removeActiveItem();
 
 		items[activeIndex] = item;
+		item.isDrawn = false;
+		item.doesCollide = false;
 
 		return lastItem;
 	}
@@ -70,6 +77,8 @@ public class GameInventory {
 		GameItem item = getActiveItem();
 
 		items[activeIndex] = null;
+		item.isDrawn = true;
+		item.doesCollide = true;
 
 		return item;
 	}
@@ -86,15 +95,18 @@ public class GameInventory {
 			Vector2D centerPosition = new Vector2D(basePosition).add(new Vector2D(0, i * (r_inventoryItemSize.getY() + r_inventoryItemSpace))).add(Vector2D.divide(r_inventoryItemSize, 2));
 
 			// shadow
-			renderer.drawRectangle(centerPosition.scale(scale), Vector2D.scale(r_inventoryItemSize, scale), 0, r_inventoryShadowColor, null);
+			renderer.drawRectangle(centerPosition.scale(scale), Vector2D.scale(r_inventoryItemSize, scale), 0, r_inventoryShadowColor, new TextureInfo("default"));
 
 			// number
-			float[] numberColor = r_inventoryNumberColor;
+			float[] textColor = r_inventoryNumberColor;
 			if (inventory.activeIndex == i)
-				numberColor = r_inventoryNumberActiveColor;
-			renderer.drawString(renderer.basicFont, String.valueOf(i + 1) + ".", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), numberColor);
+				textColor = r_inventoryNumberActiveColor;
+			renderer.drawString(renderer.basicFont, String.valueOf(i + 1) + ".", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
 
 			// TODO: Render item image and item name
+			if (inventory.items[i] != null) {
+				renderer.drawString(renderer.basicFont, inventory.items[i].name, Vector2D.add(centerPosition, new Vector2D(25 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
+			}
 		}
 	}
 }
