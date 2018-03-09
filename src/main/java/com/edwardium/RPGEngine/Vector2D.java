@@ -30,6 +30,14 @@ public class Vector2D {
 	public static Vector2D add(Vector2D a, Vector2D b) {
 		return new Vector2D(a).add(b);
 	}
+	public static Vector2D[] add(Vector2D shift, Vector2D[] array) {
+		Vector2D[] newArray = new Vector2D[array.length];
+		for (int i = 0; i < array.length; i++) {
+			newArray[i] = add(array[i], shift);
+		}
+
+		return newArray;
+	}
 
 	public static Vector2D subtract(Vector2D a, Vector2D b) {
 		return new Vector2D(a).subtract(b);
@@ -142,6 +150,10 @@ public class Vector2D {
 		return this;
 	}
 
+	public Vector2D getNormal() {
+		return new Vector2D(this.posY, -this.posX);
+	}
+
 	// Unary arithmetics
 	public Vector2D inverse() {
 		return this.multiply(-1);
@@ -165,6 +177,11 @@ public class Vector2D {
 		this.posY += other.posY;
 
 		return this;
+	}
+	public void addTo(Vector2D[] array) {
+		for (Vector2D v : array) {
+			v.add(this);
+		}
 	}
 
 	public Vector2D subtract(Vector2D other) {
