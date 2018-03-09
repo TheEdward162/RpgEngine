@@ -2,6 +2,9 @@ package com.edwardium.RPGEngine;
 
 import com.edwardium.RPGEngine.GameObject.*;
 import com.edwardium.RPGEngine.GameObject.GameCharacter.GameCharacter;
+import com.edwardium.RPGEngine.GameObject.GameItem.GameItem;
+import com.edwardium.RPGEngine.GameObject.GameItem.GameItemPistol;
+import com.edwardium.RPGEngine.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.IO.Config;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.Renderer.*;
@@ -17,6 +20,8 @@ public class Engine implements Runnable {
 	private static final float UPDATE_CAP = 1.0f / 60.0f;
 	public static final float NANO_TIME_MULT = 10e-9f;
 
+	public static Engine gameEngine;
+
 	// Game objects
 	private Thread gameThread;
 	private Renderer gameRenderer;
@@ -31,10 +36,12 @@ public class Engine implements Runnable {
 	private boolean running = false;
 	private GameStage gameStage = GameStage.GAME;
 
-	private float velocityDiminishFactor = 0.99f;
+	private float velocityDiminishFactor = 0.95f;
 
 	public Engine() {
-
+		if (gameEngine != null)
+			gameEngine.cleanup();
+		gameEngine = this;
 	}
 
 	public void start() {
@@ -58,7 +65,14 @@ public class Engine implements Runnable {
 		cameraPos = new Vector2D();
 
 		gameObjects = new ArrayList<>();
+
+		// init player
 		player = new GameCharacter(new Vector2D(5, 7), "player", 10);
+
+		GameItem pistol = new GameItemPistol(new Vector2D(player.position));
+		player.inventory.insertItem(pistol);
+		registerGameObject(pistol);
+
 		gameObjects.add(player);
 
 		gameObjects.add(new GameCharacter());
@@ -130,7 +144,7 @@ public class Engine implements Runnable {
 		}
 
 		// Game is over
-		dispose();
+		cleanup();
 	}
 
 	private void updateInput() {
@@ -166,12 +180,27 @@ public class Engine implements Runnable {
 			}
 			if (inventoryShift != 0)
 				player.inventory.shiftActiveIndex(inventoryShift);
+
+			if (gameInput.getMousePressed(GLFW_MOUSE_BUTTON_1)) {
+				if (player.inventory.getActiveItem() != null && player.inventory.getActiveItem().isUsable()) {
+					((IGameUsableItem)player.inventory.getActiveItem()).use(player, cursorPos, null);
+				}
+			}
 		}
 	}
 
 	private void update(float elapsedTime) {
+		ArrayList<GameObject> toRemove = new ArrayList<>();
+
 		for (GameObject gameObject : gameObjects) {
 			gameObject.update(elapsedTime, velocityDiminishFactor);
+
+			if (gameObject.toDelete)
+				toRemove.add(gameObject);
+		}
+
+		for (GameObject gameObject : toRemove) {
+			gameObjects.remove(gameObject);
 		}
 	}
 
@@ -189,8 +218,16 @@ public class Engine implements Runnable {
 		gameRenderer.afterLoop();
 	}
 
+	public boolean registerGameObject(GameObject newObject) {
+		if (gameObjects.contains(newObject))
+			return false;
+
+		gameObjects.add(newObject);
+		return true;
+	}
+
 	// dispose of all created instances and stuff
-	private void dispose() {
+	private void cleanup() {
 		gameRenderer.cleanup();
 
 		gameConfig.saveConfig(true);
