@@ -7,7 +7,7 @@ public class Vector2D {
 	private float posY;
 
 	public static Vector2D fromAM(float angle, float magnitude) {
-		return new Vector2D().setAngle(angle).setMagnitude(magnitude);
+		return new Vector2D(1, 0).setAngle(angle).setMagnitude(magnitude);
 	}
 
 	public static Vector2D rotatedBy(Vector2D a, float angle) {
@@ -55,6 +55,7 @@ public class Vector2D {
 	public static Vector2D scale(Vector2D a, Vector2D scaleVector) { return new Vector2D(a).scale(scaleVector); }
 
 	public static float distance(Vector2D a, Vector2D b) { return a.distance(b); }
+	public static Vector2D center(Vector2D a, Vector2D b) { return a.center(b); };
 
 	public static float dot(Vector2D a, Vector2D b) {
 		return a.dot(b);
@@ -64,7 +65,7 @@ public class Vector2D {
 
 	// Constructors
 	public Vector2D() {
-		this(1, 0);
+		this(0, 0);
 	}
 
 	public Vector2D(float x, float y) {
@@ -215,6 +216,9 @@ public class Vector2D {
 
 	public float distance(Vector2D other) {
 		return Vector2D.subtract(this, other).getMagnitude();
+	}
+	public Vector2D center(Vector2D other) {
+		return new Vector2D(this).add(other).divide(2);
 	}
 
 	public float dot(Vector2D other) {
