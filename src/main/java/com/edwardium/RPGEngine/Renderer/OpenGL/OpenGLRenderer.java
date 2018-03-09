@@ -388,6 +388,9 @@ public class OpenGLRenderer extends Renderer {
 	public void drawString(Font font, String text, Vector2D position, Vector2D scale, float[] color) {
 		beginDraw(fontVAO, fontVBO, fontIBO, color, null, new TextureInfo(font.getTextureName()), true);
 
+		if (scale == null)
+			scale = new Vector2D(1, 1);
+
 		// do transforms
 		glScalef(1f, scale.getY(), 1f);
 		glTranslatef(position.getX(), position.getY(), 0f);
