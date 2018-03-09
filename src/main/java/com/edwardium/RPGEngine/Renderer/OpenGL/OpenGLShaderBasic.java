@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.Renderer.OpenGL;
 
 import com.edwardium.RPGEngine.IO.IOUtil;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GL20;
@@ -12,6 +13,30 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.system.MemoryUtil.memUTF8;
 
 public class OpenGLShaderBasic {
+
+	public static class CircleInfoStruct {
+		public final Float minRadius;
+		public final Float maxRadius;
+		public final Float maxAngle;
+
+		public CircleInfoStruct(Float minRadius, Float maxRadius, Float maxAngle) {
+			this.minRadius = minRadius;
+			this.maxRadius = maxRadius;
+			this.maxAngle = maxAngle;
+		}
+	}
+
+	public static class TextureInfoStruct {
+		public final Integer textureUnit;
+		public final float[] textureSubs;
+		public final Boolean overrideColor;
+
+		public TextureInfoStruct(Integer textureUnit, float[] textureSubs, Boolean overrideColor) {
+			this.textureUnit = textureUnit;
+			this.textureSubs = textureSubs;
+			this.overrideColor = overrideColor;
+		}
+	}
 
 	public static final int attribute_position = 0;
 	public static final int attribute_vertexColor = 1;
@@ -131,30 +156,42 @@ public class OpenGLShaderBasic {
 		return program_id;
 	}
 
-	public void fillUniformData(float[] globalColor, Float circleRadius, Integer textureUnit, float[] textureSubs, Boolean overrideColor) {
+	public void fillUniformData(float[] globalColor, CircleInfoStruct circleInfo, TextureInfoStruct textureInfo) {
 		if (globalColor != null) {
 			int globalColorLoc = glGetUniformLocation(getProgramID(), "un_globalColor");
 			glUniform4fv(globalColorLoc, globalColor);
 		}
 
-		if (circleRadius != null) {
-			int circleRadiusLoc = glGetUniformLocation(getProgramID(), "un_circleRadius");
-			glUniform1f(circleRadiusLoc, circleRadius);
+		if (circleInfo != null) {
+			if (circleInfo.minRadius != null) {
+				int circleMinRadiusLoc = glGetUniformLocation(getProgramID(), "un_circleInfo.minRadius");
+				glUniform1f(circleMinRadiusLoc, circleInfo.minRadius);
+			}
+			if (circleInfo.maxRadius != null) {
+				int circleMaxRadiusLoc = glGetUniformLocation(getProgramID(), "un_circleInfo.maxRadius");
+				glUniform1f(circleMaxRadiusLoc, circleInfo.maxRadius);
+			}
+			if (circleInfo.maxAngle != null) {
+				int circleMaxAngleLoc = glGetUniformLocation(getProgramID(), "un_circleInfo.maxAngle");
+				glUniform1f(circleMaxAngleLoc, circleInfo.maxAngle);
+			}
 		}
 
-		if (textureUnit != null) {
-			int textureIDLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.tex");
-			glUniform1i(textureIDLoc, textureUnit);
-		}
+		if (textureInfo != null) {
+			if (textureInfo.textureUnit != null) {
+				int textureIDLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.tex");
+				glUniform1i(textureIDLoc, textureInfo.textureUnit);
+			}
 
-		if (textureSubs != null) {
-			int textureSubsLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.textureSubspace");
-			glUniform4fv(textureSubsLoc, textureSubs);
-		}
+			if (textureInfo.textureSubs != null) {
+				int textureSubsLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.textureSubspace");
+				glUniform4fv(textureSubsLoc, textureInfo.textureSubs);
+			}
 
-		if (overrideColor != null) {
-			int overrideColorLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.overrideColor");
-			glUniform1i(overrideColorLoc, overrideColor ? 1 : 0);
+			if (textureInfo.overrideColor != null) {
+				int overrideColorLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.overrideColor");
+				glUniform1i(overrideColorLoc, textureInfo.overrideColor ? 1 : 0);
+			}
 		}
 	}
 

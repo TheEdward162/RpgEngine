@@ -3,7 +3,13 @@ varying vec4 out_vertexColor;
 varying vec2 out_textureCoord;
 
 uniform vec4 un_globalColor;
-uniform float un_circleRadius;
+
+struct CircleInfo {
+    float minRadius;
+    float maxRadius;
+    float maxAngle;
+};
+uniform CircleInfo un_circleInfo;
 
 struct TextureInfo {
     sampler2D tex;
@@ -15,15 +21,17 @@ uniform TextureInfo un_textureInfo;
 
 
 void main() {
-    // color code
-    vec4 currentColor = out_vertexColor * un_globalColor;
-
     // circle code
-    float alpha = 1.0;
-    float distance = length(out_textureCoord - vec2(0.5, 0.5));
-    if (distance > un_circleRadius)
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
-    else {
+    bool draw = true;
+    vec2 circlePos = out_textureCoord - vec2(0.5, 0.5);
+    float th = circlePos.x != 0.0 ? atan(circlePos.y, circlePos.x) : 3.1415;
+    float distance = length(circlePos);
+    if (th > un_circleInfo.maxAngle || !(distance >= un_circleInfo.minRadius && distance <= un_circleInfo.maxRadius)) {
+        draw = false;
+    }
+    if (draw) {
+        vec4 currentColor = out_vertexColor * un_globalColor;
+
         // texture code
         vec2 textureCoord = vec2(un_textureInfo.textureSubspace.x + un_textureInfo.textureSubspace.z * out_textureCoord.s,
                                 un_textureInfo.textureSubspace.y + un_textureInfo.textureSubspace.w * out_textureCoord.t);
@@ -35,5 +43,7 @@ void main() {
         }
     
         gl_FragColor = finalColor;
+    } else {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
 }

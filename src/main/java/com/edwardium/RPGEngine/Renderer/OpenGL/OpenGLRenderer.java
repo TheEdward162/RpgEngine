@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.Renderer.OpenGL;
 
 import com.edwardium.RPGEngine.Engine;
+import com.edwardium.RPGEngine.Rectangle;
 import com.edwardium.RPGEngine.Renderer.Font;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
@@ -263,7 +264,7 @@ public class OpenGLRenderer extends Renderer {
 		glfwPollEvents();
 	}
 
-	private void beginDraw(int vao, int vbo, int ibo, float[] color, Float circleRadius, TextureInfo textureInfo, boolean overrideTextureColor) {
+	private void beginDraw(int vao, int vbo, int ibo, float[] color, OpenGLShaderBasic.CircleInfoStruct circleInfo, TextureInfo textureInfo, boolean overrideTextureColor) {
 		glBindVertexArray(vao);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -275,24 +276,28 @@ public class OpenGLRenderer extends Renderer {
 		// default values on null
 		if (color == null)
 			color = defaultColor;
-		if (circleRadius == null)
-			circleRadius = 1f;
+
+		if (circleInfo == null) {
+			circleInfo = new OpenGLShaderBasic.CircleInfoStruct(0f, 1f, 4f);
+		}
 
 		OpenGLTexture currentTexture;
 		if (textureInfo == null) {
-			textureInfo = new TextureInfo("default", null, null);
+			textureInfo = new TextureInfo("debug", null, null);
 		}
 		if (textureInfo.textureName != null && gameTextures.containsKey(textureInfo.textureName))
 			currentTexture = gameTextures.get(textureInfo.textureName);
 		else
 			currentTexture = gameTextures.get(defaultTexture);
 
+		OpenGLShaderBasic.TextureInfoStruct texInfoStruct = new OpenGLShaderBasic.TextureInfoStruct(currentTexture.getTextureUnit(), currentTexture.computeSubtexture(textureInfo.textureOffset, textureInfo.textureSize), overrideTextureColor);
+
 		// use shader program
 		glUseProgram(basicShader.getProgramID());
 
 		glActiveTexture(currentTexture.getTextureUnit());
 		glBindTexture(GL_TEXTURE_2D, currentTexture.getTextureID());
-		basicShader.fillUniformData(color, circleRadius, currentTexture.getTextureUnit(), currentTexture.computeSubtexture(textureInfo.textureOffset, textureInfo.textureSize), overrideTextureColor);
+		basicShader.fillUniformData(color, circleInfo, texInfoStruct);
 
 		// push model matrix
 		// a.k.a. only do transforms for this model
@@ -321,7 +326,7 @@ public class OpenGLRenderer extends Renderer {
 
 		Vector2D directionVector = Vector2D.subtract(to, from);
 
-		beginDraw(squareVAO, squareVBO, squareIBO, color, 1f, null, false);
+		beginDraw(squareVAO, squareVBO, squareIBO, color, null, new TextureInfo("default"), false);
 
 		// transforms
 		glTranslatef(from.getX() + directionVector.getX() / 2, from.getY() + directionVector.getY() / 2, 0); // translate
@@ -335,7 +340,7 @@ public class OpenGLRenderer extends Renderer {
 
 	@Override
 	public void drawRectangle(Vector2D center, Vector2D size, float rotationAngle, float[] color, TextureInfo textureInfo) {
-		beginDraw(squareVAO, squareVBO, squareIBO, color, 1f, textureInfo, false);
+		beginDraw(squareVAO, squareVBO, squareIBO, color, null, textureInfo, false);
 
 		// transforms
 		glTranslatef(center.getX(), center.getY(), 0); // translate
@@ -348,8 +353,13 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
+	public void drawRectangle(Rectangle rectangle, float rotationAngle, float[] color, TextureInfo textureInfo) {
+		drawRectangle(Vector2D.center(rectangle.topLeft, rectangle.bottomRight), Vector2D.subtract(rectangle.topLeft, rectangle.bottomRight).absolutize(), rotationAngle, color, textureInfo);
+	}
+
+	@Override
 	public void drawCircle(float radius, Vector2D center, float[] color, TextureInfo textureInfo) {
-		beginDraw(squareVAO, squareVBO, squareIBO, color, 0.5f, textureInfo, false);
+		beginDraw(squareVAO, squareVBO, squareIBO, color, new OpenGLShaderBasic.CircleInfoStruct(0f, 0.5f, 4f), textureInfo, false);
 
 		// transforms
 		glTranslatef(center.getX(), center.getY(), 0); // translate
@@ -361,8 +371,22 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
+	public void drawCircle(float minRadius, float maxRadius, float maxAngle, Vector2D center, float[] color, TextureInfo textureInfo) {
+		float unitMinRadius = minRadius / (2 * maxRadius);
+		beginDraw(squareVAO, squareVBO, squareIBO, color, new OpenGLShaderBasic.CircleInfoStruct(unitMinRadius, 0.5f, maxAngle), textureInfo, false);
+
+		// transforms
+		glTranslatef(center.getX(), center.getY(), 0); // translate
+		glScalef(maxRadius * 2, maxRadius * 2, 1); // scale
+
+		glDrawArrays(GL_QUADS, 0, 4);
+
+		endDraw();
+	}
+
+	@Override
 	public void drawString(Font font, String text, Vector2D position, Vector2D scale, float[] color) {
-		beginDraw(fontVAO, fontVBO, fontIBO, color, 1f, new TextureInfo(font.getTextureName()), true);
+		beginDraw(fontVAO, fontVBO, fontIBO, color, null, new TextureInfo(font.getTextureName()), true);
 
 		// do transforms
 		glScalef(1f, scale.getY(), 1f);
