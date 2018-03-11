@@ -5,6 +5,7 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.*;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GameItemGun;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunBouncyBall;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunDestroyer;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunPistol;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
@@ -24,6 +25,8 @@ public class Engine implements Runnable {
 	public static final float NANO_TIME_MULT = 10e-9f;
 
 	public static final float PIXEL_TO_METER = 1.0f / 50.0f;
+
+	public static boolean d_drawHitboxes = true;
 
 	public static Engine gameEngine;
 
@@ -78,11 +81,14 @@ public class Engine implements Runnable {
 
 		GameItem pistol = new GunPistol(new Vector2D(player.position));
 		GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));
+		GameItem bouncyBallGun = new GunBouncyBall(new Vector2D(player.position));
 		player.inventory.insertItem(pistol);
 		player.inventory.insertItem(destroyerGun);
+		player.inventory.insertItem(bouncyBallGun);
 
 		registerGameObject(pistol);
 		registerGameObject(destroyerGun);
+		registerGameObject(bouncyBallGun);
 
 		gameObjects.add(player);
 
@@ -115,6 +121,8 @@ public class Engine implements Runnable {
 		gameInput.watchKey(GLFW_KEY_DOWN);
 		gameInput.watchKey(GLFW_KEY_KP_ADD);
 		gameInput.watchKey(GLFW_KEY_KP_SUBTRACT);
+
+		gameInput.watchKey(GLFW_KEY_H);
 
 		gameRenderer.show();
 
@@ -164,6 +172,12 @@ public class Engine implements Runnable {
 
 	private void updateInput() {
 		if (gameStage == GameStage.GAME) {
+			// DEBUG
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_H, UPDATE_CAP)) {
+				d_drawHitboxes = !d_drawHitboxes;
+			}
+			// end DEBUG
+
 			float timeChange = 0;
 			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_ADD, UPDATE_CAP) || gameInput.getScrollUpJustNow(UPDATE_CAP)) {
 				timeChange += 0.1f;
@@ -204,6 +218,15 @@ public class Engine implements Runnable {
 			}
 			if (inventoryShift != 0)
 				player.inventory.shiftActiveIndex(inventoryShift);
+
+			int inventoryIndex = -1;
+			for (int i = GLFW_KEY_1; i < GLFW_KEY_9; i++) {
+				if (gameInput.getKeyPressed(i)) {
+					inventoryIndex = i - GLFW_KEY_1;
+				}
+			}
+			if (inventoryIndex != -1)
+				player.inventory.setActiveIndex(inventoryIndex);
 
 			if (gameInput.getMousePressed(GLFW_MOUSE_BUTTON_1)) {
 				if (player.inventory.getActiveItem() != null && player.inventory.getActiveItem().isUsable()) {

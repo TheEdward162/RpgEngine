@@ -1,7 +1,9 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject;
 
+import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.Renderer.Renderer;
+import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public abstract class GameObject {
@@ -17,6 +19,7 @@ public abstract class GameObject {
 
 	public boolean doesCollide = true;
 	public GameHitbox hitbox = new GameHitbox(20f);
+	public float dragCoefficient = 0.1f;
 
 	public boolean isDrawn = true;
 	public boolean toDelete = false;
@@ -38,11 +41,9 @@ public abstract class GameObject {
 	public void update(float elapsedTime, float environmentDensity) {
 		this.applyForce(calculateResistanceForce(environmentDensity).multiply(elapsedTime));
 		this.position.add(Vector2D.multiply(this.velocity, elapsedTime));
-
-		//this.velocity.multiply((float)Math.pow(velocityDiminishFactor, elapsedTime));
 	}
 	public void render(Renderer gameRenderer) {
-		if (isDrawn) {
+		if (isDrawn && Engine.d_drawHitboxes) {
 			if (this.hitbox != null) {
 				GameHitbox.renderHitbox(gameRenderer, this.position, this.rotation, this.hitbox);
 			}
@@ -61,18 +62,20 @@ public abstract class GameObject {
 
 		return this;
 	}
-	private Vector2D calculateResistanceForce(float environmentDensity) {
+	protected Vector2D calculateResistanceForce(float environmentDensity) {
 		// we are going to use a modified drag equation
 		// Fd = 1/2 * p * v^2 * Cd * A
 		// p is density, v is speed, Cd is drag coefficient and A is cross section area
 
+		// note that this works as long as the object is not spinning
+		// which bullets tend to be
+		// so yeah, fml
+
 		if (this.velocity.getMagnitude() == 0)
 			return new Vector2D();
 
-		// TODO: Tweak drag coefficient
 		float crossSection = this.hitbox.calculateCrossSection(new Vector2D(this.velocity));
-		float dragForce = (float)(1.0 / 2.0 * environmentDensity * Math.pow(velocity.getMagnitude(), 2) * 0.1 * crossSection);
-		// I really can't physics
+		float dragForce = (float)(1.0 / 2.0 * environmentDensity * Math.pow(velocity.getMagnitude(), 2) * dragCoefficient * crossSection);
 		if (dragForce > velocity.getMagnitude())
 			dragForce = velocity.getMagnitude();
 
@@ -86,7 +89,9 @@ public abstract class GameObject {
 			return false;
 		}
 	}
+
 	public void collideWith(GameObject other) {
+
 	}
 
 	public Vector2D getFacingDirection() {
