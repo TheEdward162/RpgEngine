@@ -3,6 +3,7 @@ package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
+import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public abstract class GameProjectile extends GameItem {
@@ -19,6 +20,16 @@ public abstract class GameProjectile extends GameItem {
 
 		this.velocity = velocity;
 		this.mass = 0.008f;
+	}
+
+	@Override
+	public TextureInfo getInventoryTexture() {
+		return null;
+	}
+
+	@Override
+	public TextureInfo getHeldTexture() {
+		return null;
 	}
 
 	@Override

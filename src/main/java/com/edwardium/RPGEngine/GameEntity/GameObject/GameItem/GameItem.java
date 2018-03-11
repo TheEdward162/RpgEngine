@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem;
 
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
+import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public abstract class GameItem extends GameObject {
@@ -16,4 +17,7 @@ public abstract class GameItem extends GameObject {
 	}
 
 	public abstract boolean isUsable();
+
+	public abstract TextureInfo getInventoryTexture();
+	public abstract TextureInfo getHeldTexture();
 }

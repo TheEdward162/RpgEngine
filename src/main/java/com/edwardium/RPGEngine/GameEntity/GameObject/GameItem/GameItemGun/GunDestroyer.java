@@ -4,6 +4,7 @@ import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.DestroyerProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
+import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public class GunDestroyer extends GameItemGun {
@@ -14,6 +15,16 @@ public class GunDestroyer extends GameItemGun {
 
 		this.maxChargeup = 5f;
 		this.fireVelocity = 500f;
+	}
+
+	@Override
+	public TextureInfo getInventoryTexture() {
+		return null;
+	}
+
+	@Override
+	public TextureInfo getHeldTexture() {
+		return null;
 	}
 
 	@Override

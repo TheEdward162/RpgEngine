@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter;
 
 import com.edwardium.RPGEngine.GameEntity.GameInventory;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
@@ -59,6 +60,15 @@ public class GameCharacter extends GameObject {
 			gameRenderer.drawLine(this.position, Vector2D.add(this.position, this.getFacingDirection().setMagnitude(30)), 2f, new float[]{1f, 0f, 0f, 1f});
 
 			gameRenderer.drawString(gameRenderer.basicFont, this.name, new Vector2D(30, -30).add(this.position), new Vector2D(1, 1), new float[]{0f, 1f, 0f, 1f});
+
+			// draw held item
+			GameItem activeItem = this.inventory.getActiveItem();
+			if (activeItem != null) {
+				TextureInfo activeItemTexture = activeItem.getHeldTexture();
+				if (activeItemTexture != null) {
+					gameRenderer.drawRectangle(Vector2D.add(this.position, this.getFacingDirection().setMagnitude(30)), new Vector2D(32, 32), this.rotation, null, activeItemTexture);
+				}
+			}
 		}
 
 		super.render(gameRenderer);
