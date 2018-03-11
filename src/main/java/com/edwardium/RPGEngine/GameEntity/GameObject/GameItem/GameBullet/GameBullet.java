@@ -16,6 +16,7 @@ public abstract class GameBullet extends GameItem {
 		super(position, name);
 
 		this.velocity = velocity;
+		this.mass = 50;
 	}
 
 	@Override
@@ -30,8 +31,8 @@ public abstract class GameBullet extends GameItem {
 	}
 
 	@Override
-	public void update(float elapsedTime, float velocityDiminishFactor) {
-		super.update(elapsedTime, velocityDiminishFactor);
+	public void update(float elapsedTime, float environmentDensity) {
+		super.update(elapsedTime, environmentDensity);
 
 		if (this.velocity.getMagnitude() < minimumSpeed)
 			this.toDelete = true;

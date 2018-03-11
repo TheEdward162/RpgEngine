@@ -35,9 +35,11 @@ public abstract class GameObject {
 		this.name = name;
 	}
 
-	public void update(float elapsedTime, float velocityDiminishFactor) {
+	public void update(float elapsedTime, float environmentDensity) {
+		this.applyForce(calculateResistanceForce(environmentDensity).multiply(elapsedTime));
 		this.position.add(Vector2D.multiply(this.velocity, elapsedTime));
-		this.velocity.multiply((float)Math.pow(velocityDiminishFactor, elapsedTime));
+
+		//this.velocity.multiply((float)Math.pow(velocityDiminishFactor, elapsedTime));
 	}
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
@@ -59,11 +61,27 @@ public abstract class GameObject {
 
 		return this;
 	}
+	private Vector2D calculateResistanceForce(float environmentDensity) {
+		// we are going to use a modified drag equation
+		// Fd = 1/2 * p * v^2 * Cd * A
+		// p is density, v is speed, Cd is drag coefficient and A is cross section area
+
+		if (this.velocity.getMagnitude() == 0)
+			return new Vector2D();
+
+		// TODO: Tweak drag coefficient
+		float crossSection = this.hitbox.calculateCrossSection(new Vector2D(this.velocity));
+		float dragForce = (float)(1.0 / 2.0 * environmentDensity * Math.pow(velocity.getMagnitude(), 2) * 0.1 * crossSection);
+		// I really can't physics
+		if (dragForce > velocity.getMagnitude())
+			dragForce = velocity.getMagnitude();
+
+		return new Vector2D(velocity).inverse().setMagnitude(dragForce);
+	}
 
 	public boolean checkCollision(GameObject other) {
 		if (doesCollide && this.hitbox != null && other.doesCollide && other.hitbox != null) {
 			return this.hitbox.checkCollision(this.position, this.velocity, this.rotation, other.hitbox, other.position, other.velocity, other.rotation);
-			//return this.hitbox.checkBroad(this.position, other.hitbox, other.position) && this.hitbox.checkNarrow(this.position, other.hitbox, other.position);
 		} else {
 			return false;
 		}

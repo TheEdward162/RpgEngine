@@ -34,7 +34,7 @@ public class GameCharacter extends GameObject {
 	}
 
 	@Override
-	public void update(float elapsedTime, float velocityDiminishFactor) {
+	public void update(float elapsedTime, float environmentDensity) {
 		// if we aren't walking anywhere, we might want to. like, you know, stop
 		// if we can... TODO: AI
 		if (this.walkVector.getMagnitude() == 0) {
@@ -43,7 +43,7 @@ public class GameCharacter extends GameObject {
 		this.velocity.add(this.walkVector);
 		this.walkVector.set(0, 0);
 
-		super.update(elapsedTime, velocityDiminishFactor);
+		super.update(elapsedTime, environmentDensity);
 	}
 
 	@Override

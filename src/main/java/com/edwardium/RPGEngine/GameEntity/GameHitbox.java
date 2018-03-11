@@ -39,8 +39,17 @@ public class GameHitbox {
 	}
 
 	public boolean checkCollision(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
-		//return checkBroadVelocity(myPosition, myVelocity, other, otherPosition, otherVelocity);
 		return checkBroad(myPosition, other, otherPosition) && checkNarrow(myPosition, myRotation, other, otherPosition, otherRotation);
+	}
+	public float calculateCrossSection(Vector2D normal) {
+		float[] projection;
+		if (this.radius != null) {
+			projection = calculateMinMaxProjectionCircle(radius, points[0], normal.getNormal());
+		} else {
+			projection = calculateMinMaxProjectionConvex(points, normal.getNormal());
+		}
+
+		return projection[1] - projection[0];
 	}
 
 	private boolean checkBroad(Vector2D myPosition, GameHitbox other, Vector2D otherPosition) {
@@ -48,8 +57,7 @@ public class GameHitbox {
 			return false;
 		return Vector2D.distance(myPosition, otherPosition) <= this.broadRadius + other.broadRadius;
 	}
-
-	public boolean checkBroadVelocity(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
+	private boolean checkBroadVelocity(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
 		// Math saves the day
 		// A(u) = myPosition + u * myVelocity
 		// B(u) = otherPosition + u * otherVelocity
@@ -89,7 +97,6 @@ public class GameHitbox {
 
 		return false;
 	}
-
 	private boolean checkNarrow(Vector2D myPosition, float myRotation, GameHitbox other, Vector2D otherPosition, float otherRotation) {
 		if (other == null)
 			return false;
@@ -98,6 +105,7 @@ public class GameHitbox {
 		// more info: https://www.sevenson.com.au/actionscript/sat/
 		if (this.radius != null) {
 			if (other.radius != null) {
+				// distance from center to center less than or equal to sum of radii
 				return Vector2D.add(myPosition, points[0]).distance(Vector2D.add(otherPosition, other.points[0])) <= this.radius + other.radius;
 			} else {
 				return checkSATCircle(this.radius, Vector2D.add(myPosition, points[0]), other.points, otherPosition, otherRotation);
@@ -167,7 +175,6 @@ public class GameHitbox {
 
 		return checkSAT(aShifted, bShifted) || checkSAT(bShifted, aShifted);
 	}
-
 	private static boolean checkSAT(Vector2D[] shapeA, Vector2D[] shapeB) {
 		// check all projection on normal axes of sides of shapeA against projections of shapeB
 		for (int i = 0; i < shapeA.length; i++) {

@@ -21,8 +21,8 @@ public class GameWall extends GameObject {
 	}
 
 	@Override
-	public void update(float elapsedTime, float velocityDiminishFactor) {
-		super.update(elapsedTime, velocityDiminishFactor);
+	public void update(float elapsedTime, float environmentDensity) {
+		super.update(elapsedTime, environmentDensity);
 	}
 
 	@Override

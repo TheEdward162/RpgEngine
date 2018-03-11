@@ -37,7 +37,7 @@ public class Engine implements Runnable {
 	private boolean running = false;
 	private GameStage gameStage = GameStage.GAME;
 
-	private float velocityDiminishFactor = 0.95f;
+	private float enviromentDensity = 1f;
 	private float timeFactor = 1f;
 
 	public Engine() {
@@ -220,7 +220,7 @@ public class Engine implements Runnable {
 				}
 			}
 
-			currentObject.update(elapsedTime, velocityDiminishFactor);
+			currentObject.update(elapsedTime, enviromentDensity);
 
 			if (currentObject.toDelete)
 				toRemove.add(currentObject);

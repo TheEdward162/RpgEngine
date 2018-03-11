@@ -45,11 +45,11 @@ public class GameItemPistol extends GameItem implements IGameUsableItem {
 	}
 
 	@Override
-	public void update(float elapsedTime, float velocityDiminishFactor) {
+	public void update(float elapsedTime, float environmentDensity) {
 		if (cooldown > 0) {
 			cooldown = Math.max(0, cooldown - elapsedTime);
 		}
 
-		super.update(elapsedTime, velocityDiminishFactor);
+		super.update(elapsedTime, environmentDensity);
 	}
 }
