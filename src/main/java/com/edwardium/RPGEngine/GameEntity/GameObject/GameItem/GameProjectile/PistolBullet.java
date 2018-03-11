@@ -7,12 +7,12 @@ import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public class PistolBullet extends GameProjectile {
+
 	public PistolBullet(Vector2D position, Vector2D velocity) {
 		super(position, "Pistol Bullet", velocity);
 
-		this.minimumSpeed = 50f;
+		this.maximumDistance = 4500f; // around 100 meters irl
 		this.hitbox = new GameHitbox(new Rectangle(new Vector2D(-5f, -2.25f), new Vector2D(5f, 2.25f)));
-		this.maximumDistance = 4500; // around 100 meters irl
 	}
 
 	@Override

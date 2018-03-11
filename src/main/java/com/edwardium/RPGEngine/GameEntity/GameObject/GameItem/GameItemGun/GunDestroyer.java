@@ -8,7 +8,9 @@ import com.edwardium.RPGEngine.Vector2D;
 
 public class GunDestroyer extends GameItemGun {
 	public GunDestroyer(Vector2D position) {
-		super(position, "Bambino");
+		super(position, "Destroyer Gun");
+
+		this.maxCooldown = 3f;
 
 		this.maxChargeup = 5f;
 		this.fireVelocity = 500f;

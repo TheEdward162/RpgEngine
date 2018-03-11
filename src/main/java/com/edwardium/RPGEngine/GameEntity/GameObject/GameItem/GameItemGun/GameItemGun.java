@@ -22,7 +22,7 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 
 	protected UseInfo lastUse = null;
 
-	public float maxCooldown = 5f;
+	public float maxCooldown = 0f;
 	public float cooldown = 0;
 
 	public float maxChargeup = 0f;

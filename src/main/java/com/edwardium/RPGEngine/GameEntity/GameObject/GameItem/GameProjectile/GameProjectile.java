@@ -7,11 +7,12 @@ import com.edwardium.RPGEngine.Vector2D;
 
 public abstract class GameProjectile extends GameItem {
 
-	public float minimumSpeed = 35f;
-	public boolean canPenetrate = true;
+	protected float distanceTravelled = 0f;
+	protected float timeTravelled = 0f;
 
-	public float maximumDistance = -1f;
-	private float distanceTravelled = 0f;
+	protected float maximumDistance = -1f;
+	protected float maximumTime = -1f;
+	protected float minimumSpeed = -1f;
 
 	protected GameProjectile(Vector2D position, String name, Vector2D velocity) {
 		super(position, name);
@@ -23,22 +24,22 @@ public abstract class GameProjectile extends GameItem {
 	@Override
 	public void collideWith(GameObject other) {
 		if (other instanceof GameWall) {
-			if (canPenetrate && ((GameWall)other).penetrable) {
-				// TODO: Attempt to penetrate
-			} else {
-				this.toDelete = true;
-			}
+			this.toDelete = true;
 		}
 	}
 
 	@Override
 	public void update(float elapsedTime, float environmentDensity) {
-		super.update(elapsedTime, environmentDensity);
-
 		this.distanceTravelled += this.velocity.getMagnitude() * elapsedTime;
+		this.timeTravelled += elapsedTime;
 
-		// delete the bullet if it's speed is too low or if it has travelled it's maximum distance
-		if (velocity.getMagnitude() < minimumSpeed || (maximumDistance > 0 && distanceTravelled > maximumDistance))
+		if (	(maximumDistance > 0 && distanceTravelled >= maximumDistance)
+				|| (maximumTime > 0 && timeTravelled >= maximumTime)
+				|| (minimumSpeed > 0 && velocity.getMagnitude() <= minimumSpeed))
+		{
 			this.toDelete = true;
+		}
+
+		super.update(elapsedTime, environmentDensity);
 	}
 }

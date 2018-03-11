@@ -10,6 +10,7 @@ public class GunPistol extends GameItemGun {
 	public GunPistol(Vector2D position) {
 		super(position, "Pistol");
 
+		this.maxCooldown = 5f;
 		this.fireVelocity = 400f;
 	}
 
