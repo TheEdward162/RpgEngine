@@ -363,7 +363,7 @@ public class OpenGLRenderer extends Renderer {
 
 		// transforms
 		glTranslatef(center.getX(), center.getY(), 0); // translate
-		glScalef(radius, radius, 1); // scale
+		glScalef(radius * 2, radius * 2, 1); // scale
 
 		glDrawArrays(GL_QUADS, 0, 4);
 

@@ -48,9 +48,9 @@ public class GameCharacter extends GameObject {
 
 	@Override
 	public void render(Renderer gameRenderer) {
-		if (true || isDrawn) {
+		if (isDrawn) {
 			// shadow
-			gameRenderer.drawCircle(50f, this.position, new float[]{0f, 0f, 0f, 0.3f}, new TextureInfo("default"));
+			gameRenderer.drawCircle(25f, this.position, new float[]{0f, 0f, 0f, 0.3f}, new TextureInfo("default"));
 
 			// body
 			gameRenderer.drawRectangle(this.position, new Vector2D(15, 25), this.getFacingDirection().getAngle(), new float[]{1f, 1f, 0f, 1f}, new TextureInfo("default"));
@@ -62,5 +62,10 @@ public class GameCharacter extends GameObject {
 		}
 
 		super.render(gameRenderer);
+	}
+
+	@Override
+	public void collideWith(GameObject other) {
+
 	}
 }
