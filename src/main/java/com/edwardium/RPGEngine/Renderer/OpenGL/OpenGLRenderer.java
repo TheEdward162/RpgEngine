@@ -201,6 +201,8 @@ public class OpenGLRenderer extends Renderer {
 		gameTextures.put("default", new OpenGLTexture("Assets/Textures/default.png", GL_TEXTURE0));
 		gameTextures.put("debug", new OpenGLTexture("Assets/Textures/debug1.png", GL_TEXTURE0));
 
+		gameTextures.put("sheet1", new OpenGLTexture("Assets/Textures/sheet1.png", GL_TEXTURE0));
+
 		glEnable(GL_TEXTURE_2D);
 	}
 
