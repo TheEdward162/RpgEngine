@@ -1,22 +1,23 @@
-package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameBullet;
+package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
-import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
-public abstract class GameBullet extends GameItem {
+public abstract class GameProjectile extends GameItem {
 
 	public float minimumSpeed = 35f;
 	public boolean canPenetrate = true;
 
-	protected GameBullet(Vector2D position, String name, Vector2D velocity) {
+	public float maximumDistance = -1f;
+	private float distanceTravelled = 0f;
+
+	protected GameProjectile(Vector2D position, String name, Vector2D velocity) {
 		super(position, name);
 
 		this.velocity = velocity;
-		this.mass = 50;
+		this.mass = 0.008f;
 	}
 
 	@Override
@@ -34,7 +35,10 @@ public abstract class GameBullet extends GameItem {
 	public void update(float elapsedTime, float environmentDensity) {
 		super.update(elapsedTime, environmentDensity);
 
-		if (this.velocity.getMagnitude() < minimumSpeed)
+		this.distanceTravelled += this.velocity.getMagnitude() * elapsedTime;
+
+		// delete the bullet if it's speed is too low or if it has travelled it's maximum distance
+		if (velocity.getMagnitude() < minimumSpeed || (maximumDistance > 0 && distanceTravelled > maximumDistance))
 			this.toDelete = true;
 	}
 }

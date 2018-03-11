@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity;
 
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
@@ -23,12 +24,24 @@ public class GameInventory {
 	}
 
 	public void setActiveIndex(int index) {
+		if (!canSwitch())
+			return;
+
 		this.activeIndex = index % items.length;
 		while (this.activeIndex < 0)
 			this.activeIndex += items.length;
 	}
 	public void shiftActiveIndex(int shift) {
 		setActiveIndex(this.activeIndex + shift);
+	}
+
+	public boolean canSwitch() {
+		GameItem activeItem = getActiveItem();
+		if (activeItem != null && activeItem.isUsable() && !((IGameUsableItem)activeItem).canUse(null, null, null)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public int getFreeSpace() {
@@ -83,7 +96,7 @@ public class GameInventory {
 		return item;
 	}
 
-	private static final Vector2D r_inventoryItemSize = new Vector2D(70, 30);
+	private static final Vector2D r_inventoryItemSize = new Vector2D(100, 30);
 	private static final float r_inventoryItemSpace = 5;
 
 	private static final float[] r_inventoryShadowColor = new float[] { 0, 0, 0, 0.5f };

@@ -4,7 +4,9 @@ import com.edwardium.RPGEngine.GameEntity.GameInventory;
 import com.edwardium.RPGEngine.GameEntity.GameObject.*;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
-import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemPistol;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GameItemGun;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunDestroyer;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunPistol;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.IO.Config;
 import com.edwardium.RPGEngine.IO.Input;
@@ -20,6 +22,8 @@ public class Engine implements Runnable {
 
 	private static final float UPDATE_CAP = 1.0f / 60.0f;
 	public static final float NANO_TIME_MULT = 10e-9f;
+
+	public static final float PIXEL_TO_METER = 1.0f / 50.0f;
 
 	public static Engine gameEngine;
 
@@ -37,7 +41,8 @@ public class Engine implements Runnable {
 	private boolean running = false;
 	private GameStage gameStage = GameStage.GAME;
 
-	private float enviromentDensity = 1f;
+	// air density
+	private float enviromentDensity = 1.2f;
 	private float timeFactor = 1f;
 
 	public Engine() {
@@ -71,9 +76,13 @@ public class Engine implements Runnable {
 		// init player
 		player = new GameCharacter(new Vector2D(5, 7), "player", 10);
 
-		GameItem pistol = new GameItemPistol(new Vector2D(player.position));
+		GameItem pistol = new GunPistol(new Vector2D(player.position));
+		GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));
 		player.inventory.insertItem(pistol);
+		player.inventory.insertItem(destroyerGun);
+
 		registerGameObject(pistol);
+		registerGameObject(destroyerGun);
 
 		gameObjects.add(player);
 

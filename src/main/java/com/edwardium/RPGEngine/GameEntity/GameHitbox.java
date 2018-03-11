@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity;
 
+import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.Rectangle;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
@@ -49,7 +50,7 @@ public class GameHitbox {
 			projection = calculateMinMaxProjectionConvex(points, normal.getNormal());
 		}
 
-		return projection[1] - projection[0];
+		return (projection[1] - projection[0]) * Engine.PIXEL_TO_METER;
 	}
 
 	private boolean checkBroad(Vector2D myPosition, GameHitbox other, Vector2D otherPosition) {
