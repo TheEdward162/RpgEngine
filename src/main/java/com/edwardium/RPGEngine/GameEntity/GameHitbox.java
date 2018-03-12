@@ -174,7 +174,7 @@ public class GameHitbox {
 		Vector2D[] aShifted = Vector2D.add(Vector2D.rotatedBy(a, aRotation), aShift);
 		Vector2D[] bShifted = Vector2D.add(Vector2D.rotatedBy(b, bRotation), bShift);
 
-		return checkSAT(aShifted, bShifted) || checkSAT(bShifted, aShifted);
+		return checkSAT(aShifted, bShifted) && checkSAT(bShifted, aShifted);
 	}
 	private static boolean checkSAT(Vector2D[] shapeA, Vector2D[] shapeB) {
 		// check all projection on normal axes of sides of shapeA against projections of shapeB
