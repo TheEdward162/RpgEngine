@@ -16,8 +16,8 @@ public abstract class GameItem extends GameObject {
 		this.name = name;
 	}
 
-	public abstract boolean isUsable();
-
 	public abstract TextureInfo getInventoryTexture();
+
 	public abstract TextureInfo getHeldTexture();
+	public abstract Vector2D getHeldSize();
 }

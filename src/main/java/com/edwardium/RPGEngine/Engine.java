@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine;
 
+import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameInventory;
 import com.edwardium.RPGEngine.GameEntity.GameObject.*;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
@@ -93,8 +94,13 @@ public class Engine implements Runnable {
 		gameObjects.add(player);
 
 		gameObjects.add(new GameCharacter());
+
 		gameObjects.add(new GameWall(new Vector2D(500, 0), new Rectangle(new Vector2D(-15, -50), new Vector2D(15, 50))));
+
 		gameObjects.add(new GameWall(new Vector2D(700, 0), new Rectangle(new Vector2D(-2, -30), new Vector2D(2, 30))));
+
+		gameObjects.add(new GameWall(new Vector2D(-50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(-3.14f / 4));
+		gameObjects.add(new GameWall(new Vector2D(50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(3.14f / 4));
 
 		// whether to render this tick or skip rendering because nothing has updated
 		boolean doRender = false;
@@ -229,7 +235,7 @@ public class Engine implements Runnable {
 				player.inventory.setActiveIndex(inventoryIndex);
 
 			if (gameInput.getMousePressed(GLFW_MOUSE_BUTTON_1)) {
-				if (player.inventory.getActiveItem() != null && player.inventory.getActiveItem().isUsable()) {
+				if (player.inventory.getActiveItem() != null && player.inventory.getActiveItem() instanceof IGameUsableItem) {
 					((IGameUsableItem)player.inventory.getActiveItem()).use(player, cursorPos, null);
 				}
 			}
@@ -242,17 +248,20 @@ public class Engine implements Runnable {
 		for (int i = 0; i < gameObjects.size(); i++) {
 			GameObject currentObject = gameObjects.get(i);
 
+			currentObject.update(elapsedTime, enviromentDensity);
+
 			// collisions
 			for (int j = i + 1; j < gameObjects.size(); j++) {
 				GameObject currentObjectCollision = gameObjects.get(j);
-				if (currentObject.checkCollision(currentObjectCollision)) {
-					currentObject.checkCollision(currentObjectCollision);
-					currentObject.collideWith(currentObjectCollision);
-					currentObjectCollision.collideWith(currentObject);
+
+				GameHitbox.CollisionInfo collisionInfo = currentObject.checkCollision(currentObjectCollision);
+				if (collisionInfo != null && collisionInfo.doesCollide) {
+					currentObject.collideWith(currentObjectCollision, collisionInfo.BSurfaceNormal);
+					currentObjectCollision.collideWith(currentObject, collisionInfo.ASurfaceNormal);
 				}
 			}
 
-			currentObject.update(elapsedTime, enviromentDensity);
+			currentObject.updateAfterCollisions(elapsedTime);
 
 			if (currentObject.toDelete)
 				toRemove.add(currentObject);

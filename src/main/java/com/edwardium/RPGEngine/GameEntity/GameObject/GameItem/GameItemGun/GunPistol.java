@@ -32,6 +32,11 @@ public class GunPistol extends GameItemGun {
 	}
 
 	@Override
+	public Vector2D getHeldSize() {
+		return new Vector2D(32, 32);
+	}
+
+	@Override
 	public boolean use(GameCharacter by, Vector2D to, GameObject at) {
 		if (canUse(by, to, at)) {
 			this.cooldown = maxCooldown;

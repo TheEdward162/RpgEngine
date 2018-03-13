@@ -33,7 +33,12 @@ public abstract class GameProjectile extends GameItem {
 	}
 
 	@Override
-	public void collideWith(GameObject other) {
+	public Vector2D getHeldSize() {
+		return null;
+	}
+
+	@Override
+	public void collideWith(GameObject other, Vector2D otherSideNormal) {
 		if (other instanceof GameWall) {
 			this.toDelete = true;
 		}

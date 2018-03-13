@@ -3,7 +3,6 @@ package com.edwardium.RPGEngine.GameEntity.GameObject;
 import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public abstract class GameObject {
@@ -40,8 +39,11 @@ public abstract class GameObject {
 
 	public void update(float elapsedTime, float environmentDensity) {
 		this.applyForce(calculateResistanceForce(environmentDensity).multiply(elapsedTime));
+	}
+	public void updateAfterCollisions(float elapsedTime) {
 		this.position.add(Vector2D.multiply(this.velocity, elapsedTime));
 	}
+
 	public void render(Renderer gameRenderer) {
 		if (isDrawn && Engine.d_drawHitboxes) {
 			if (this.hitbox != null) {
@@ -82,15 +84,15 @@ public abstract class GameObject {
 		return new Vector2D(velocity).inverse().setMagnitude(dragForce);
 	}
 
-	public boolean checkCollision(GameObject other) {
+	public GameHitbox.CollisionInfo checkCollision(GameObject other) {
 		if (doesCollide && this.hitbox != null && other.doesCollide && other.hitbox != null) {
 			return this.hitbox.checkCollision(this.position, this.velocity, this.rotation, other.hitbox, other.position, other.velocity, other.rotation);
 		} else {
-			return false;
+			return null;
 		}
 	}
 
-	public void collideWith(GameObject other) {
+	public void collideWith(GameObject other, Vector2D otherSideNormal) {
 
 	}
 

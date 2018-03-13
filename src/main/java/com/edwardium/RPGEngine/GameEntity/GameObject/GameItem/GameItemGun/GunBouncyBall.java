@@ -28,6 +28,11 @@ public class GunBouncyBall extends GameItemGun {
 	}
 
 	@Override
+	public Vector2D getHeldSize() {
+		return new Vector2D(1, 1);
+	}
+
+	@Override
 	public boolean canUse(GameCharacter by, Vector2D to, GameObject at) {
 		return this.currentProjectile == null;
 	}

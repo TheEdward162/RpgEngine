@@ -32,4 +32,9 @@ public class GameWall extends GameObject {
 		}
 		super.render(gameRenderer);
 	}
+
+	@Override
+	public void collideWith(GameObject other, Vector2D otherSideNormal) {
+
+	}
 }

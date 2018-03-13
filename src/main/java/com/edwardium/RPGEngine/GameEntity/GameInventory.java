@@ -17,7 +17,7 @@ public class GameInventory {
 	}
 
 	public GameItem getActiveItem() {
-		return items[activeIndex];
+		return items.length > 0 ? items[activeIndex] : null;
 	}
 	public boolean isActiveEmpty() {
 		return getActiveItem() == null;
@@ -37,7 +37,7 @@ public class GameInventory {
 
 	public boolean canSwitch() {
 		GameItem activeItem = getActiveItem();
-		if (activeItem != null && activeItem.isUsable() && !((IGameUsableItem)activeItem).canUse(null, null, null)) {
+		if (activeItem != null && activeItem instanceof IGameUsableItem && !((IGameUsableItem)activeItem).canUse(null, null, null)) {
 			return false;
 		}
 
@@ -96,7 +96,7 @@ public class GameInventory {
 		return item;
 	}
 
-	private static final Vector2D r_inventoryItemSize = new Vector2D(100, 30);
+	private static final Vector2D r_inventoryItemSize = new Vector2D(200, 30);
 	private static final float r_inventoryItemSpace = 5;
 
 	private static final float[] r_inventoryShadowColor = new float[] { 0, 0, 0, 0.5f };

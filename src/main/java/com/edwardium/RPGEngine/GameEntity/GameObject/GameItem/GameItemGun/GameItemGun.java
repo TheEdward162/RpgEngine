@@ -35,11 +35,6 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 	}
 
 	@Override
-	public boolean isUsable() {
-		return true;
-	}
-
-	@Override
 	public boolean canUse(GameCharacter by, Vector2D to, GameObject at) {
 		return this.cooldown == 0;
 	}

@@ -28,8 +28,4 @@ public class DestroyerProjectile extends GameProjectile {
 		super.render(gameRenderer);
 	}
 
-	@Override
-	public boolean isUsable() {
-		return false;
-	}
 }

@@ -28,9 +28,4 @@ public class PistolBullet extends GameProjectile {
 		}
 		super.render(gameRenderer);
 	}
-
-	@Override
-	public boolean isUsable() {
-		return false;
-	}
 }

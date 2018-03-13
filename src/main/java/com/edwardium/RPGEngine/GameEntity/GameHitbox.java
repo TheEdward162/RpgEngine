@@ -8,6 +8,35 @@ import com.edwardium.RPGEngine.Vector2D;
 
 public class GameHitbox {
 
+	private static class SATDistanceInfo {
+		public final Vector2D outsideNormal;
+		public final float distance;
+
+		public SATDistanceInfo(Vector2D outsideNormal, float distance) {
+			this.outsideNormal = outsideNormal;
+			this.distance = distance;
+		}
+	}
+
+	public static class CollisionInfo {
+		public final boolean doesCollide;
+		// this is the normal of the side of A into which B has collided
+		public final Vector2D ASurfaceNormal;
+		public final Vector2D BSurfaceNormal;
+
+		public CollisionInfo() {
+			this.doesCollide = false;
+			this.ASurfaceNormal = null;
+			this.BSurfaceNormal = null;
+		}
+
+		public CollisionInfo(boolean doesCollide, Vector2D ASurfaceNormal, Vector2D BSurfaceNormal) {
+			this.doesCollide = doesCollide;
+			this.ASurfaceNormal = ASurfaceNormal;
+			this.BSurfaceNormal = BSurfaceNormal;
+		}
+	}
+
 	private Vector2D[] points;
 
 	private Float radius = null;
@@ -33,14 +62,14 @@ public class GameHitbox {
 	public GameHitbox(Rectangle rectangle) {
 		this(new Vector2D[] {
 				rectangle.topLeft,
-				new Vector2D(rectangle.topLeft).scale(-1, 1),
+				new Vector2D(rectangle.bottomRight).scale(-1, 1),
 				rectangle.bottomRight,
-				new Vector2D(rectangle.bottomRight).scale(-1, 1)
+				new Vector2D(rectangle.topLeft).scale(-1, 1)
 		});
 	}
 
-	public boolean checkCollision(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
-		return checkBroad(myPosition, other, otherPosition) && checkNarrow(myPosition, myRotation, other, otherPosition, otherRotation);
+	public CollisionInfo checkCollision(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
+		return checkBroad(myPosition, other, otherPosition) ? checkNarrow(myPosition, myRotation, other, otherPosition, otherRotation) : new CollisionInfo();
 	}
 	public float calculateCrossSection(Vector2D normal) {
 		float[] projection;
@@ -58,7 +87,8 @@ public class GameHitbox {
 			return false;
 		return Vector2D.distance(myPosition, otherPosition) <= this.broadRadius + other.broadRadius;
 	}
-	private boolean checkBroadVelocity(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
+
+	/*private boolean checkBroadVelocity(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
 		// Math saves the day
 		// A(u) = myPosition + u * myVelocity
 		// B(u) = otherPosition + u * otherVelocity
@@ -97,36 +127,61 @@ public class GameHitbox {
 		}
 
 		return false;
-	}
-	private boolean checkNarrow(Vector2D myPosition, float myRotation, GameHitbox other, Vector2D otherPosition, float otherRotation) {
+	}*/
+
+	private CollisionInfo checkNarrow(Vector2D myPosition, float myRotation, GameHitbox other, Vector2D otherPosition, float otherRotation) {
 		if (other == null)
-			return false;
+			return new CollisionInfo();
 
 		// collision checks done using SAT algorithm
 		// more info: https://www.sevenson.com.au/actionscript/sat/
 		if (this.radius != null) {
 			if (other.radius != null) {
 				// distance from center to center less than or equal to sum of radii
-				return Vector2D.add(myPosition, points[0]).distance(Vector2D.add(otherPosition, other.points[0])) <= this.radius + other.radius;
+				float distance = Vector2D.add(myPosition, points[0]).distance(Vector2D.add(otherPosition, other.points[0]));
+				return new CollisionInfo(distance <= this.radius + other.radius, null, null);
 			} else {
-				return checkSATCircle(this.radius, Vector2D.add(myPosition, points[0]), other.points, otherPosition, otherRotation);
+				return checkConvexCircle(other.points, otherPosition, otherRotation, this.radius, Vector2D.add(myPosition, this.points[0]));
 			}
 		} else {
 			if (other.radius != null) {
-				return checkSATCircle(other.radius, Vector2D.add(otherPosition, other.points[0]), this.points, myPosition, myRotation);
+				CollisionInfo ci =  checkConvexCircle(this.points, myPosition, myRotation, other.radius, Vector2D.add(otherPosition, other.points[0]));
+				// we need to switch ci.ASurfaceNormal and ci.BSurfaceNormal
+				return new CollisionInfo(ci.doesCollide, ci.BSurfaceNormal, ci.ASurfaceNormal);
 			} else {
 				return checkConvexConvex(this.points, myPosition, myRotation, other.points, otherPosition, otherRotation);
 			}
 		}
 	}
 
-	private static boolean checkSATCircle(float circleRadius, Vector2D circleCenter, Vector2D[] convexShape, Vector2D convexShift, float convexRotation) {
-		if (convexShape.length < 2)
-			return false;
+	private static CollisionInfo checkConvexConvex(Vector2D[] a, Vector2D aShift, float aRotation, Vector2D[] b, Vector2D bShift, float bRotation) {
+		if (a.length < 2 || b.length < 2)
+			return new CollisionInfo();
 
-		Vector2D[] convexShifted = Vector2D.add(Vector2D.rotatedBy(convexShape, convexRotation), convexShift);
+		// first shift all vectors
+		Vector2D[] aShifted = Vector2D.add(Vector2D.rotatedBy(a, aRotation), aShift);
+		Vector2D[] bShifted = Vector2D.add(Vector2D.rotatedBy(b, bRotation), bShift);
+
+		// normal of the side of A that B is colliding into
+		SATDistanceInfo minimumAtoB = checkSAT(aShifted, bShifted, 0);
+		// the other way around
+		SATDistanceInfo minimumBtoA = checkSAT(bShifted, aShifted, 0);
+
+		boolean doesCollide = minimumAtoB != null && minimumBtoA != null;
+		return new CollisionInfo(doesCollide, minimumBtoA != null ? minimumBtoA.outsideNormal : null, minimumAtoB != null ? minimumAtoB.outsideNormal : null);
+	}
+	private static CollisionInfo checkConvexCircle(Vector2D[] a, Vector2D aShift, float aRotation, float circleRadius, Vector2D circleCenter) {
+		if (a.length < 2)
+			return new CollisionInfo();
+
+		Vector2D[] aShifted = Vector2D.add(Vector2D.rotatedBy(a, aRotation), aShift);
+
+		// check circle against all polygon sides
+		SATDistanceInfo minimumBtoA = checkSAT(aShifted, new Vector2D[] { circleCenter }, circleRadius);
+
+		// now check polygon against circle
 		Vector2D closesPoint = null;
-		for (Vector2D v : convexShifted) {
+		for (Vector2D v : aShifted) {
 			if (closesPoint == null || circleCenter.distance(v) < circleCenter.distance(closesPoint)) {
 				closesPoint = v;
 			}
@@ -135,48 +190,16 @@ public class GameHitbox {
 		// circle center to closes point axis
 		Vector2D normalAxis = Vector2D.subtract(closesPoint, circleCenter);
 
-		float[] projectionMinMaxConvex = calculateMinMaxProjectionConvex(convexShifted, normalAxis);
-		float[] projectionMinMaxCircle = calculateMinMaxProjectionCircle(circleRadius, circleCenter, normalAxis);
+		float[] projectionA = calculateMinMaxProjectionConvex(aShifted, normalAxis);
+		float[] projectionCircle = calculateMinMaxProjectionCircle(circleRadius, circleCenter, normalAxis);
 
-		if (projectionsDontIntersect(projectionMinMaxConvex, projectionMinMaxCircle))
-			return false;
-
-		for (int i = 0; i < convexShifted.length; i++) {
-			// take a side
-			int previousIndex = i - 1;
-			if (previousIndex < 0)
-				previousIndex += convexShifted.length;
-			Vector2D sideA = convexShifted[previousIndex];
-			Vector2D sideB = convexShifted[i];
-
-			// normal axis for this side
-			normalAxis = Vector2D.subtract(sideA, sideB).getNormal();
-
-			projectionMinMaxCircle = calculateMinMaxProjectionCircle(circleRadius, circleCenter, normalAxis);
-
-			// projection of a onto the normal axis
-			projectionMinMaxConvex = calculateMinMaxProjectionConvex(convexShifted, normalAxis);
-			if (projectionMinMaxConvex == null)
-				return false;
-
-			if (projectionsDontIntersect(projectionMinMaxConvex, projectionMinMaxCircle))
-				return false;
-		}
-
-		return true;
+		boolean doesCollide = !projectionsDontIntersect(projectionA, projectionCircle) && minimumBtoA != null;
+		return new CollisionInfo(doesCollide, null, minimumBtoA != null ? minimumBtoA.outsideNormal : null);
 	}
+	private static SATDistanceInfo checkSAT(Vector2D[] shapeA, Vector2D[] shapeB, float shapeBRadiusIfCircle) {
+		Vector2D minimumNormal = null;
+		float minProjectionOverlap = Float.NEGATIVE_INFINITY;
 
-	private static boolean checkConvexConvex(Vector2D[] a, Vector2D aShift, float aRotation, Vector2D[] b, Vector2D bShift, float bRotation) {
-		if (a.length < 2 || b.length < 2)
-			return false;
-
-		// first shift all vectors
-		Vector2D[] aShifted = Vector2D.add(Vector2D.rotatedBy(a, aRotation), aShift);
-		Vector2D[] bShifted = Vector2D.add(Vector2D.rotatedBy(b, bRotation), bShift);
-
-		return checkSAT(aShifted, bShifted) && checkSAT(bShifted, aShifted);
-	}
-	private static boolean checkSAT(Vector2D[] shapeA, Vector2D[] shapeB) {
 		// check all projection on normal axes of sides of shapeA against projections of shapeB
 		for (int i = 0; i < shapeA.length; i++) {
 			// take a side
@@ -190,20 +213,25 @@ public class GameHitbox {
 			Vector2D normalAxis = Vector2D.subtract(sideA, sideB).getNormal();
 
 			// projection of a onto the normal axis
-			float[] projectionMinMaxA = calculateMinMaxProjectionConvex(shapeA, normalAxis);
-			if (projectionMinMaxA == null)
-				return false;
+			float[] projectionA = calculateMinMaxProjectionConvex(shapeA, normalAxis);
 
-			// projection of b onto the normal axis
-			float[] projectionMinMaxB = calculateMinMaxProjectionConvex(shapeB, normalAxis);
-			if (projectionMinMaxB == null)
-				return false;
+			float[] projectionB;
+			if (shapeBRadiusIfCircle > 0) {
+				projectionB = calculateMinMaxProjectionCircle(shapeBRadiusIfCircle, shapeB[0], normalAxis);
+			} else {
+				projectionB = calculateMinMaxProjectionConvex(shapeB, normalAxis);
+			}
 
-			if (projectionsDontIntersect(projectionMinMaxA, projectionMinMaxB))
-				return false;
+			float projectionOverlap = projectionOverlap(projectionA, projectionB);
+			if (projectionOverlap == 0) {
+				return null;
+			} else if (Math.abs(projectionOverlap) < Math.abs(minProjectionOverlap)) {
+				minProjectionOverlap = projectionOverlap;
+				minimumNormal = normalAxis.setMagnitude(projectionOverlap);
+			}
 		}
 
-		return true;
+		return new SATDistanceInfo(minimumNormal, minProjectionOverlap);
 	}
 
 	private static float[] calculateMinMaxProjectionConvex(Vector2D[] points, Vector2D axis) {
@@ -233,8 +261,28 @@ public class GameHitbox {
 				Math.max(projection + radius, projection - radius)
 		};
 	}
+
 	private static boolean projectionsDontIntersect(float[] projA, float[] projB) {
 		return (projA[1] < projB[0] || projB[1] < projA[0]);
+	}
+	private static float projectionOverlap(float[] projA, float[] projB) {
+		// --A---A---B---B-- returns zero
+		// --A---B-A-----B-- returns negative distance
+		// --B-----A-B---A-- returns positive distance
+		// --B---B---A---A-- returns zero
+
+		float distBminAmax = projB[0] - projA[1];
+		float distAminBmax = projA[0] - projB[1];
+
+		if (distBminAmax > 0 || distAminBmax > 0)
+			return 0;
+
+		// both distances are negative!
+		if (distBminAmax > distAminBmax)
+			return distBminAmax;
+		else
+			return -distAminBmax;
+
 	}
 
 	public static void renderHitbox(Renderer renderer, Vector2D position, float rotation, GameHitbox hitbox) {
