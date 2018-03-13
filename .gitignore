@@ -11,3 +11,6 @@ config.ini
 
 # ignore stuff that is not in a package
 src/main/java/*.java
+
+# ignore tiff textures
+Assets/Textures/*.tif

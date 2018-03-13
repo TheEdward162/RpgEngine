@@ -61,12 +61,19 @@ public class Vector2D {
 	public static Vector2D scale(Vector2D a, Vector2D scaleVector) { return new Vector2D(a).scale(scaleVector); }
 
 	public static float distance(Vector2D a, Vector2D b) { return a.distance(b); }
-	public static Vector2D center(Vector2D a, Vector2D b) { return a.center(b); };
+	public static Vector2D center(Vector2D a, Vector2D b) { return a.center(b); }
 
 	public static float dot(Vector2D a, Vector2D b) {
 		return a.dot(b);
 	}
 	public static float angleBetween(Vector2D a, Vector2D b) { return a.angleBetween(b); }
+
+	public static Vector2D projection(Vector2D a, Vector2D b) {
+		return a.projection(b);
+	}
+	public static Vector2D rejection(Vector2D a, Vector2D b) {
+		return a.rejection(b);
+	}
 
 	// Constructors
 	public Vector2D() {
@@ -235,6 +242,16 @@ public class Vector2D {
 		// this is also equal to the determinant of a 2 * 2 matrix with vectors a and b as columns
 
 		return (float)Math.atan2(-cross, dot);
+	}
+
+	public Vector2D projection(Vector2D axis) {
+		float projectionFactor = dot(axis) / axis.getMagnitude();
+
+		return new Vector2D(axis).setMagnitude(projectionFactor);
+	}
+	public Vector2D rejection(Vector2D axis) {
+		Vector2D projectionVector = projection(axis);
+		return projectionVector.inverse().add(this);
 	}
 
 	@Override
