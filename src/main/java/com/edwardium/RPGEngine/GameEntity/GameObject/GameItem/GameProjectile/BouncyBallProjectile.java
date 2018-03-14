@@ -1,8 +1,10 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
+import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
@@ -16,7 +18,9 @@ public class BouncyBallProjectile extends GameProjectile {
 		super(position, "Bouncy Ball of Death", velocity);
 
 		this.hitbox = new GameHitbox(15f);
-		this.maximumTime = 20f;
+		this.maximumTime = 2f;
+
+		this.damage = 2f;
 	}
 
 	@Override
@@ -26,17 +30,23 @@ public class BouncyBallProjectile extends GameProjectile {
 
 	@Override
 	public void collideWith(GameObject other, Vector2D otherSideNormal) {
-		if (other instanceof GameWall) {
+		if (other instanceof GameWall || other instanceof GameCharacter) {
+			if (other instanceof GameCharacter) {
+				((GameCharacter) other).damage(this.damage);
+			}
+
 			if (bounces == maximumBounces) {
 				this.toDelete = true;
 			} else {
 				bounces++;
 
-				Vector2D collideSide = otherSideNormal.getNormal();
-
-				Vector2D rejection = this.velocity.rejection(collideSide);
-				this.velocity.subtract(rejection.multiply(2));
-
+				if (otherSideNormal == null){
+					this.velocity.inverse();
+				} else {
+					Vector2D collideSide = otherSideNormal.getNormal();
+					Vector2D rejection = this.velocity.rejection(collideSide);
+					this.velocity.subtract(rejection.multiply(2));
+				}
 			}
 		}
 	}
@@ -44,7 +54,7 @@ public class BouncyBallProjectile extends GameProjectile {
 	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.drawCircle(15f, this.position, new float[] { 0f, 1f, 0.502f, 1f }, new TextureInfo("default"));
+			gameRenderer.drawCircle(15f, this.position, new TextureInfo("default", new Color(0f, 1f, 0.502f, 1f)));
 		}
 		super.render(gameRenderer);
 	}

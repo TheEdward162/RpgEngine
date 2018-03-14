@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
@@ -14,6 +15,8 @@ public abstract class GameProjectile extends GameItem {
 	protected float maximumDistance = -1f;
 	protected float maximumTime = -1f;
 	protected float minimumSpeed = -1f;
+
+	public float damage = 0f;
 
 	protected GameProjectile(Vector2D position, String name, Vector2D velocity) {
 		super(position, name);
@@ -39,7 +42,8 @@ public abstract class GameProjectile extends GameItem {
 
 	@Override
 	public void collideWith(GameObject other, Vector2D otherSideNormal) {
-		if (other instanceof GameWall) {
+		if (other instanceof GameCharacter) {
+			((GameCharacter) other).damage(this.damage);
 			this.toDelete = true;
 		}
 	}
