@@ -38,12 +38,12 @@ public abstract class Renderer {
 	public abstract void beforeLoop(Vector2D cameraPosition);
 	public abstract void afterLoop();
 
-	public abstract void drawLine(Vector2D from, Vector2D to, float width, float[] color);
-	public abstract void drawRectangle(Vector2D center, Vector2D size, float rotationAngle, float[] color, TextureInfo textureInfo);
-	public abstract void drawRectangle(Rectangle rectangle, float rotationAngle, float[] color, TextureInfo textureInfo);
-	public abstract void drawCircle(float radius, Vector2D center, float[] color, TextureInfo textureInfo);
-	public abstract void drawCircle(float minRadius, float maxRadius, float maxAngle, Vector2D center, float[] color, TextureInfo textureInfo);
-	public abstract void drawString(Font font, String text, Vector2D position, Vector2D scale, float[] color);
+	public abstract void drawLine(Vector2D from, Vector2D to, float width, Color color);
+	public abstract void drawRectangle(Vector2D center, Vector2D size, float rotationAngle, TextureInfo textureInfo);
+	public abstract void drawRectangle(Rectangle rectangle, float rotationAngle, TextureInfo textureInfo);
+	public abstract void drawCircle(float radius, Vector2D center, TextureInfo textureInfo);
+	public abstract void drawCircle(float minRadius, float maxRadius, float maxAngle, Vector2D center, TextureInfo textureInfo);
+	public abstract void drawString(Font font, String text, Vector2D position, Vector2D scale, Color color);
 
 	public abstract boolean shouldClose();
 

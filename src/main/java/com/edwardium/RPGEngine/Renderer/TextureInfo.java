@@ -9,16 +9,19 @@ public class TextureInfo {
 	public final Vector2D textureOffset;
 	public final Vector2D textureSize;
 
+	public final Color textureColor;
+
 	public TextureInfo(String textureName) {
-		this(textureName, null, null);
+		this(textureName, null);
 	}
 
-	public TextureInfo(String textureName, Vector2D textureOffset) {
-		this(textureName, textureOffset, null);
+	public TextureInfo(String textureName, Color color) {
+		this(textureName, color, null, null);
 	}
 
-	public TextureInfo(String textureName, Vector2D textureOffset, Vector2D textureSize) {
+	public TextureInfo(String textureName, Color textureColor, Vector2D textureOffset, Vector2D textureSize) {
 		this.textureName = textureName;
+		this.textureColor = textureColor != null ? textureColor : new Color();
 		this.textureOffset = textureOffset;
 		this.textureSize = textureSize;
 	}
