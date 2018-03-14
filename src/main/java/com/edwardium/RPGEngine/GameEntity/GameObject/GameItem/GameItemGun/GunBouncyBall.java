@@ -14,7 +14,7 @@ public class GunBouncyBall extends GameItemGun {
 	public GunBouncyBall(Vector2D position) {
 		super(position, "Bouncy Ball Gun");
 
-		this.fireVelocity = 40f;
+		this.fireVelocity = 400f;
 	}
 
 	@Override
@@ -43,8 +43,8 @@ public class GunBouncyBall extends GameItemGun {
 			this.cooldown = maxCooldown;
 			this.lastUse = new UseInfo(by,to, at);
 
-			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity);
-			BouncyBallProjectile projectile = new BouncyBallProjectile(Vector2D.add(by.position, by.getFacingDirection().setMagnitude(28f)), velocityVector);
+			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity).add(by.velocity);
+			BouncyBallProjectile projectile = new BouncyBallProjectile(Vector2D.add(by.position, by.getFacingDirection().setMagnitude(50f)), velocityVector);
 			projectile.rotation = velocityVector.getAngle();
 
 			this.currentProjectile = projectile;
@@ -54,6 +54,11 @@ public class GunBouncyBall extends GameItemGun {
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public boolean cancelUse() {
+		return false;
 	}
 
 	@Override

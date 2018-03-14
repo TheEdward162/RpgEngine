@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 
+import com.edwardium.RPGEngine.GameEntity.GameAI.GameAI;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
@@ -46,7 +47,12 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 	public void update(float elapsedTime, float environmentDensity) {
 		if (cooldown > 0) {
 			if (chargeup < maxChargeup) {
-				chargeup = Math.min(maxChargeup, chargeup + elapsedTime);
+				if (lastUse.by.ai.currentState == GameAI.CharacterState.CHARGING) {
+					chargeup = Math.min(maxChargeup, chargeup + elapsedTime);
+				} else {
+					// cancel charge
+					this.cancelUse();
+				}
 			} else {
 				cooldown = Math.max(0, cooldown - elapsedTime);
 				if (cooldown == 0)

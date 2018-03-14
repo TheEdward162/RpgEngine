@@ -5,6 +5,7 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Vector2D;
 
 public interface IGameUsableItem {
-	public boolean canUse(GameCharacter by, Vector2D to, GameObject at);
-	public boolean use(GameCharacter by, Vector2D to, GameObject at);
+	boolean canUse(GameCharacter by, Vector2D to, GameObject at);
+	boolean use(GameCharacter by, Vector2D to, GameObject at);
+	boolean cancelUse();
 }
