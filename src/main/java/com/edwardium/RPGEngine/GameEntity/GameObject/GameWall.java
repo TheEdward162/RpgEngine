@@ -2,6 +2,7 @@ package com.edwardium.RPGEngine.GameEntity.GameObject;
 
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.Rectangle;
+import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
@@ -28,7 +29,7 @@ public class GameWall extends GameObject {
 	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.drawRectangle(Rectangle.shiftBy(this.shape, this.position), this.rotation, new float[] { 0.3f, 0.3f, 0.3f, 1f }, new TextureInfo("default"));
+			gameRenderer.drawRectangle(Rectangle.shiftBy(this.shape, this.position), this.rotation, new TextureInfo("default", new Color(0.3f, 0.3f, 0.3f, 1f)));
 		}
 		super.render(gameRenderer);
 	}

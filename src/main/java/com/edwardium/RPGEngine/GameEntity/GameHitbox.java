@@ -2,6 +2,7 @@ package com.edwardium.RPGEngine.GameEntity;
 
 import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.Rectangle;
+import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
@@ -285,9 +286,10 @@ public class GameHitbox {
 
 	}
 
+	private static Color hitboxColor = new Color(1, 0, 0);
 	public static void renderHitbox(Renderer renderer, Vector2D position, float rotation, GameHitbox hitbox) {
 		if (hitbox.radius != null) {
-			renderer.drawCircle(hitbox.radius - 2f, hitbox.radius, 4f, position, new float[]{1, 0, 0, 1}, new TextureInfo("default"));
+			renderer.drawCircle(hitbox.radius - 2f, hitbox.radius, 4f, position, new TextureInfo("default", hitboxColor));
 		} else {
 			if (hitbox.points.length >= 2) {
 				for (int i = 0; i < hitbox.points.length; i++) {
@@ -298,7 +300,7 @@ public class GameHitbox {
 					Vector2D sideA = new Vector2D(hitbox.points[previousIndex]).rotateBy(rotation).add(position);
 					Vector2D sideB = new Vector2D(hitbox.points[i]).rotateBy(rotation).add(position);
 
-					renderer.drawLine(sideA, sideB, 2f, new float[] { 1f, 0f, 0f, 1f });
+					renderer.drawLine(sideA, sideB, 2f, hitboxColor);
 				}
 			}
 		}

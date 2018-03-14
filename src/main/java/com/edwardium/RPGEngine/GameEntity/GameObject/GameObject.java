@@ -123,10 +123,6 @@ public abstract class GameObject {
 
 		return this;
 	}
-	public GameObject rotateToPoint(Vector2D target) {
-		float rotationDelta = Vector2D.subtract(target, this.position).angleBetween(Vector2D.fromAM(this.rotation, 1));
-		return rotateBy(rotationDelta);
-	}
 	public GameObject rotateTo(float angle) {
 		Vector2D angledVector = Vector2D.fromAM(angle, 1);
 		float rotationDelta = angledVector.angleBetween(Vector2D.fromAM(this.rotation, 1));
@@ -139,5 +135,13 @@ public abstract class GameObject {
 		}
 
 		return rotateBy(rotationDelta);
+	}
+
+	public boolean rotateToPoint(Vector2D target) {
+		float rotationDelta = Vector2D.subtract(target, this.position).angleBetween(Vector2D.fromAM(this.rotation, 1));
+		rotateBy(rotationDelta);
+
+		rotationDelta = Vector2D.subtract(target, this.position).angleBetween(Vector2D.fromAM(this.rotation, 1));
+		return rotationDelta <= 0.5 / 180 * Math.PI;
 	}
 }
