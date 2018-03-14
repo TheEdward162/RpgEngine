@@ -13,11 +13,24 @@ public abstract class GameAI {
 		this.currentState = CharacterState.IDLE;
 	}
 
-	public abstract boolean canRotate();
+	public boolean canRotate() {
+		return currentState == CharacterState.IDLE;
+	}
 
-	public abstract boolean canWalk();
+	public boolean canWalk() {
+		return currentState == CharacterState.IDLE;
+	}
 
-	public abstract boolean canUseItem();
+	public boolean canWalkStop() {
+		return currentState == CharacterState.IDLE || currentState == CharacterState.CHARGING;
+	}
 
-	public abstract void onUpdate(float elapsedTime);
+	public boolean canUseItem() {
+		return currentState == CharacterState.IDLE;
+	}
+
+	public void onUpdate(float elapsedTime) {
+		if (currentState == CharacterState.CHARGING && character.velocity.getMagnitude() != 0)
+			this.currentState = CharacterState.IDLE;
+	}
 }

@@ -10,22 +10,7 @@ public class PlayerAI extends GameAI {
 	}
 
 	@Override
-	public boolean canRotate() {
-		return currentState == CharacterState.IDLE;
-	}
-
-	@Override
-	public boolean canWalk() {
-		return currentState == CharacterState.IDLE;
-	}
-
-	@Override
-	public boolean canUseItem() {
-		return currentState == CharacterState.IDLE;
-	}
-
-	@Override
 	public void onUpdate(float elapsedTime) {
-
+		super.onUpdate(elapsedTime);
 	}
 }
