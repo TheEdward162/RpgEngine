@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine;
 
+import com.edwardium.RPGEngine.GameEntity.GameAI.SimpleEnemyAI;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameInventory;
 import com.edwardium.RPGEngine.GameEntity.GameObject.*;
@@ -20,14 +21,14 @@ import java.util.ArrayList;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Engine implements Runnable {
-	private enum GameStage { MAIN_MENU, PAUSED_MENU, GAME };
+	private enum GameStage { MAIN_MENU, PAUSED_MENU, GAME }
 
 	private static final float UPDATE_CAP = 1.0f / 60.0f;
-	public static final float NANO_TIME_MULT = 10e-9f;
+	public static final double NANO_TIME_MULT = 1e-9;
 
 	public static final float PIXEL_TO_METER = 1.0f / 50.0f;
 
-	public static boolean d_drawHitboxes = true;
+	public static boolean d_drawHitboxes = false;
 
 	public static Engine gameEngine;
 
@@ -69,6 +70,8 @@ public class Engine implements Runnable {
 			return;
 		}
 
+		FPSCounter.init(50);
+
 		// load config
 		gameConfig = new Config("config.ini");
 
@@ -78,7 +81,8 @@ public class Engine implements Runnable {
 		gameObjects = new ArrayList<>();
 
 		// init player
-		player = new GameCharacter(new Vector2D(5, 7), "player", 10);
+		player = new GameCharacter(new Vector2D(550, 20), "player", 10);
+		player.factionFlag = GameCharacter.CharacterFaction.addFaction(player.factionFlag, GameCharacter.CharacterFaction.PLAYER);
 
 		GameItem pistol = new GunPistol(new Vector2D(player.position));
 		GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));
@@ -93,7 +97,15 @@ public class Engine implements Runnable {
 
 		gameObjects.add(player);
 
-		gameObjects.add(new GameCharacter());
+		GameCharacter secondCharacter = new GameCharacter(new Vector2D(-100, -100), "Enemy Trianglehead", 3);
+		secondCharacter.ai = new SimpleEnemyAI(secondCharacter);
+		secondCharacter.factionFlag = GameCharacter.CharacterFaction.addFaction(secondCharacter.factionFlag, GameCharacter.CharacterFaction.TRIANGLEHEADS);
+
+		GameItem secondPistol = new GunPistol(new Vector2D(secondCharacter.position));
+		//secondCharacter.inventory.insertItem(secondPistol);
+
+		registerGameObject(secondPistol);
+		gameObjects.add(secondCharacter);
 
 		gameObjects.add(new GameWall(new Vector2D(500, 0), new Rectangle(new Vector2D(-15, -50), new Vector2D(15, 50))));
 
@@ -140,11 +152,15 @@ public class Engine implements Runnable {
 			}
 
 			nowTime = System.nanoTime() * NANO_TIME_MULT;
-			unprocessedTime += nowTime - lastTime;
+
+			double timeSinceLastFrame = nowTime - lastTime;
+			unprocessedTime += timeSinceLastFrame;
+
 			lastTime = nowTime;
 
 			// only update input once, even if we do more game updates
 			if (unprocessedTime >= UPDATE_CAP) {
+				FPSCounter.update((float)unprocessedTime);
 				updateInput();
 			}
 
@@ -164,11 +180,17 @@ public class Engine implements Runnable {
 				render();
 			} else {
 				// sleep for a millisecond, catch interrupts and do literally nothing with them just 'cause
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException ignored) {
 
+				if (unprocessedTime - UPDATE_CAP > -0.002) {
+					Thread.yield();
+				} else {
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException ignored) {
+
+					}
 				}
+
 			}
 		}
 
@@ -235,9 +257,7 @@ public class Engine implements Runnable {
 				player.inventory.setActiveIndex(inventoryIndex);
 
 			if (gameInput.getMousePressed(GLFW_MOUSE_BUTTON_1)) {
-				if (player.inventory.getActiveItem() != null && player.inventory.getActiveItem() instanceof IGameUsableItem) {
-					((IGameUsableItem)player.inventory.getActiveItem()).use(player, cursorPos, null);
-				}
+				player.useActiveItem(cursorPos, null);
 			}
 		}
 	}
@@ -283,7 +303,8 @@ public class Engine implements Runnable {
 			GameInventory.renderInventory(player.inventory, gameRenderer, gameRenderer.getWindowSize().divide(2).inverse(), new Vector2D(1, 1));
 		}
 
-		gameRenderer.drawString(gameRenderer.basicFont, "Time factor: " + String.format("%.2f", this.timeFactor), gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), null, new float[] { 1, 1, 1, 1 });
+		gameRenderer.drawString(gameRenderer.basicFont, "FPS: " + String.format("%.2f", FPSCounter.getFPS()), gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -20)), null, new Color());
+		gameRenderer.drawString(gameRenderer.basicFont, "Time factor: " + String.format("%.2f", this.timeFactor), gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), null, new Color());
 
 		gameRenderer.afterLoop();
 	}
@@ -304,6 +325,23 @@ public class Engine implements Runnable {
 	}
 	public void shiftTimeFactor(float value) {
 		setTimeFactor(this.timeFactor + value);
+	}
+
+	public GameCharacter getClosestCharacter(GameCharacter me, GameCharacter.CharacterRelationship filter) {
+		GameCharacter closest = null;
+		for (GameObject object : gameObjects) {
+			if (object instanceof GameCharacter) {
+				if (object != me) {
+					if (closest == null || object.position.distance(me.position) < closest.position.distance(me.position)) {
+						if (filter == null || GameCharacter.CharacterFaction.getRelationship(((GameCharacter)object).factionFlag, me.factionFlag) == filter) {
+							closest = (GameCharacter) object;
+						}
+					}
+				}
+			}
+		}
+
+		return closest;
 	}
 
 	// dispose of all created instances and stuff
