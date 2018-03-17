@@ -43,7 +43,7 @@ public class GunBouncyBall extends GameItemGun {
 			this.cooldown = maxCooldown;
 			this.lastUse = new UseInfo(by,to, at);
 
-			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity).add(by.velocity);
+			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity).add(Vector2D.multiply(by.velocity, Engine.UPDATE_CAP));
 			BouncyBallProjectile projectile = new BouncyBallProjectile(Vector2D.add(by.position, by.getFacingDirection().setMagnitude(50f)), velocityVector);
 			projectile.rotation = velocityVector.getAngle();
 

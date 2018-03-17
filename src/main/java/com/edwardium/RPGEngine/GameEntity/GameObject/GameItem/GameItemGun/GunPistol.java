@@ -43,8 +43,8 @@ public class GunPistol extends GameItemGun {
 			this.cooldown = maxCooldown;
 			this.lastUse = new UseInfo(by, to, at);
 
-			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity).add(by.velocity);
-			PistolBullet bullet = new PistolBullet(Vector2D.add(by.position, by.getFacingDirection().setMagnitude(28f)), velocityVector);
+			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity).add(Vector2D.multiply(by.velocity, Engine.UPDATE_CAP));
+			PistolBullet bullet = new PistolBullet(by.getFacingDirection().setMagnitude(28f).add(by.position), velocityVector);
 			bullet.rotation = velocityVector.getAngle();
 			Engine.gameEngine.registerGameObject(bullet);
 

@@ -23,7 +23,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Engine implements Runnable {
 	private enum GameStage { MAIN_MENU, PAUSED_MENU, GAME }
 
-	private static final float UPDATE_CAP = 1.0f / 60.0f;
+	public static final float UPDATE_CAP = 1.0f / 60.0f;
 	public static final double NANO_TIME_MULT = 1e-9;
 
 	public static final float PIXEL_TO_METER = 1.0f / 50.0f;
