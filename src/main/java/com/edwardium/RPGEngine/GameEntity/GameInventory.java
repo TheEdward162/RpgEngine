@@ -2,10 +2,13 @@ package com.edwardium.RPGEngine.GameEntity;
 
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
+import com.edwardium.RPGEngine.Rectangle;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
+
+import java.lang.annotation.Retention;
 
 public class GameInventory {
 
@@ -106,7 +109,11 @@ public class GameInventory {
 
 	public static void renderInventory(GameInventory inventory, Renderer renderer, Vector2D basePosition, Vector2D scale) {
 		for (int i = 0; i < inventory.items.length; i++) {
-			Vector2D centerPosition = new Vector2D(basePosition).add(new Vector2D(0, i * (r_inventoryItemSize.getY() + r_inventoryItemSpace))).add(Vector2D.divide(r_inventoryItemSize, 2));
+			Rectangle itemRectangle = new Rectangle(
+					new Vector2D(basePosition).add(new Vector2D(0, i * (r_inventoryItemSize.getY() + r_inventoryItemSpace))),
+					new Vector2D(basePosition).add(new Vector2D(0, i * (r_inventoryItemSize.getY() + r_inventoryItemSpace))).add(r_inventoryItemSize)
+			);
+			Vector2D centerPosition = itemRectangle.center();
 
 			// shadow
 			renderer.drawRectangle(centerPosition.scale(scale), Vector2D.scale(r_inventoryItemSize, scale), 0, new TextureInfo("default", r_inventoryShadowColor));
@@ -115,11 +122,15 @@ public class GameInventory {
 			Color textColor = r_inventoryNumberColor;
 			if (inventory.activeIndex == i)
 				textColor = r_inventoryNumberActiveColor;
-			renderer.drawString(renderer.basicFont, String.valueOf(i + 1) + ".", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
+//			renderer.drawString(renderer.basicFont, String.valueOf(i + 1) + ".", Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
 
 			// TODO: Render item image and item name
 			if (inventory.items[i] != null) {
-				renderer.drawString(renderer.basicFont, inventory.items[i].name, Vector2D.add(centerPosition, new Vector2D(25 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
+				Rectangle imageRectangle = Rectangle.setWidth(itemRectangle, 32);
+				renderer.drawRectangle(imageRectangle, 0, inventory.items[i].getInventoryTexture());
+				renderer.drawString(renderer.basicFont, inventory.items[i].name, Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
+			} else {
+				renderer.drawString(renderer.basicFont, "Empty", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
 			}
 		}
 	}
