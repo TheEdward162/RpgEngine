@@ -3,18 +3,18 @@ package com.edwardium.RPGEngine;
 import com.edwardium.RPGEngine.GameEntity.GameAI.SimpleEnemyAI;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameInventory;
-import com.edwardium.RPGEngine.GameEntity.GameObject.*;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
-import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GameItemGun;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunBouncyBall;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunDestroyer;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunPistol;
-import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.IO.Config;
 import com.edwardium.RPGEngine.IO.Input;
-import com.edwardium.RPGEngine.Renderer.*;
+import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.OpenGL.OpenGLRenderer;
+import com.edwardium.RPGEngine.Renderer.Renderer;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,9 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Engine implements Runnable {
 	private enum GameStage { MAIN_MENU, PAUSED_MENU, GAME }
 
-	public static final float UPDATE_CAP = 1.0f / 60.0f;
+	// in seconds
+	public static final float UPDATE_CAP = 1.0f / 60.1f;
+	// nanoseconds * NANO_TIME_MULT = seconds
 	public static final double NANO_TIME_MULT = 1e-9;
 
 	public static final float PIXEL_TO_METER = 1.0f / 50.0f;
@@ -114,17 +116,6 @@ public class Engine implements Runnable {
 		gameObjects.add(new GameWall(new Vector2D(-50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(-3.14f / 4));
 		gameObjects.add(new GameWall(new Vector2D(50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(3.14f / 4));
 
-		// whether to render this tick or skip rendering because nothing has updated
-		boolean doRender = false;
-
-		// time that is now
-		double nowTime;
-		// last time the loop was run
-		double lastTime = System.nanoTime() * NANO_TIME_MULT;
-		// how much time has elapsed since last time
-		// divide by UPDATE_CAP to see how many updates we have missed
-		double unprocessedTime = 0;
-
 		// initialize game renderer based on config values
 		switch (gameConfig.getString("renderer", "opengl").toLowerCase()) {
 			default: // OpenGL
@@ -141,17 +132,38 @@ public class Engine implements Runnable {
 		gameInput.watchKey(GLFW_KEY_KP_SUBTRACT);
 
 		gameInput.watchKey(GLFW_KEY_H);
+		gameInput.watchKey(GLFW_KEY_G);
 
+		gameRenderer.setVSync(true);
 		gameRenderer.show();
 
+		// start game loop
 		running = true;
+		loopUnsynced();
+
+		// Game is over
+		cleanup();
+	}
+
+	private void loop() {
+		// whether to render this tick or skip rendering because nothing has updated
+		boolean doRender = false;
+
+		// time that is now
+		double nowTime;
+		// last time the loop was run
+		double lastTime = System.nanoTime();
+		// how much time has elapsed since last time
+		// divide by UPDATE_CAP to see how many updates we have missed
+		double unprocessedTime = 0;
+
 		while (running) {
 			if (gameRenderer.shouldClose()) {
 				running = false;
 				break;
 			}
 
-			nowTime = System.nanoTime() * NANO_TIME_MULT;
+			nowTime = System.nanoTime();
 
 			double timeSinceLastFrame = nowTime - lastTime;
 			unprocessedTime += timeSinceLastFrame;
@@ -159,18 +171,19 @@ public class Engine implements Runnable {
 			lastTime = nowTime;
 
 			// only update input once, even if we do more game updates
-			if (unprocessedTime >= UPDATE_CAP) {
-				FPSCounter.update((float)unprocessedTime);
-				updateInput();
+			if (unprocessedTime >= UPDATE_CAP / NANO_TIME_MULT) {
+				FPSCounter.update(unprocessedTime);
+				System.err.println(FPSCounter.getFPS());
+				updateInput(UPDATE_CAP);
 			}
 
 			// update while we are all caught up
-			while (unprocessedTime >= UPDATE_CAP) {
+			while (unprocessedTime >= UPDATE_CAP / NANO_TIME_MULT) {
 				if (gameRenderer.shouldClose())
 					break;
 
 				update(UPDATE_CAP * timeFactor);
-				unprocessedTime -= UPDATE_CAP;
+				unprocessedTime -= UPDATE_CAP / NANO_TIME_MULT;
 
 				// Since we updated, we also want to render
 				doRender = true;
@@ -180,37 +193,64 @@ public class Engine implements Runnable {
 				render();
 			} else {
 				// sleep for a millisecond, catch interrupts and do literally nothing with them just 'cause
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException ignored) {
 
-				if (unprocessedTime - UPDATE_CAP > -0.002) {
-					Thread.yield();
-				} else {
-					try {
-						Thread.sleep(1);
-					} catch (InterruptedException ignored) {
-
-					}
 				}
-
 			}
 		}
-
-		// Game is over
-		cleanup();
 	}
 
-	private void updateInput() {
+	private void loopUnsynced() {
+		// time that is now
+		double nowTime;
+		// last time the loop was run
+		double lastTime = System.nanoTime();
+		// how much time has elapsed since last time
+		double unprocessedTime;
+
+		while (running) {
+			if (gameRenderer.shouldClose()) {
+				running = false;
+				break;
+			}
+
+			nowTime = System.nanoTime();
+			unprocessedTime = nowTime - lastTime;
+			lastTime = nowTime;
+
+			// only update input once, even if we do more game updates
+			FPSCounter.update(unprocessedTime);
+			// System.err.println(FPSCounter.getFPS());
+
+			updateInput(unprocessedTime);
+			if (gameRenderer.shouldClose())
+				break;
+
+			update((float)(unprocessedTime * NANO_TIME_MULT * timeFactor));
+			render();
+		}
+	}
+
+	private void updateInput(double elapsedTime) {
+		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_G, elapsedTime)) {
+			boolean currentVSync = gameRenderer.getVSync();
+			gameRenderer.setVSync(!currentVSync);
+		}
+
 		if (gameStage == GameStage.GAME) {
 			// DEBUG
-			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_H, UPDATE_CAP)) {
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_H, elapsedTime)) {
 				d_drawHitboxes = !d_drawHitboxes;
 			}
 			// end DEBUG
 
 			float timeChange = 0;
-			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_ADD, UPDATE_CAP) || gameInput.getScrollUpJustNow(UPDATE_CAP)) {
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_ADD, elapsedTime) || gameInput.getScrollUpJustNow(elapsedTime)) {
 				timeChange += 0.1f;
 			}
-			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_SUBTRACT, UPDATE_CAP) || gameInput.getScrollDownJustNow(UPDATE_CAP)) {
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_SUBTRACT, elapsedTime) || gameInput.getScrollDownJustNow(elapsedTime)) {
 				timeChange -= 0.1f;
 			}
 			this.shiftTimeFactor(timeChange);
@@ -238,10 +278,10 @@ public class Engine implements Runnable {
 
 			// inventory
 			int inventoryShift = 0;
-			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_UP, UPDATE_CAP)) {
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_UP, elapsedTime)) {
 				inventoryShift -= 1;
 			}
-			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_DOWN, UPDATE_CAP)) {
+			if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_DOWN, elapsedTime)) {
 				inventoryShift += 1;
 			}
 			if (inventoryShift != 0)
@@ -280,8 +320,6 @@ public class Engine implements Runnable {
 					currentObjectCollision.collideWith(currentObject, collisionInfo.ASurfaceNormal);
 				}
 			}
-
-			currentObject.updateAfterCollisions(elapsedTime);
 
 			if (currentObject.toDelete)
 				toRemove.add(currentObject);

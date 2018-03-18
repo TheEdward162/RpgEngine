@@ -1,14 +1,10 @@
 package com.edwardium.RPGEngine.IO;
 
-import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.Vector2D;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
 
-import java.nio.DoubleBuffer;
-import java.security.Key;
-import java.sql.Struct;
 import java.util.HashMap;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -80,7 +76,7 @@ public class Input {
 				if (key == GLFW_KEY_Q && ((mods & GLFW_MOD_CONTROL) != 0) && action == GLFW_RELEASE) {
 					glfwSetWindowShouldClose(window, true);
 				} else if ((action == GLFW_PRESS || action == GLFW_RELEASE) && watchedKeys.containsKey(key)) {
-					watchedKeys.get(key).set(key, scancode, action, mods, System.nanoTime() * Engine.NANO_TIME_MULT);
+					watchedKeys.get(key).set(key, scancode, action, mods, System.nanoTime());
 				}
 			}
 		});
@@ -96,7 +92,7 @@ public class Input {
 		glfwSetScrollCallback(window, new GLFWScrollCallback() {
 			@Override
 			public void invoke(long window, double offsetX, double offsetY) {
-				scrollState.set(offsetX, offsetY, System.nanoTime() * Engine.NANO_TIME_MULT);
+				scrollState.set(offsetX, offsetY, System.nanoTime());
 			}
 		});
 	}
@@ -136,7 +132,7 @@ public class Input {
 		if (state == null)
 			return false;
 
-		double timeDiff = System.nanoTime() * Engine.NANO_TIME_MULT - state.actionTime;
+		double timeDiff = System.nanoTime() - state.actionTime;
 		return state.action == GLFW_PRESS && (timeDiff <= timeThreshold);
 	}
 	public boolean getWatchedKeyJustReleased(int code, double timeThreshold) {
@@ -144,16 +140,16 @@ public class Input {
 		if (state == null)
 			return false;
 
-		double timeDiff = System.nanoTime() * Engine.NANO_TIME_MULT - state.actionTime;
+		double timeDiff = System.nanoTime() - state.actionTime;
 		return state.action == GLFW_RELEASE && (timeDiff <= timeThreshold);
 	}
 
 	public boolean getScrollUpJustNow(double timeThreshold) {
-		double timeDiff = System.nanoTime() * Engine.NANO_TIME_MULT - scrollState.actionTime;
+		double timeDiff = System.nanoTime()- scrollState.actionTime;
 		return scrollState.offsetY > 0 && (timeDiff <= timeThreshold);
 	}
 	public boolean getScrollDownJustNow(double timeThreshold) {
-		double timeDiff = System.nanoTime() * Engine.NANO_TIME_MULT - scrollState.actionTime;
+		double timeDiff = System.nanoTime() - scrollState.actionTime;
 		return scrollState.offsetY < 0 && (timeDiff <= timeThreshold);
 	}
 

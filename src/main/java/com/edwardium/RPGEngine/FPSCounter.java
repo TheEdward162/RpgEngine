@@ -1,16 +1,16 @@
 package com.edwardium.RPGEngine;
 
 public class FPSCounter {
-	private static float history[] = null;
+	private static double history[] = null;
 
 	private static int headPointer;
 
 	public static void init(int length) {
-		history = new float[length];
+		history = new double[length];
 		headPointer = 0;
 	}
 
-	public static void update(float elapsedTime) {
+	public static void update(double elapsedTime) {
 		if (history == null || history.length <= 0)
 			return;
 
@@ -27,11 +27,11 @@ public class FPSCounter {
 			return 0;
 
 		float average = 0;
-		for (float aHistory : history) {
+		for (double aHistory : history) {
 			average += aHistory;
 		}
 		average /= history.length;
 
-		return 1 / average;
+		return (float)1E9 / average;
 	}
 }
