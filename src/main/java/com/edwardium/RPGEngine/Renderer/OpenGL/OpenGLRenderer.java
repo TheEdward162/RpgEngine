@@ -46,6 +46,8 @@ public class OpenGLRenderer extends Renderer {
 	private final int fontMaxVertices = fontMaxCharacters * 4;
 	private final int fontMaxVBOSize = fontMaxVertices * Vertex.elementCount;
 
+	private boolean vsyncStatus = true;
+
 	// shader
 	private OpenGLShaderBasic basicShader;
 
@@ -94,7 +96,7 @@ public class OpenGLRenderer extends Renderer {
 		glfwMakeContextCurrent(window);
 
 		// Enable v-sync
-		// glfwSwapInterval(1);
+		setVSync(vsyncStatus);
 
 		// This line is critical for LWJGL's interoperation with GLFW's
 		// OpenGL context, or any context that is managed externally.
@@ -246,7 +248,14 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
-	public void setVsync(boolean value) {
+	public boolean getVSync() {
+		return this.vsyncStatus;
+	}
+
+	@Override
+	public void setVSync(boolean value) {
+		this.vsyncStatus = value;
+
 		glfwSwapInterval(value ? 1 : 0);
 	}
 
