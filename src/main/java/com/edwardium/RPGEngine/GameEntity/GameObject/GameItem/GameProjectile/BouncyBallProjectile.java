@@ -54,7 +54,8 @@ public class BouncyBallProjectile extends GameProjectile {
 	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.drawCircle(15f, this.position, new TextureInfo("default", new Color(0f, 1f, 0.502f, 1f)));
+			float alpha = (maximumTime - timeTravelled) / maximumTime;
+			gameRenderer.drawCircle(15f, this.position, new TextureInfo("default", new Color(0f, 1f, 0.502f, alpha)));
 		}
 		super.render(gameRenderer);
 	}
