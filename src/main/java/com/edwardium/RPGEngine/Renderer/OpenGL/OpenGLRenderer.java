@@ -55,6 +55,11 @@ public class OpenGLRenderer extends Renderer {
 	public OpenGLRenderer(String title, int width, int height) {
 		super(title, width, height);
 
+		// DEBUG INFO
+		System.err.println("GL_VENDOR: " + glGetString(GL_VENDOR));
+		System.err.println("GL_RENDERER: " + glGetString(GL_RENDERER));
+		System.err.println("GL_VERSION: " + glGetString(GL_VERSION));
+
 		init();
 	}
 
@@ -87,8 +92,9 @@ public class OpenGLRenderer extends Renderer {
 
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
+
 		// Enable v-sync
-		glfwSwapInterval(1);
+		// glfwSwapInterval(1);
 
 		// This line is critical for LWJGL's interoperation with GLFW's
 		// OpenGL context, or any context that is managed externally.
@@ -237,6 +243,11 @@ public class OpenGLRenderer extends Renderer {
 	@Override
 	public void hide() {
 		glfwHideWindow(window);
+	}
+
+	@Override
+	public void setVsync(boolean value) {
+		glfwSwapInterval(value ? 1 : 0);
 	}
 
 	@Override

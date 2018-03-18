@@ -35,6 +35,8 @@ public abstract class Renderer {
 	public abstract void show();
 	public abstract void hide();
 
+	public abstract void setVsync(boolean value);
+
 	public abstract void beforeLoop(Vector2D cameraPosition);
 	public abstract void afterLoop();
 
