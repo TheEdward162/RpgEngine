@@ -213,7 +213,7 @@ public class GameCharacter extends GameObject {
 	}
 
 	@Override
-	public void render(Renderer gameRenderer) {
+	public void render(Renderer gameRenderer, boolean drawHitbox) {
 		if (isDrawn) {
 			// shadow
 			gameRenderer.drawCircle(25f, this.position, new TextureInfo("default", new Color(0f, 0f, 0f, 0.3f)));
@@ -234,13 +234,13 @@ public class GameCharacter extends GameObject {
 			}
 
 			// name and HP
-			gameRenderer.drawString(gameRenderer.basicFont, this.name, new Vector2D(30, -30).add(this.position), new Vector2D(1, 1), new Color(0f, 1f, 0f, 1f));
+			gameRenderer.drawString(gameRenderer.basicFont, this.name, new Vector2D(30, -30).add(this.position), new Vector2D(1, 1), 0, new Color(0f, 1f, 0f, 1f));
 
 			String healthString = Math.round(health) + " / " + Math.round(maxHeath);
-			gameRenderer.drawString(gameRenderer.basicFont, healthString, new Vector2D(50, -10).add(this.position), new Vector2D(1, 1), new Color(0f, 1f, 0f, 1f));
+			gameRenderer.drawString(gameRenderer.basicFont, healthString, new Vector2D(50, -10).add(this.position), new Vector2D(1, 1), 0, new Color(0f, 1f, 0f, 1f));
 		}
 
-		super.render(gameRenderer);
+		super.render(gameRenderer, drawHitbox);
 	}
 
 	@Override
@@ -251,8 +251,10 @@ public class GameCharacter extends GameObject {
 
 			// cancel out velocity in that direction
 			Vector2D wallRejection = this.velocity.rejection(otherSideNormal.getNormal());
-			if (wallRejection.angleBetween(otherSideNormal) == 0)
+			if (wallRejection.angleBetween(otherSideNormal) == 0) {
 				this.velocity.subtract(wallRejection);
+				this.walkVector.set(0, 0);
+			}
 		}
 	}
 

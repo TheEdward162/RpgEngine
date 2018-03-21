@@ -8,8 +8,6 @@ import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
-import java.lang.annotation.Retention;
-
 public class GameInventory {
 
 	private final GameItem[] items;
@@ -128,9 +126,9 @@ public class GameInventory {
 			if (inventory.items[i] != null) {
 				Rectangle imageRectangle = Rectangle.setWidth(itemRectangle, 32);
 				renderer.drawRectangle(imageRectangle, 0, inventory.items[i].getInventoryTexture());
-				renderer.drawString(renderer.basicFont, inventory.items[i].name, Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
+				renderer.drawString(renderer.basicFont, inventory.items[i].name, Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), 0, textColor);
 			} else {
-				renderer.drawString(renderer.basicFont, "Empty", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
+				renderer.drawString(renderer.basicFont, "Empty", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), 0, textColor);
 			}
 		}
 	}

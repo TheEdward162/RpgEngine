@@ -418,17 +418,27 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
-	public void drawString(Font font, String text, Vector2D position, Vector2D scale, Color color) {
+	public void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color, StringAlignment alignment) {
 		beginDraw(fontVAO, fontVBO, fontIBO, null, new TextureInfo(font.getTextureName(), color), true);
 
 		if (scale == null)
 			scale = new Vector2D(1, 1);
 
-		// do transforms
-		applyTransformMatrix(scale, null, position);
+		Font.FontVertices fontVertices = font.generateVertices(text, scale.getX());
 
-		Vertex[] vertices = font.generateVertices(text, scale.getX());
-		Vertex[][] splitVertices = Vertex.splitArrayByLength(vertices, fontMaxVertices);
+		// do transforms
+		// text alignment is funky
+		// x position is the leftmost pixel of the text
+		// y position is the text baseline
+		Vector2D alignedPosition = new Vector2D(position);
+		switch (alignment) {
+			case CENTER:
+				alignedPosition.subtract(new Vector2D(fontVertices.size.getX() / 2, fontVertices.size.getY() / 2 - fontVertices.baseline));
+				break;
+		}
+		applyTransformMatrix(scale, rotation, alignedPosition);
+
+		Vertex[][] splitVertices = Vertex.splitArrayByLength(fontVertices.vertices, fontMaxVertices);
 		for (Vertex[] subVertices : splitVertices) {
 			FloatBuffer verticesBuffer = Vertex.verticesToBuffer(subVertices);
 
@@ -436,10 +446,14 @@ public class OpenGLRenderer extends Renderer {
 			glBufferSubData(GL_ARRAY_BUFFER, 0, verticesBuffer);
 
 			// draw
-			glDrawArrays(GL_QUADS, 0, vertices.length);
+			glDrawArrays(GL_QUADS, 0, subVertices.length);
 		}
 
 		endDraw();
+	}
+	@Override
+	public void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color) {
+		drawString(font, text, position, scale, rotation, color, StringAlignment.TOPLEFT);
 	}
 
 	@Override

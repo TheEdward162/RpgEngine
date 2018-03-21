@@ -6,6 +6,8 @@ import com.edwardium.RPGEngine.Vector2D;
 // A Renderer takes care of all the window and graphics context initialization and cleanup.
 // Also provides methods to render stuff.
 public abstract class Renderer {
+	public enum StringAlignment { TOPLEFT, CENTER, BOTTOMRIGHT };
+
 	protected String windowTitle;
 	protected int windowWidth;
 	protected int windowHeight;
@@ -48,9 +50,12 @@ public abstract class Renderer {
 	public abstract void drawLine(Vector2D from, Vector2D to, float width, Color color);
 	public abstract void drawRectangle(Vector2D center, Vector2D size, float rotationAngle, TextureInfo textureInfo);
 	public abstract void drawRectangle(Rectangle rectangle, float rotationAngle, TextureInfo textureInfo);
+
 	public abstract void drawCircle(float radius, Vector2D center, TextureInfo textureInfo);
 	public abstract void drawCircle(float minRadius, float maxRadius, float maxAngle, Vector2D center, TextureInfo textureInfo);
-	public abstract void drawString(Font font, String text, Vector2D position, Vector2D scale, Color color);
+
+	public abstract void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color, StringAlignment alignment);
+	public abstract void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color);
 
 	public abstract boolean shouldClose();
 

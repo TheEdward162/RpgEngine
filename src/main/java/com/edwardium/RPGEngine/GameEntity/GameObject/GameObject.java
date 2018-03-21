@@ -1,6 +1,5 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject;
 
-import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Vector2D;
@@ -39,13 +38,11 @@ public abstract class GameObject {
 
 	public void update(float elapsedTime, float environmentDensity) {
 		this.applyForce(calculateResistanceForce(environmentDensity).multiply(elapsedTime));
-	}
-	public void updateAfterCollisions(float elapsedTime) {
 		this.position.add(Vector2D.multiply(this.velocity, elapsedTime));
 	}
 
-	public void render(Renderer gameRenderer) {
-		if (isDrawn && Engine.d_drawHitboxes) {
+	public void render(Renderer gameRenderer, boolean drawHitbox) {
+		if (isDrawn && drawHitbox) {
 			if (this.hitbox != null) {
 				GameHitbox.renderHitbox(gameRenderer, this.position, this.rotation, this.hitbox);
 			}

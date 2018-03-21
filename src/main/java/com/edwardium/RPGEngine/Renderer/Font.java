@@ -1,8 +1,23 @@
 package com.edwardium.RPGEngine.Renderer;
 
+import com.edwardium.RPGEngine.Renderer.OpenGL.OpenGLFont;
+import com.edwardium.RPGEngine.Vector2D;
+
 import java.nio.IntBuffer;
 
 public abstract class Font {
+	public class FontVertices {
+		public final Vertex[] vertices;
+		public final Vector2D size;
+		public final float baseline;
+
+		public FontVertices(Vertex[] vertices, Vector2D size, float baseline) {
+			this.vertices = vertices;
+			this.size = size;
+			this.baseline = baseline;
+		}
+	}
+
 	protected Font() {
 
 	}
@@ -13,7 +28,7 @@ public abstract class Font {
 	public abstract void setTextureName(String name);
 	public abstract String getTextureName();
 
-	public abstract Vertex[] generateVertices(String text, float scaleX);
+	public abstract OpenGLFont.FontVertices generateVertices(String text, float scaleX);
 
 	public abstract void cleanup();
 

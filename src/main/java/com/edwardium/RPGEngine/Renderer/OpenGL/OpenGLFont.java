@@ -3,6 +3,7 @@ package com.edwardium.RPGEngine.Renderer.OpenGL;
 import com.edwardium.RPGEngine.IO.IOUtil;
 import com.edwardium.RPGEngine.Renderer.Font;
 import com.edwardium.RPGEngine.Renderer.Vertex;
+import com.edwardium.RPGEngine.Vector2D;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTBakedChar;
@@ -15,12 +16,12 @@ import java.nio.IntBuffer;
 import java.util.Vector;
 
 import static org.lwjgl.opengl.GL11.*;
-//import static org.lwjgl.stb.STBImageWrite.*;
 import static org.lwjgl.stb.STBTruetype.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 
-public class OpenGLFont extends Font {
+//import static org.lwjgl.stb.STBImageWrite.*;
 
+public class OpenGLFont extends Font {
 	private final ByteBuffer ttf;
 	private final STBTTFontinfo info;
 
@@ -86,11 +87,14 @@ public class OpenGLFont extends Font {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	public Vertex[] generateVertices(String text, float scaleX) {
+	public FontVertices generateVertices(String text, float scaleX) {
 		if (this.bakedBuffer == null)
 			return null;
 
 		Vector<Vertex> vertices = new Vector<>();
+		Float minX = null, maxX = null;
+		Float minY = null, maxY = null;
+
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 
 			IntBuffer pCodePoint = stack.mallocInt(1);
@@ -120,13 +124,23 @@ public class OpenGLFont extends Font {
 				vertices.add(new Vertex(x1, y0, 0, q.s1(), q.t0()));
 				vertices.add(new Vertex(x1, y1, 0, q.s1(), q.t1()));
 				vertices.add(new Vertex(x0, y1, 0, q.s0(), q.t1()));
+
+				if (minX == null || x0 < minX)
+					minX = x0;
+				if (maxX == null || x1 > maxX)
+					maxX = x1;
+
+				if (minY == null || y0 < minY)
+					minY = y0;
+				if (maxY == null || y1 > maxY)
+					maxY = y1;
 			}
 		}
 
 		Vertex[] vertexArray = new Vertex[vertices.size()];
 		vertices.copyInto(vertexArray);
 
-		return vertexArray;
+		return new FontVertices(vertexArray, maxY != null ? new Vector2D(maxX - minX, maxY - minY) : null, Math.abs(minY));
 	}
 	private static float scaleDist(float center, float offset, float factor) {
 		return (offset - center) * factor + center;
