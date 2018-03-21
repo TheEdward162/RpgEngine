@@ -1,27 +1,29 @@
 package com.edwardium.RPGEngine.Renderer.OpenGL;
 
-import com.edwardium.RPGEngine.Engine;
 import com.edwardium.RPGEngine.Rectangle;
 import com.edwardium.RPGEngine.Renderer.*;
 import com.edwardium.RPGEngine.Vector2D;
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
-import static org.lwjgl.glfw.Callbacks.*;
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class OpenGLRenderer extends Renderer {
 	private final float[] defaultColor = new float[] { 1f, 1f, 1f, 1f };
@@ -260,7 +262,7 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
-	public void beforeLoop(Vector2D cameraPosition) {
+	public void beforeLoop() {
 		// clear the framebuffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -269,8 +271,6 @@ public class OpenGLRenderer extends Renderer {
 		glLoadIdentity();
 
 		glOrtho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
-
-		glTranslatef(cameraPosition.getX(), cameraPosition.getY(), 0f);
 	}
 
 	@Override
@@ -281,6 +281,27 @@ public class OpenGLRenderer extends Renderer {
 		// Poll for window events. The key callback above will only be
 		// invoked during this call.
 		glfwPollEvents();
+	}
+
+	@Override
+	public void pushTransformMatrix() {
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+	}
+	@Override
+	public void applyTransformMatrix(Vector2D scale, Float rotation, Vector2D translation) {
+		if (translation != null)
+			glTranslatef(translation.getX(), translation.getY(), 0f);
+
+		if (rotation != null)
+			glRotatef(rotation / (float)Math.PI * 180, 0f, 0f, 1f);
+
+		if (scale != null)
+			glScalef(scale.getX(), scale.getY(), 1f);
+	}
+	@Override
+	public void popTransformMatrix() {
+		glPopMatrix();
 	}
 
 	private void beginDraw(int vao, int vbo, int ibo, OpenGLShaderBasic.CircleInfoStruct circleInfo, TextureInfo textureInfo, boolean overrideTextureColor) {
@@ -359,9 +380,7 @@ public class OpenGLRenderer extends Renderer {
 		beginDraw(squareVAO, squareVBO, squareIBO, null, textureInfo, false);
 
 		// transforms
-		glTranslatef(center.getX(), center.getY(), 0); // translate
-		glRotatef(rotationAngle / (float)Math.PI * 180, 0f, 0f, 1f); // rotate around z axis
-		glScalef(size.getX(), size.getY(), 1); // scale
+		applyTransformMatrix(size, rotationAngle, center);
 
 		glDrawArrays(GL_QUADS, 0, 4);
 
@@ -378,8 +397,7 @@ public class OpenGLRenderer extends Renderer {
 		beginDraw(squareVAO, squareVBO, squareIBO, new OpenGLShaderBasic.CircleInfoStruct(0f, 0.5f, 4f), textureInfo, false);
 
 		// transforms
-		glTranslatef(center.getX(), center.getY(), 0); // translate
-		glScalef(radius * 2, radius * 2, 1); // scale
+		applyTransformMatrix(new Vector2D(radius * 2, radius * 2), null, center);
 
 		glDrawArrays(GL_QUADS, 0, 4);
 
@@ -392,8 +410,7 @@ public class OpenGLRenderer extends Renderer {
 		beginDraw(squareVAO, squareVBO, squareIBO, new OpenGLShaderBasic.CircleInfoStruct(unitMinRadius, 0.5f, maxAngle), textureInfo, false);
 
 		// transforms
-		glTranslatef(center.getX(), center.getY(), 0); // translate
-		glScalef(maxRadius * 2, maxRadius * 2, 1); // scale
+		applyTransformMatrix(new Vector2D(maxRadius * 2, maxRadius * 2), null, center);
 
 		glDrawArrays(GL_QUADS, 0, 4);
 
@@ -408,8 +425,7 @@ public class OpenGLRenderer extends Renderer {
 			scale = new Vector2D(1, 1);
 
 		// do transforms
-		glScalef(1f, scale.getY(), 1f);
-		glTranslatef(position.getX(), position.getY(), 0f);
+		applyTransformMatrix(scale, null, position);
 
 		Vertex[] vertices = font.generateVertices(text, scale.getX());
 		Vertex[][] splitVertices = Vertex.splitArrayByLength(vertices, fontMaxVertices);

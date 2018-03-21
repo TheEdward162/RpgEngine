@@ -38,8 +38,12 @@ public abstract class Renderer {
 	public abstract boolean getVSync();
 	public abstract void setVSync(boolean value);
 
-	public abstract void beforeLoop(Vector2D cameraPosition);
+	public abstract void beforeLoop();
 	public abstract void afterLoop();
+
+	public abstract void pushTransformMatrix();
+	public abstract void applyTransformMatrix(Vector2D scale, Float rotation, Vector2D translation);
+	public abstract void popTransformMatrix();
 
 	public abstract void drawLine(Vector2D from, Vector2D to, float width, Color color);
 	public abstract void drawRectangle(Vector2D center, Vector2D size, float rotationAngle, TextureInfo textureInfo);
