@@ -1,6 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity;
 
-import com.edwardium.RPGEngine.Engine;
+import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.Rectangle;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;

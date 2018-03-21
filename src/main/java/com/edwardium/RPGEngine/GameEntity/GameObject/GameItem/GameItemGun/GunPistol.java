@@ -1,6 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 
-import com.edwardium.RPGEngine.Engine;
+import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.GameEntity.GameAnimation.GameTextureAnimation;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.PistolBullet;
@@ -43,8 +43,8 @@ public class GunPistol extends GameItemGun {
 			this.cooldown = maxCooldown;
 			this.lastUse = new UseInfo(by, to, at);
 
-			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity).add(Vector2D.multiply(by.velocity, Engine.UPDATE_CAP));
-			PistolBullet bullet = new PistolBullet(by.getFacingDirection().setMagnitude(28f).add(by.position), velocityVector);
+			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity);
+			PistolBullet bullet = new PistolBullet(by.getFacingDirection().setMagnitude(38f).add(by.position), velocityVector);
 			bullet.rotation = velocityVector.getAngle();
 			Engine.gameEngine.registerGameObject(bullet);
 

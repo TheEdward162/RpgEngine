@@ -59,6 +59,8 @@ public class Input {
 	private final long window;
 
 	private Vector2D lastMousePos;
+	private Vector2D gameCursorCenter = new Vector2D();
+
 	private HashMap<Integer, KeyState> watchedKeys;
 	private ScrollState scrollState = new ScrollState();
 
@@ -155,5 +157,12 @@ public class Input {
 
 	public Vector2D getCursorPos() {
 		return new Vector2D(lastMousePos);
+	}
+
+	public void setGameCursorCenter(Vector2D center) {
+		this.gameCursorCenter = center;
+	}
+	public Vector2D getGameCursorPos() {
+		return getCursorPos().subtract(gameCursorCenter);
 	}
 }

@@ -1,6 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 
-import com.edwardium.RPGEngine.Engine;
+import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.GameEntity.GameAI.GameAI;
 import com.edwardium.RPGEngine.GameEntity.GameAnimation.GameTextureAnimation;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;

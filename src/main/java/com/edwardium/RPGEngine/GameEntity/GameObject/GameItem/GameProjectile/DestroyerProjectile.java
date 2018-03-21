@@ -34,12 +34,12 @@ public class DestroyerProjectile extends GameProjectile {
 	}
 
 	@Override
-	public void render(Renderer gameRenderer) {
+	public void render(Renderer gameRenderer, boolean drawHitbox) {
 		if (isDrawn) {
 			gameRenderer.drawRectangle(this.position, new Vector2D(23f, 9f), this.velocity.getAngle(),
 					new TextureInfo("default", new Color(1, 0.502f, 0)));
 		}
-		super.render(gameRenderer);
+		super.render(gameRenderer, drawHitbox);
 	}
 
 }

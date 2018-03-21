@@ -27,11 +27,11 @@ public class GameWall extends GameObject {
 	}
 
 	@Override
-	public void render(Renderer gameRenderer) {
+	public void render(Renderer gameRenderer, boolean drawHitbox) {
 		if (isDrawn) {
 			gameRenderer.drawRectangle(Rectangle.shiftBy(this.shape, this.position), this.rotation, new TextureInfo("default", new Color(0.3f, 0.3f, 0.3f, 1f)));
 		}
-		super.render(gameRenderer);
+		super.render(gameRenderer, drawHitbox);
 	}
 
 	@Override
