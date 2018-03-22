@@ -9,6 +9,7 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunBouncyBall;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunDestroyer;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunPistol;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.GameProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.IO.Input;
@@ -24,6 +25,22 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class GameSceneController extends SceneController {
 
+	public enum SpawnType { CHARACTER, PROJECTILE, ITEM };
+
+	private static class SpawnLimit {
+		public final int maximum;
+		public int current;
+
+		public SpawnLimit(int maximum) {
+			this.maximum = maximum;
+			this.current = 0;
+		}
+
+		public boolean canSpawnMore() {
+			return maximum > 0 && current < maximum;
+		}
+	}
+
 	private Vector2D cameraPos;
 
 	private ArrayList<GameObject> gameObjects;
@@ -33,14 +50,29 @@ public class GameSceneController extends SceneController {
 	private float environmentDensity = 1.2f;
 	private float timeFactor = 1f;
 
+	// spawn limits
+	private static final SpawnLimit characterLimit = new SpawnLimit(128);
+	// maximum projectiles spawned at once
+	private static final SpawnLimit projectileLimit = new SpawnLimit(512);
+	// maximum items (that are not already in a different category) spawned at once
+	private static final SpawnLimit itemLimit = new SpawnLimit(1024);
+
 	private static boolean d_drawHitboxes = false;
 
 	public GameSceneController(Input gameInput) {
 		super(gameInput);
 
 		cameraPos = new Vector2D();
-
 		gameObjects = new ArrayList<>();
+
+		gameInput.watchKey(GLFW_KEY_UP);
+		gameInput.watchKey(GLFW_KEY_DOWN);
+		gameInput.watchKey(GLFW_KEY_KP_ADD);
+		gameInput.watchKey(GLFW_KEY_KP_SUBTRACT);
+
+		gameInput.watchKey(GLFW_KEY_H);
+
+		gameInput.watchKey(GLFW_KEY_ESCAPE);
 
 		init();
 	}
@@ -81,14 +113,17 @@ public class GameSceneController extends SceneController {
 		gameObjects.add(new GameWall(new Vector2D(50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(3.14f / 4));
 	}
 
-
 	@Override
 	public void update(double unprocessedTime) {
-		updateInput(unprocessedTime);
-
-		updateGame((float)(unprocessedTime * NANO_TIME_MULT * timeFactor));
+		if (updateInput(unprocessedTime))
+			updateGame((float)(unprocessedTime * NANO_TIME_MULT * timeFactor));
 	}
-	private void updateInput(double unprocessedTime) {
+	private boolean updateInput(double unprocessedTime) {
+		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_ESCAPE, unprocessedTime)) {
+			Engine.gameEngine.restoreLastSceneController();
+			return false;
+		}
+
 		// DEBUG
 		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_G, unprocessedTime)) {
 			Engine.gameEngine.toggleVSync();
@@ -152,6 +187,8 @@ public class GameSceneController extends SceneController {
 		if (gameInput.getMousePressed(GLFW_MOUSE_BUTTON_1)) {
 			player.useActiveItem(cursorPos, null);
 		}
+
+		return true;
 	}
 
 	private void updateGame(float elapsedTime) {
@@ -198,6 +235,18 @@ public class GameSceneController extends SceneController {
 		renderer.drawString(renderer.basicFont, "Time factor: " + String.format("%.2f", this.timeFactor), renderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -35)), null, 0, new Color());
 	}
 
+	@Override
+	public void cleanup() {
+		gameInput.unwatchKey(GLFW_KEY_UP);
+		gameInput.unwatchKey(GLFW_KEY_DOWN);
+		gameInput.unwatchKey(GLFW_KEY_KP_ADD);
+		gameInput.unwatchKey(GLFW_KEY_KP_SUBTRACT);
+
+		gameInput.unwatchKey(GLFW_KEY_H);
+
+		gameInput.unwatchKey(GLFW_KEY_ESCAPE);
+	}
+
 	private void setTimeFactor(Float value) {
 		if (value == null) {
 			this.timeFactor = 1f;
@@ -209,13 +258,35 @@ public class GameSceneController extends SceneController {
 		setTimeFactor(this.timeFactor + value);
 	}
 
-	public boolean registerGameObject(GameObject newObject) {
-		if (gameObjects.contains(newObject))
+	public boolean canSpawnType(SpawnType type) {
+		switch (type) {
+			case CHARACTER:
+				return characterLimit.canSpawnMore();
+			case PROJECTILE:
+				return projectileLimit.canSpawnMore();
+			case ITEM:
+				return itemLimit.canSpawnMore();
+			default:
+				return false;
+		}
+	}
+	public boolean registerGameObject(GameObject object) {
+		if (gameObjects.contains(object))
 			return false;
 
-		gameObjects.add(newObject);
+		gameObjects.add(object);
+
+		// bump up spawn limit
+		if (object instanceof GameCharacter)
+			characterLimit.current++;
+		else if (object instanceof GameProjectile)
+			projectileLimit.current++;
+		else if (object instanceof GameItem)
+			itemLimit.current++;
+
 		return true;
 	}
+
 	public GameCharacter getClosestCharacter(GameCharacter me, GameCharacter.CharacterRelationship filter) {
 		GameCharacter closest = null;
 		for (GameObject object : gameObjects) {

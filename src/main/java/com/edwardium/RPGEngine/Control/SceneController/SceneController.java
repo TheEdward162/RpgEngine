@@ -12,4 +12,5 @@ public abstract class SceneController {
 
 	public abstract void update(double unprocessedTime);
 	public abstract void render(Renderer renderer);
+	public abstract void cleanup();
 }

@@ -4,8 +4,6 @@ import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.Control.SceneController.MenuSceneController;
 import com.edwardium.RPGEngine.Control.SceneController.SceneController;
 import com.edwardium.RPGEngine.FPSCounter;
-import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
-import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.IO.Config;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.Renderer.Color;
@@ -13,9 +11,11 @@ import com.edwardium.RPGEngine.Renderer.OpenGL.OpenGLRenderer;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Vector2D;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
 
 public class Engine implements Runnable {
+	public enum SceneControllerType { GAME, MENU, QUIT };
+
 	// in seconds
 	public static final float UPDATE_CAP = 1.0f / 60.1f;
 	// nanoseconds * NANO_TIME_MULT = seconds
@@ -32,6 +32,7 @@ public class Engine implements Runnable {
 	private Config gameConfig;
 
 	private boolean running = false;
+	private SceneController lastSceneController = null;
 	private SceneController currentSceneController;
 
 	public Engine() {
@@ -69,12 +70,12 @@ public class Engine implements Runnable {
 		}
 
 		gameInput = new Input(gameRenderer.getWindowHandle());
-		gameInput.watchKey(GLFW_KEY_UP);
-		gameInput.watchKey(GLFW_KEY_DOWN);
-		gameInput.watchKey(GLFW_KEY_KP_ADD);
-		gameInput.watchKey(GLFW_KEY_KP_SUBTRACT);
-
-		gameInput.watchKey(GLFW_KEY_H);
+//		gameInput.watchKey(GLFW_KEY_UP);
+//		gameInput.watchKey(GLFW_KEY_DOWN);
+//		gameInput.watchKey(GLFW_KEY_KP_ADD);
+//		gameInput.watchKey(GLFW_KEY_KP_SUBTRACT);
+//
+//		gameInput.watchKey(GLFW_KEY_H);
 		gameInput.watchKey(GLFW_KEY_G);
 
 		gameInput.setGameCursorCenter(gameRenderer.getWindowSize().divide(2));
@@ -195,23 +196,48 @@ public class Engine implements Runnable {
 		gameRenderer.setVSync(!currentVSync);
 	}
 
-	public boolean registerGameObject(GameObject newObject) {
-		if (currentSceneController instanceof GameSceneController) {
-			return ((GameSceneController) currentSceneController).registerGameObject(newObject);
-		}
-
-		return false;
+	public GameSceneController getCurrentGameController() {
+		if (currentSceneController instanceof GameSceneController)
+			return (GameSceneController) currentSceneController;
+		else
+			return null;
 	}
-	public GameCharacter getClosestCharacter(GameCharacter me, GameCharacter.CharacterRelationship filter) {
-		if (currentSceneController instanceof GameSceneController) {
-			return ((GameSceneController) currentSceneController).getClosestCharacter(me, filter);
-		}
 
-		return null;
+	public void changeSceneController(SceneControllerType type) {
+		if (lastSceneController != null)
+			lastSceneController.cleanup();
+
+		lastSceneController = currentSceneController;
+
+		switch (type) {
+			case GAME:
+				currentSceneController = new GameSceneController(gameInput);
+				break;
+			case MENU:
+				currentSceneController = new MenuSceneController(gameInput);
+				break;
+			case QUIT:
+				running = false;
+				break;
+		}
+	}
+	public boolean restoreLastSceneController() {
+		if (lastSceneController == null)
+			return false;
+
+		SceneController temp = currentSceneController;
+		currentSceneController = lastSceneController;
+		lastSceneController = temp;
+
+		return true;
 	}
 
 	// dispose of all created instances and stuff
 	private void cleanup() {
+		currentSceneController.cleanup();
+		if (lastSceneController != null)
+			lastSceneController.cleanup();;
+
 		gameRenderer.cleanup();
 
 		gameConfig.saveConfig(true);
