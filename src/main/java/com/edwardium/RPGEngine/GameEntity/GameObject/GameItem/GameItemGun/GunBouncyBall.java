@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 
 import com.edwardium.RPGEngine.Control.Engine;
+import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.BouncyBallProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
@@ -40,17 +41,22 @@ public class GunBouncyBall extends GameItemGun {
 	@Override
 	public boolean use(GameCharacter by, Vector2D to, GameObject at) {
 		if (canUse(by, to, at)) {
-			this.cooldown = maxCooldown;
-			this.lastUse = new UseInfo(by,to, at);
+			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+			if (gsc != null && gsc.canSpawnType(GameSceneController.SpawnType.PROJECTILE)) {
+				this.cooldown = maxCooldown;
+				this.lastUse = new UseInfo(by, to, at);
 
-			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity);
-			BouncyBallProjectile projectile = new BouncyBallProjectile(Vector2D.add(by.position, by.getFacingDirection().setMagnitude(50f)), velocityVector);
-			projectile.rotation = velocityVector.getAngle();
+				Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity);
+				BouncyBallProjectile projectile = new BouncyBallProjectile(Vector2D.add(by.position, by.getFacingDirection().setMagnitude(50f)), velocityVector);
+				projectile.rotation = velocityVector.getAngle();
 
-			this.currentProjectile = projectile;
-			Engine.gameEngine.registerGameObject(projectile);
+				this.currentProjectile = projectile;
+				gsc.registerGameObject(projectile);
 
-			return true;
+				return true;
+			}
+
+			return false;
 		} else {
 			return false;
 		}

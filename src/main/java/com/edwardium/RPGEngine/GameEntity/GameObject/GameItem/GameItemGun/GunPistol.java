@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 
 import com.edwardium.RPGEngine.Control.Engine;
+import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameAnimation.GameTextureAnimation;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.PistolBullet;
@@ -40,17 +41,21 @@ public class GunPistol extends GameItemGun {
 	@Override
 	public boolean use(GameCharacter by, Vector2D to, GameObject at) {
 		if (canUse(by, to, at)) {
-			this.cooldown = maxCooldown;
-			this.lastUse = new UseInfo(by, to, at);
+			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+			if (gsc != null && gsc.canSpawnType(GameSceneController.SpawnType.PROJECTILE)) {
+				this.cooldown = maxCooldown;
+				this.lastUse = new UseInfo(by, to, at);
 
-			Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity);
-			PistolBullet bullet = new PistolBullet(by.getFacingDirection().setMagnitude(38f).add(by.position), velocityVector);
-			bullet.rotation = velocityVector.getAngle();
-			Engine.gameEngine.registerGameObject(bullet);
+				Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity);
+				PistolBullet bullet = new PistolBullet(by.getFacingDirection().setMagnitude(38f).add(by.position), velocityVector);
+				bullet.rotation = velocityVector.getAngle();
+				gsc.registerGameObject(bullet);
 
-			this.fireAnimation.run();
+				this.fireAnimation.run();
+				return true;
+			}
 
-			return true;
+			return false;
 		} else {
 			return false;
 		}

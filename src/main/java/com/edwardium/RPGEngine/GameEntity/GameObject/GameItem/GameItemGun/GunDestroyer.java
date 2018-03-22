@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 
 import com.edwardium.RPGEngine.Control.Engine;
+import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameAI.GameAI;
 import com.edwardium.RPGEngine.GameEntity.GameAnimation.GameTextureAnimation;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
@@ -74,10 +75,13 @@ public class GunDestroyer extends GameItemGun {
 		if (this.chargeup == maxChargeup) {
 			this.chargeup++;
 
-			Vector2D velocityVector = Vector2D.subtract(this.lastUse.to, this.lastUse.by.position).setMagnitude(fireVelocity).add(this.lastUse.by.velocity);
-			DestroyerProjectile projectile = new DestroyerProjectile(Vector2D.add(this.lastUse.by.position, this.lastUse.by.getFacingDirection().setMagnitude(64f)), velocityVector);
-			projectile.rotation = velocityVector.getAngle();
-			Engine.gameEngine.registerGameObject(projectile);
+			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+			if (gsc != null && gsc.canSpawnType(GameSceneController.SpawnType.PROJECTILE)) {
+				Vector2D velocityVector = Vector2D.subtract(this.lastUse.to, this.lastUse.by.position).setMagnitude(fireVelocity).add(this.lastUse.by.velocity);
+				DestroyerProjectile projectile = new DestroyerProjectile(Vector2D.add(this.lastUse.by.position, this.lastUse.by.getFacingDirection().setMagnitude(64f)), velocityVector);
+				projectile.rotation = velocityVector.getAngle();
+				gsc.registerGameObject(projectile);
+			}
 
 			if (this.lastUse.by.ai.currentState == GameAI.CharacterState.CHARGING)
 				this.lastUse.by.ai.currentState = GameAI.CharacterState.IDLE;
