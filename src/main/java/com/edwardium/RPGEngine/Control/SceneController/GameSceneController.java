@@ -86,31 +86,35 @@ public class GameSceneController extends SceneController {
 		GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));
 		GameItem bouncyBallGun = new GunBouncyBall(new Vector2D(player.position));
 		player.inventory.insertItem(pistol);
-		player.inventory.insertItem(destroyerGun);
+		//player.inventory.insertItem(destroyerGun);
 		player.inventory.insertItem(bouncyBallGun);
 
 		registerGameObject(pistol);
 		registerGameObject(destroyerGun);
 		registerGameObject(bouncyBallGun);
 
+		// player is outside of spawn limits?
 		gameObjects.add(player);
 
 		GameCharacter secondCharacter = new GameCharacter(new Vector2D(-100, -100), "Enemy Trianglehead", 3);
 		secondCharacter.ai = new SimpleEnemyAI(secondCharacter);
 		secondCharacter.factionFlag = GameCharacter.CharacterFaction.addFaction(secondCharacter.factionFlag, GameCharacter.CharacterFaction.TRIANGLEHEADS);
+		secondCharacter.maxRotationSpeed = .1f;
 
 		GameItem secondPistol = new GunPistol(new Vector2D(secondCharacter.position));
+
+		secondCharacter.inventory.insertItem(destroyerGun);
 		//secondCharacter.inventory.insertItem(secondPistol);
 
 		registerGameObject(secondPistol);
-		gameObjects.add(secondCharacter);
+		registerGameObject(secondCharacter);
 
-		gameObjects.add(new GameWall(new Vector2D(500, 0), new Rectangle(new Vector2D(-15, -50), new Vector2D(15, 50))));
+		registerGameObject(new GameWall(new Vector2D(500, 0), new Rectangle(new Vector2D(-15, -50), new Vector2D(15, 50))));
 
-		gameObjects.add(new GameWall(new Vector2D(700, 0), new Rectangle(new Vector2D(-2, -30), new Vector2D(2, 30))));
+		registerGameObject(new GameWall(new Vector2D(700, 0), new Rectangle(new Vector2D(-2, -30), new Vector2D(2, 30))));
 
-		gameObjects.add(new GameWall(new Vector2D(-50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(-3.14f / 4));
-		gameObjects.add(new GameWall(new Vector2D(50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(3.14f / 4));
+		registerGameObject(new GameWall(new Vector2D(-50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(-3.14f / 4));
+		registerGameObject(new GameWall(new Vector2D(50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(3.14f / 4));
 	}
 
 	@Override
@@ -125,10 +129,6 @@ public class GameSceneController extends SceneController {
 		}
 
 		// DEBUG
-		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_G, unprocessedTime)) {
-			Engine.gameEngine.toggleVSync();
-		}
-
 		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_H, unprocessedTime)) {
 			d_drawHitboxes = !d_drawHitboxes;
 		}

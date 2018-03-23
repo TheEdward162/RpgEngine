@@ -46,7 +46,7 @@ public class GunDestroyer extends GameItemGun {
 		if (canUse(by, to, at)) {
 			by.ai.currentState = GameAI.CharacterState.CHARGING;
 			this.cooldown = maxCooldown;
-			this.lastUse = new UseInfo(by,to, at);
+			this.lastUse = new UseInfo(by, new Vector2D(to), at);
 
 			this.fireAnimation.run();
 
@@ -77,7 +77,7 @@ public class GunDestroyer extends GameItemGun {
 
 			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
 			if (gsc != null && gsc.canSpawnType(GameSceneController.SpawnType.PROJECTILE)) {
-				Vector2D velocityVector = Vector2D.subtract(this.lastUse.to, this.lastUse.by.position).setMagnitude(fireVelocity).add(this.lastUse.by.velocity);
+				Vector2D velocityVector = Vector2D.subtract(this.lastUse.to, this.lastUse.by.position).setMagnitude(fireVelocity);
 				DestroyerProjectile projectile = new DestroyerProjectile(Vector2D.add(this.lastUse.by.position, this.lastUse.by.getFacingDirection().setMagnitude(64f)), velocityVector);
 				projectile.rotation = velocityVector.getAngle();
 				gsc.registerGameObject(projectile);

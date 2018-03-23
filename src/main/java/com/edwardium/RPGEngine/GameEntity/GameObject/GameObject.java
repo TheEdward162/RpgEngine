@@ -73,7 +73,7 @@ public abstract class GameObject {
 		if (this.velocity.getMagnitude() == 0)
 			return new Vector2D();
 
-		float crossSection = this.hitbox.calculateCrossSection(new Vector2D(this.velocity));
+		float crossSection = this.hitbox.calculateCrossSection(this.velocity);
 		float dragForce = (float)(1.0 / 2.0 * environmentDensity * Math.pow(velocity.getMagnitude(), 2) * dragCoefficient * crossSection);
 		if (dragForce > velocity.getMagnitude())
 			dragForce = velocity.getMagnitude();

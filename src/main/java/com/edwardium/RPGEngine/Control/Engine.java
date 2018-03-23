@@ -70,12 +70,6 @@ public class Engine implements Runnable {
 		}
 
 		gameInput = new Input(gameRenderer.getWindowHandle());
-//		gameInput.watchKey(GLFW_KEY_UP);
-//		gameInput.watchKey(GLFW_KEY_DOWN);
-//		gameInput.watchKey(GLFW_KEY_KP_ADD);
-//		gameInput.watchKey(GLFW_KEY_KP_SUBTRACT);
-//
-//		gameInput.watchKey(GLFW_KEY_H);
 		gameInput.watchKey(GLFW_KEY_G);
 
 		gameInput.setGameCursorCenter(gameRenderer.getWindowSize().divide(2));
@@ -175,9 +169,17 @@ public class Engine implements Runnable {
 
 			gameInput.setGameCursorCenter(gameRenderer.getWindowSize().divide(2));
 
-			currentSceneController.update(unprocessedTime);
+			update(unprocessedTime);
 			render();
 		}
+	}
+
+	private void update(double unprocessedTime) {
+		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_G, unprocessedTime)) {
+			Engine.gameEngine.toggleVSync();
+		}
+
+		currentSceneController.update(unprocessedTime);
 	}
 
 	private void render() {
@@ -186,7 +188,7 @@ public class Engine implements Runnable {
 		currentSceneController.render(gameRenderer);
 
 		gameRenderer.drawString(gameRenderer.basicFont, "VSYNC: " + (gameRenderer.getVSync() ? "ON" : "OFF"), gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -20)), null, 0, new Color());
-		gameRenderer.drawString(gameRenderer.basicFont, "FPS: " + String.format("%.2f", FPSCounter.getFPS()), gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), null, 0, new Color());
+		gameRenderer.drawString(gameRenderer.basicFont, "FPS: " + String.format("%.1f", FPSCounter.getFPS()), gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), null, 0, new Color());
 
 		gameRenderer.afterLoop();
 	}
