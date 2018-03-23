@@ -22,6 +22,9 @@ public class TextureInfo {
 	public TextureInfo(String textureName, Color textureColor, Vector2D textureOffset, Vector2D textureSize) {
 		this.textureName = textureName;
 		this.textureColor = textureColor != null ? textureColor : new Color();
+
+		if (textureOffset == null)
+			textureOffset = new Vector2D();
 		this.textureOffset = textureOffset;
 		this.textureSize = textureSize;
 	}

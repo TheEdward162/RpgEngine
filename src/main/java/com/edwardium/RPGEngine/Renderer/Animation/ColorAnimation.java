@@ -1,10 +1,10 @@
-package com.edwardium.RPGEngine.GameEntity.GameAnimation;
+package com.edwardium.RPGEngine.Renderer.Animation;
 
 import com.edwardium.RPGEngine.Renderer.Color;
 
 import java.util.ArrayList;
 
-public class GameColorAnimation extends GameAnimation {
+public class ColorAnimation extends Animation {
 	private class ColorStop {
 		public final Color color;
 		public final float u;
@@ -17,13 +17,13 @@ public class GameColorAnimation extends GameAnimation {
 
 	private ArrayList<ColorStop> colorStops;
 
-	public GameColorAnimation(float length) {
+	public ColorAnimation(float length) {
 		super(length);
 
 		this.colorStops = new ArrayList<>();
 	}
 
-	public GameColorAnimation addColorStop(Color color, float u) {
+	public ColorAnimation addColorStop(Color color, float u) {
 		this.colorStops.add(new ColorStop(color, u));
 
 		return this;
@@ -50,7 +50,13 @@ public class GameColorAnimation extends GameAnimation {
 		if (previousStop == null)
 			return new Color();
 
-		float relativeU = (currentTime - length * previousStop.u) / (nextStop.u * length - previousStop.u * length);
+		float relativeU = (currentTime - length * previousStop.u);
+		float denominator = (nextStop.u * length - previousStop.u * length);
+		if (denominator == 0)
+			relativeU = 0;
+		else
+			relativeU /= denominator;
+
 		return Color.interpolate(previousStop.color, nextStop.color, relativeU);
 	}
 }

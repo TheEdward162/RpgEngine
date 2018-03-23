@@ -1,15 +1,15 @@
-package com.edwardium.RPGEngine.GameEntity.GameAnimation;
+package com.edwardium.RPGEngine.Renderer.Animation;
 
-public abstract class GameAnimation {
+public abstract class Animation {
 
 	protected float currentTime = 0f;
 	protected final float length;
 
-	private boolean running = false;
+	protected boolean running = false;
 	public boolean jumpToZero = false;
 	public boolean loops = false;
 
-	protected GameAnimation(float length) {
+	protected Animation(float length) {
 		this.length = length;
 	}
 
