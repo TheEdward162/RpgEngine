@@ -27,7 +27,7 @@ public class Engine implements Runnable {
 
 	// Game objects
 	private Thread gameThread;
-	private Renderer gameRenderer;
+	public Renderer gameRenderer;
 	private Input gameInput;
 	private Config gameConfig;
 
@@ -191,6 +191,9 @@ public class Engine implements Runnable {
 		gameRenderer.afterLoop();
 	}
 
+	public boolean getVSync() {
+		return gameRenderer.getVSync();
+	}
 	public void toggleVSync() {
 		boolean currentVSync = gameRenderer.getVSync();
 		gameRenderer.setVSync(!currentVSync);

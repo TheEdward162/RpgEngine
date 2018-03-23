@@ -8,9 +8,31 @@ import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
+import java.util.HashMap;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class MenuSceneController extends SceneController {
+
+	private enum MenuType { MAIN, SETTINGS, PAUSE }
+
+	private interface MenuItemNameGetter {
+		String getName();
+	}
+
+	private interface MenuItemCallback {
+		void invoke();
+	}
+
+	private class MenuItem {
+		public final MenuItemNameGetter nameGetter;
+		public final MenuItemCallback callback;
+
+		public MenuItem(MenuItemNameGetter nameGetter, MenuItemCallback callback) {
+			this.nameGetter = nameGetter;
+			this.callback = callback;
+		}
+	}
 
 	private static final Vector2D menuItemSize = new Vector2D(200, 50);
 	private static final float menuItemSpace = 10;
@@ -21,25 +43,64 @@ public class MenuSceneController extends SceneController {
 	private static final Color menuItemActiveBackgroundColor = new Color();
 	private static final Color menuItemActiveForegroundColor = new Color(0, 0, 0);
 
-	private String[] menuItems;
+	private HashMap<MenuType, MenuItem[]> menus;
+	private MenuType currentMenuType = MenuType.MAIN;
+	private MenuType lastMenuType = null;
+
 	private int currentMenuItemIndex = 0;
 
 	public MenuSceneController(Input gameInput) {
 		super(gameInput);
 
-		menuItems = new String[] {
-				"Start Game",
-				"Settings",
-				"Quit"
+		menus = new HashMap<>(3);
+
+		// build menus
+		MenuItem[] mainMenu = {
+				new MenuItem(() -> "Start Game",
+						() -> { switchMenu(MenuType.PAUSE); Engine.gameEngine.changeSceneController(Engine.SceneControllerType.GAME);}),
+				new MenuItem(() -> "Settings", () -> this.switchMenu(MenuType.SETTINGS)),
+				new MenuItem(() -> "Quit", () -> Engine.gameEngine.changeSceneController(Engine.SceneControllerType.QUIT))
 		};
+		menus.put(MenuType.MAIN, mainMenu);
+
+		MenuItem[] settingsMenu = {
+				new MenuItem(() -> "VSYNC: " + (Engine.gameEngine.getVSync() ? "ON" : "OFF"),
+						() -> Engine.gameEngine.toggleVSync()),
+				new MenuItem(() -> "Back", this::restoreMenu)
+		};
+		menus.put(MenuType.SETTINGS, settingsMenu);
+
+		MenuItem[] pauseMenu = {
+				new MenuItem(() -> "Continue", () -> Engine.gameEngine.restoreLastSceneController()),
+				new MenuItem(() -> "Settings", () -> this.switchMenu(MenuType.SETTINGS)),
+				new MenuItem(() -> "Quit to menu", () -> switchMenu(MenuType.MAIN)),
+				new MenuItem(() -> "Quit", () -> Engine.gameEngine.changeSceneController(Engine.SceneControllerType.QUIT))
+		};
+		menus.put(MenuType.PAUSE, pauseMenu);
 
 		gameInput.watchKey(GLFW_KEY_UP);
 		gameInput.watchKey(GLFW_KEY_DOWN);
 		gameInput.watchKey(GLFW_KEY_ENTER);
 	}
 
+	private void switchMenu(MenuType to) {
+		lastMenuType = currentMenuType;
+		currentMenuType = to;
+		currentMenuItemIndex = 0;
+	}
+	private void restoreMenu() {
+		if (lastMenuType != null) {
+			MenuType temp = currentMenuType;
+			currentMenuType = lastMenuType;
+			lastMenuType = temp;
+			currentMenuItemIndex = 0;
+		}
+	}
+
 	@Override
 	public void update(double unprocessedTime) {
+		MenuItem[] currentMenu = menus.get(currentMenuType);
+
 		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_ENTER, unprocessedTime)) {
 			enterPress();
 			return;
@@ -53,35 +114,24 @@ public class MenuSceneController extends SceneController {
 			menuItemShift--;
 		}
 
-		currentMenuItemIndex = (currentMenuItemIndex + menuItemShift) % menuItems.length;
+		currentMenuItemIndex = (currentMenuItemIndex + menuItemShift) % currentMenu.length;
 		if (currentMenuItemIndex < 0)
-			currentMenuItemIndex += menuItems.length;
+			currentMenuItemIndex += currentMenu.length;
 	}
 
 	private void enterPress() {
-		String currentMenuValue = menuItems[currentMenuItemIndex];
-		switch (currentMenuValue) {
-			case "Start Game":
-				menuItems[currentMenuItemIndex] = "Continue";
-				Engine.gameEngine.changeSceneController(Engine.SceneControllerType.GAME);
-				break;
-			case "Continue":
-				Engine.gameEngine.restoreLastSceneController();
-				break;
-			case "Settings":
-				// Engine.gameEngine.changeSceneController(Engine.SceneControllerType.SETTINGS);
-				break;
-			case "Quit":
-				Engine.gameEngine.changeSceneController(Engine.SceneControllerType.QUIT);
-				break;
-		}
+		MenuItem[] currentMenu = menus.get(currentMenuType);
+		MenuItem currentMenuItem = currentMenu[currentMenuItemIndex];
+		currentMenuItem.callback.invoke();
 	}
 
 	@Override
 	public void render(Renderer renderer) {
-		Vector2D basePosition = new Vector2D().subtract(new Vector2D(menuItemSize).divide(2)).subtract(new Vector2D(0, (menuItemSize.getY() + menuItemSpace) * (menuItems.length - 1) / 2));
+		MenuItem[] currentMenu = menus.get(currentMenuType);
 
-		for (int i = 0; i < menuItems.length; i++) {
+		Vector2D basePosition = new Vector2D().subtract(new Vector2D(menuItemSize).divide(2)).subtract(new Vector2D(0, (menuItemSize.getY() + menuItemSpace) * (currentMenu.length - 1) / 2));
+
+		for (int i = 0; i < currentMenu.length; i++) {
 			Vector2D currentPosition = Vector2D.add(basePosition, new Vector2D(0, menuItemSize.getY() + menuItemSpace).multiply(i));
 			Rectangle currentRectangle = new Rectangle(currentPosition, Vector2D.add(currentPosition, menuItemSize));
 
@@ -93,7 +143,7 @@ public class MenuSceneController extends SceneController {
 			Color itemFGColor = menuItemForegroundColor;
 			if (i == currentMenuItemIndex)
 				itemFGColor = menuItemActiveForegroundColor;
-			renderer.drawString(renderer.basicFont, menuItems[i], currentRectangle.center(), null, 0, itemFGColor, Renderer.StringAlignment.CENTER);
+			renderer.drawString(renderer.basicFont, currentMenu[i].nameGetter.getName(), currentRectangle.center(), null, 0, itemFGColor, Renderer.StringAlignment.CENTER);
 		}
 	}
 
