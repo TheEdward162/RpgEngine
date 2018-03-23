@@ -87,7 +87,8 @@ public class OpenGLFont extends Font {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	public FontVertices generateVertices(String text, float scaleX) {
+	@Override
+	public FontVertices generateVertices(String text, Vector2D scale) {
 		if (this.bakedBuffer == null)
 			return null;
 
@@ -102,7 +103,6 @@ public class OpenGLFont extends Font {
 			FloatBuffer y = stack.floats(0.0f);
 			STBTTAlignedQuad q = STBTTAlignedQuad.mallocStack(stack);
 
-			float factorX = 1.0f / scaleX;
 			int currentIndex = 0;
 			int toIndex = text.length();
 			while (currentIndex < toIndex) {
@@ -112,13 +112,10 @@ public class OpenGLFont extends Font {
 
 				stbtt_GetBakedQuad(bakedBuffer, bakedWidth, bakedHeight, codePoint - 32, x, y, q, true);
 
-				float posX = x.get(0);
-				x.put(0, scaleDist(posX, x.get(0), factorX));
-
-				float x0 = scaleDist(posX, q.x0(), factorX);
-				float x1 = scaleDist(posX, q.x1(), factorX);
-				float y0 = scaleDist(0, q.y0(), 1);
-				float y1 = scaleDist(0, q.y1(), 1);
+				float x0 = scaleDist(x.get(0), q.x0(), 1f);
+				float x1 = scaleDist(x.get(0), q.x1(), 1f);
+				float y0 = scaleDist(0, q.y0(), 1f);
+				float y1 = scaleDist(0, q.y1(), 1f);
 
 				vertices.add(new Vertex(x0, y0, 0, q.s0(), q.t0()));
 				vertices.add(new Vertex(x1, y0, 0, q.s1(), q.t0()));

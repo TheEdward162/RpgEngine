@@ -126,9 +126,9 @@ public class GameInventory {
 			if (inventory.items[i] != null) {
 				Rectangle imageRectangle = Rectangle.setWidth(itemRectangle, 32);
 				renderer.drawRectangle(imageRectangle, 0, inventory.items[i].getInventoryTexture());
-				renderer.drawString(renderer.basicFont, inventory.items[i].name, Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), 0, textColor);
+				renderer.drawString(renderer.basicFont, inventory.items[i].name, Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), null, 0, textColor);
 			} else {
-				renderer.drawString(renderer.basicFont, "Empty", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), 0, textColor);
+				renderer.drawString(renderer.basicFont, "Empty", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), null, 0, textColor);
 			}
 		}
 	}

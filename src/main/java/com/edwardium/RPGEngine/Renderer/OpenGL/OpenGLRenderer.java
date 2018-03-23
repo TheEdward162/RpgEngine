@@ -215,7 +215,7 @@ public class OpenGLRenderer extends Renderer {
 
 	private void setupFonts() {
 		String fontPath = "Assets/Fonts/NotoSans-Medium.ttf";
-		basicFont = new OpenGLFont(fontPath, 20);
+		basicFont = new OpenGLFont(fontPath, 30);
 
 		fontVAO = glGenVertexArrays();
 		glBindVertexArray(fontVAO);
@@ -422,9 +422,9 @@ public class OpenGLRenderer extends Renderer {
 		beginDraw(fontVAO, fontVBO, fontIBO, null, new TextureInfo(font.getTextureName(), color), true);
 
 		if (scale == null)
-			scale = new Vector2D(1, 1);
+			scale = new Vector2D(0.66f, 0.66f);
 
-		Font.FontVertices fontVertices = font.generateVertices(text, scale.getX());
+		Font.FontVertices fontVertices = font.generateVertices(text, scale);
 
 		// do transforms
 		// text alignment is funky
@@ -433,7 +433,7 @@ public class OpenGLRenderer extends Renderer {
 		Vector2D alignedPosition = new Vector2D(position);
 		switch (alignment) {
 			case CENTER:
-				alignedPosition.subtract(new Vector2D(fontVertices.size.getX() / 2, fontVertices.size.getY() / 2 - fontVertices.baseline));
+				alignedPosition.subtract(new Vector2D(fontVertices.size.getX() / 2 * scale.getX(), (fontVertices.size.getY() / 2 - fontVertices.baseline) * scale.getY()));
 				break;
 		}
 		applyTransformMatrix(scale, rotation, alignedPosition);

@@ -234,10 +234,10 @@ public class GameCharacter extends GameObject {
 			}
 
 			// name and HP
-			gameRenderer.drawString(gameRenderer.basicFont, this.name, new Vector2D(30, -30).add(this.position), new Vector2D(1, 1), 0, new Color(0f, 1f, 0f, 1f));
+			gameRenderer.drawString(gameRenderer.basicFont, this.name, new Vector2D(30, -30).add(this.position), null, 0, new Color(0f, 1f, 0f, 1f));
 
 			String healthString = Math.round(health) + " / " + Math.round(maxHeath);
-			gameRenderer.drawString(gameRenderer.basicFont, healthString, new Vector2D(50, -10).add(this.position), new Vector2D(1, 1), 0, new Color(0f, 1f, 0f, 1f));
+			gameRenderer.drawString(gameRenderer.basicFont, healthString, new Vector2D(50, -10).add(this.position), null, 0, new Color(0f, 1f, 0f, 1f));
 		}
 
 		super.render(gameRenderer, drawHitbox);

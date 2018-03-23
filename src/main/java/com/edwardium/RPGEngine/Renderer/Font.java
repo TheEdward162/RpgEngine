@@ -28,7 +28,7 @@ public abstract class Font {
 	public abstract void setTextureName(String name);
 	public abstract String getTextureName();
 
-	public abstract OpenGLFont.FontVertices generateVertices(String text, float scaleX);
+	public abstract OpenGLFont.FontVertices generateVertices(String text, Vector2D scale);
 
 	public abstract void cleanup();
 
