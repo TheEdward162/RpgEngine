@@ -210,6 +210,8 @@ public class OpenGLRenderer extends Renderer {
 
 		gameTextures.put("sheet1", new OpenGLTexture("Assets/Textures/sheet1.png", GL_TEXTURE0));
 
+		gameTextures.put("initsplash", new OpenGLTexture("Assets/splash.png", GL_TEXTURE0));
+
 		glEnable(GL_TEXTURE_2D);
 	}
 

@@ -165,7 +165,40 @@ public class GameCharacter extends GameObject {
 		this.walkVector = new Vector2D(direction).setMagnitude(maxWalkSpeed);
 	}
 
+	public void updateWalk() {
+		// if we aren't walking anywhere, we might want to, like, you know, stop.
+		// ...if we can.
+		if (this.walkVector.getMagnitude() == 0 || (!ai.canWalk() && ai.canWalkStop())) {
+			this.walkVector = new Vector2D(this.velocity).inverse().limit(maxWalkSpeed);
+
+			if (ai.canWalkStop())
+				this.applyForce(this.walkVector);
+		} else if (ai.canWalk()) {
+			// when walking, we want to first cancel out all the velocity we have that is *not* in the right direction
+			// before adding force in that direction
+			float remainingWalkSpeed = this.maxWalkSpeed;
+			Vector2D walkVectorRejection = this.velocity.rejection(this.walkVector);
+
+			walkVectorRejection.limit(remainingWalkSpeed).inverse();
+			remainingWalkSpeed -= walkVectorRejection.getMagnitude();
+
+			this.applyForce(walkVectorRejection);
+
+			// also we can't walk faster than maxWalkSpeed globally
+			float currentSpeedInWalkDirection = this.velocity.projection(this.walkVector).getMagnitude();
+			float maxAllowedWalkSpeed = Math.max(0, remainingWalkSpeed - currentSpeedInWalkDirection);
+
+			this.walkVector.limit(maxAllowedWalkSpeed);
+
+			this.applyForce(this.walkVector);
+		}
+		this.walkVector.set(0, 0);
+	}
+
 	public boolean useActiveItem(Vector2D to, GameCharacter at) {
+		if (!ai.canUseItem())
+			return false;
+
 		GameItem activeItem = inventory.getActiveItem() ;
 		if (activeItem != null && activeItem instanceof IGameUsableItem) {
 			return ((IGameUsableItem)activeItem).use(this, to, at);
@@ -176,37 +209,6 @@ public class GameCharacter extends GameObject {
 
 	@Override
 	public void update(float elapsedTime, float environmentDensity) {
-		// if we aren't walking anywhere, we might want to. like, you know, stop
-		// if we can...
-		if (this.walkVector.getMagnitude() == 0 || (!ai.canWalk() && ai.canWalkStop())) {
-			this.walkVector = new Vector2D(this.velocity).inverse().limit(maxWalkSpeed);
-
-			if (ai.canWalkStop())
-				this.applyForce(this.walkVector);
-		} else {
-			// when walking, we want to first cancel out all the velocity we have that is not in the right direction
-			// before adding force in that direction
-			float remainingWalkSpeed = this.maxWalkSpeed;
-			Vector2D walkVectorRejection = this.velocity.rejection(this.walkVector);
-
-			walkVectorRejection.limit(remainingWalkSpeed).inverse();
-			remainingWalkSpeed -= walkVectorRejection.getMagnitude();
-
-			if (ai.canWalk()) {
-				this.applyForce(walkVectorRejection);
-			}
-
-			// also we can't walk faster than maxWalkSpeed globally
-			float currentSpeedInWalkDirection = this.velocity.projection(this.walkVector).getMagnitude();
-			float maxAllowedWalkSpeed = Math.max(0, remainingWalkSpeed - currentSpeedInWalkDirection);
-
-			this.walkVector.limit(maxAllowedWalkSpeed);
-
-			if (ai.canWalk())
-				this.applyForce(this.walkVector);
-		}
-		this.walkVector.set(0, 0);
-
 		this.ai.onUpdate(elapsedTime);
 
 		super.update(elapsedTime, environmentDensity);

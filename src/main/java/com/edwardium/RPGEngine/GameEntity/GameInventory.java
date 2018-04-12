@@ -39,11 +39,7 @@ public class GameInventory {
 
 	public boolean canSwitch() {
 		GameItem activeItem = getActiveItem();
-		if (activeItem != null && activeItem instanceof IGameUsableItem && !((IGameUsableItem)activeItem).canUse(null, null, null)) {
-			return false;
-		}
-
-		return true;
+		return activeItem == null || !(activeItem instanceof IGameUsableItem) || ((IGameUsableItem) activeItem).canUse(null, null, null);
 	}
 
 	public int getFreeSpace() {

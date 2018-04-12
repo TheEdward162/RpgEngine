@@ -1,7 +1,6 @@
 package com.edwardium.RPGEngine.Renderer.OpenGL;
 
 import com.edwardium.RPGEngine.IO.IOUtil;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GL20;

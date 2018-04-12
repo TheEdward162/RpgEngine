@@ -3,16 +3,16 @@ package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameAI.GameAI;
-import com.edwardium.RPGEngine.GameEntity.GameAnimation.GameTextureAnimation;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.DestroyerProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
+import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public class GunDestroyer extends GameItemGun {
 
-	private GameTextureAnimation fireAnimation;
+	private TextureAnimation fireAnimation;
 
 	public GunDestroyer(Vector2D position) {
 		super(position, "Destroyer Gun");
@@ -22,7 +22,7 @@ public class GunDestroyer extends GameItemGun {
 		this.maxChargeup = 0.5f;
 		this.fireVelocity = 3000f;
 
-		this.fireAnimation = new GameTextureAnimation(maxChargeup, 5, new TextureInfo("sheet1", null, new Vector2D(32, 32), new Vector2D(32, 32)), new Vector2D(32, 0));
+		this.fireAnimation = new TextureAnimation(maxChargeup, 5, new TextureInfo("sheet1", null, new Vector2D(32, 32), new Vector2D(32, 32)), new Vector2D(32, 0));
 		this.fireAnimation.jumpToZero = true;
 	}
 

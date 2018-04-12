@@ -37,8 +37,8 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 
 	@Override
 	public boolean canUse(GameCharacter by, Vector2D to, GameObject at) {
-		float diffAngle = by.getFacingDirection().angleBetween(Vector2D.subtract(to, by.position));
-		return this.cooldown == 0 && diffAngle <= 0.01f;
+		//float diffAngle = by.getFacingDirection().angleBetween(Vector2D.subtract(to, by.position));
+		return this.cooldown == 0;
 	}
 
 	@Override

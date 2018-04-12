@@ -2,16 +2,16 @@ package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 
 import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
-import com.edwardium.RPGEngine.GameEntity.GameAnimation.GameTextureAnimation;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.PistolBullet;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
+import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 public class GunPistol extends GameItemGun {
 
-	private GameTextureAnimation fireAnimation;
+	private TextureAnimation fireAnimation;
 
 	public GunPistol(Vector2D position) {
 		super(position, "Pistol");
@@ -19,7 +19,7 @@ public class GunPistol extends GameItemGun {
 		this.maxCooldown = 0.5f;
 		this.fireVelocity = 1000f;
 
-		this.fireAnimation = new GameTextureAnimation(0.2f, 1, new TextureInfo("sheet1", null, new Vector2D(64, 0), new Vector2D(32, 32)), new Vector2D(-32, 0));
+		this.fireAnimation = new TextureAnimation(0.2f, 1, new TextureInfo("sheet1", null, new Vector2D(64, 0), new Vector2D(32, 32)), new Vector2D(-32, 0));
 		this.fireAnimation.jumpToEnd();
 	}
 

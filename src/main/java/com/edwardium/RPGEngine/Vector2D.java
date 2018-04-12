@@ -156,6 +156,7 @@ public class Vector2D {
 		return this;
 	}
 
+	@SuppressWarnings("SuspiciousNameCombination")
 	public Vector2D getNormal() {
 		return new Vector2D(this.posY, -this.posX);
 	}

@@ -6,7 +6,7 @@ import com.edwardium.RPGEngine.Vector2D;
 // A Renderer takes care of all the window and graphics context initialization and cleanup.
 // Also provides methods to render stuff.
 public abstract class Renderer {
-	public enum StringAlignment { TOPLEFT, CENTER, BOTTOMRIGHT };
+	public enum StringAlignment { TOPLEFT, CENTER, BOTTOMRIGHT }
 
 	protected String windowTitle;
 	protected int windowWidth;

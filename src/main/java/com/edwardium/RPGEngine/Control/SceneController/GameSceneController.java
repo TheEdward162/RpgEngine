@@ -25,7 +25,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class GameSceneController extends SceneController {
 
-	public enum SpawnType { CHARACTER, PROJECTILE, ITEM };
+	public enum SpawnType { CHARACTER, PROJECTILE, ITEM }
 
 	private static class SpawnLimit {
 		public final int maximum;
@@ -40,6 +40,8 @@ public class GameSceneController extends SceneController {
 			return maximum > 0 && current < maximum;
 		}
 	}
+
+	private static final float UPDATE_STEP_TIME = 1 / 600f;
 
 	private Vector2D cameraPos;
 
@@ -86,8 +88,8 @@ public class GameSceneController extends SceneController {
 		GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));
 		GameItem bouncyBallGun = new GunBouncyBall(new Vector2D(player.position));
 		player.inventory.insertItem(pistol);
-		//player.inventory.insertItem(destroyerGun);
-		player.inventory.insertItem(bouncyBallGun);
+		player.inventory.insertItem(destroyerGun);
+		//player.inventory.insertItem(bouncyBallGun);
 
 		registerGameObject(pistol);
 		registerGameObject(destroyerGun);
@@ -103,7 +105,7 @@ public class GameSceneController extends SceneController {
 
 		GameItem secondPistol = new GunPistol(new Vector2D(secondCharacter.position));
 
-		secondCharacter.inventory.insertItem(destroyerGun);
+		secondCharacter.inventory.insertItem(bouncyBallGun);
 		//secondCharacter.inventory.insertItem(secondPistol);
 
 		registerGameObject(secondPistol);
@@ -119,8 +121,15 @@ public class GameSceneController extends SceneController {
 
 	@Override
 	public void update(double unprocessedTime) {
-		if (updateInput(unprocessedTime))
-			updateGame((float)(unprocessedTime * NANO_TIME_MULT * timeFactor));
+		if (updateInput(unprocessedTime)) {
+			updateGame(UPDATE_STEP_TIME * timeFactor, true);
+
+			float remainingTime = (float)(unprocessedTime * NANO_TIME_MULT) - UPDATE_STEP_TIME;
+			while (remainingTime > 0) {
+				updateGame(UPDATE_STEP_TIME * timeFactor, false);
+				remainingTime -= UPDATE_STEP_TIME;
+			}
+		}
 	}
 	private boolean updateInput(double unprocessedTime) {
 		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_ESCAPE, unprocessedTime)) {
@@ -191,12 +200,15 @@ public class GameSceneController extends SceneController {
 		return true;
 	}
 
-	private void updateGame(float elapsedTime) {
+	private void updateGame(float elapsedTime, boolean updateWakl) {
 		ArrayList<GameObject> toRemove = new ArrayList<>();
 
 		for (int i = 0; i < gameObjects.size(); i++) {
 			GameObject currentObject = gameObjects.get(i);
 
+			if (updateWakl && currentObject instanceof GameCharacter) {
+				((GameCharacter) currentObject).updateWalk();
+			}
 			currentObject.update(elapsedTime, environmentDensity);
 
 			// collisions

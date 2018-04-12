@@ -3,21 +3,25 @@ package com.edwardium.RPGEngine.Control;
 import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.Control.SceneController.MenuSceneController;
 import com.edwardium.RPGEngine.Control.SceneController.SceneController;
+import com.edwardium.RPGEngine.Control.SceneController.SplashSceneController;
 import com.edwardium.RPGEngine.FPSCounter;
 import com.edwardium.RPGEngine.IO.Config;
 import com.edwardium.RPGEngine.IO.Input;
+import com.edwardium.RPGEngine.Renderer.Animation.ColorAnimation;
+import com.edwardium.RPGEngine.Renderer.Animation.FusedAnimation;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.OpenGL.OpenGLRenderer;
 import com.edwardium.RPGEngine.Renderer.Renderer;
+import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
 
 public class Engine implements Runnable {
-	public enum SceneControllerType { GAME, MENU, QUIT };
+	public enum SceneControllerType { INITSPLASH, GAME, MENU, QUIT }
 
 	// in seconds
-	public static final float UPDATE_CAP = 1.0f / 60.1f;
+	public static final float UPDATE_CAP = 1.0f / 60.0f;
 	// nanoseconds * NANO_TIME_MULT = seconds
 	public static final double NANO_TIME_MULT = 1e-9;
 
@@ -27,7 +31,7 @@ public class Engine implements Runnable {
 
 	// Game objects
 	private Thread gameThread;
-	public Renderer gameRenderer;
+	private Renderer gameRenderer;
 	private Input gameInput;
 	private Config gameConfig;
 
@@ -74,8 +78,8 @@ public class Engine implements Runnable {
 
 		gameInput.setGameCursorCenter(gameRenderer.getWindowSize().divide(2));
 
-		// currentSceneController = new GameSceneController(gameInput);
-		currentSceneController = new MenuSceneController(gameInput);
+		changeSceneController(SceneControllerType.MENU);
+		changeSceneController(SceneControllerType.INITSPLASH);
 
 		gameRenderer.setVSync(true);
 		gameRenderer.show();
@@ -215,6 +219,15 @@ public class Engine implements Runnable {
 		lastSceneController = currentSceneController;
 
 		switch (type) {
+			case INITSPLASH:
+				ColorAnimation colorAnim = new ColorAnimation(2f);
+				colorAnim.addColorStop(new Color(0, 0, 0), 0f);
+				colorAnim.addColorStop(new Color(), 0.5f);
+				colorAnim.addColorStop(new Color(0, 0, 0), 1f);
+
+				FusedAnimation anim = new FusedAnimation(5, 0, new TextureInfo("initsplash"), null, colorAnim);
+				currentSceneController = new SplashSceneController(gameInput, anim, 2f);
+				break;
 			case GAME:
 				currentSceneController = new GameSceneController(gameInput);
 				break;
@@ -241,7 +254,7 @@ public class Engine implements Runnable {
 	private void cleanup() {
 		currentSceneController.cleanup();
 		if (lastSceneController != null)
-			lastSceneController.cleanup();;
+			lastSceneController.cleanup();
 
 		gameRenderer.cleanup();
 
