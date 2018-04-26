@@ -12,8 +12,6 @@ import com.edwardium.RPGEngine.Vector2D;
 
 public class GunDestroyer extends GameItemGun {
 
-	private TextureAnimation fireAnimation;
-
 	public GunDestroyer(Vector2D position) {
 		super(position, "Destroyer Gun");
 
@@ -70,8 +68,6 @@ public class GunDestroyer extends GameItemGun {
 
 	@Override
 	public void update(float elapsedTime, float environmentDensity) {
-		this.fireAnimation.update(elapsedTime);
-
 		if (this.chargeup == maxChargeup) {
 			this.chargeup++;
 

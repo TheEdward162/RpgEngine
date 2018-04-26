@@ -9,6 +9,7 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunBouncyBall;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunDestroyer;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunPistol;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunSMG;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.GameProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
@@ -87,13 +88,16 @@ public class GameSceneController extends SceneController {
 		GameItem pistol = new GunPistol(new Vector2D(player.position));
 		GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));
 		GameItem bouncyBallGun = new GunBouncyBall(new Vector2D(player.position));
+		GameItem smg = new GunSMG(new Vector2D(player.position));
 		player.inventory.insertItem(pistol);
 		player.inventory.insertItem(destroyerGun);
-		//player.inventory.insertItem(bouncyBallGun);
+		player.inventory.insertItem(bouncyBallGun);
+		//player.inventory.insertItem(smg);
 
 		registerGameObject(pistol);
 		registerGameObject(destroyerGun);
 		registerGameObject(bouncyBallGun);
+		registerGameObject(smg);
 
 		// player is outside of spawn limits?
 		gameObjects.add(player);
@@ -105,8 +109,8 @@ public class GameSceneController extends SceneController {
 
 		GameItem secondPistol = new GunPistol(new Vector2D(secondCharacter.position));
 
-		secondCharacter.inventory.insertItem(bouncyBallGun);
-		//secondCharacter.inventory.insertItem(secondPistol);
+		//secondCharacter.inventory.insertItem(bouncyBallGun);
+		secondCharacter.inventory.insertItem(smg);
 
 		registerGameObject(secondPistol);
 		registerGameObject(secondCharacter);

@@ -9,13 +9,17 @@ import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
-public class GunPistol extends GameItemGun {
+public class GunSMG extends GameItemGun {
 
-	public GunPistol(Vector2D position) {
-		super(position, "Pistol");
+	protected float maxSpread;
 
-		this.maxCooldown = 0.5f;
-		this.fireVelocity = 1000f;
+	public GunSMG(Vector2D position) {
+		super(position, "SMG");
+
+		this.maxCooldown = 0.25f;
+		this.fireVelocity = 900f;
+
+		this.maxSpread = 0.0436332f; // ~2.5 degrees
 
 		this.fireAnimation = new TextureAnimation(0.2f, 1, new TextureInfo("sheet1", null, new Vector2D(64, 0), new Vector2D(32, 32)), new Vector2D(-32, 0));
 		this.fireAnimation.jumpToEnd();
@@ -30,8 +34,12 @@ public class GunPistol extends GameItemGun {
 				this.lastUse = new UseInfo(by, to, at);
 
 				Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity);
+				float randomizedAngle = (float)Engine.gameEngine.randomGenerator.nextGaussian() * maxSpread;
+				velocityVector.setAngle(velocityVector.getAngle() + randomizedAngle);
+
 				PistolBullet bullet = new PistolBullet(by.getFacingDirection().setMagnitude(38f).add(by.position), velocityVector);
 				bullet.rotation = velocityVector.getAngle();
+
 				gsc.registerGameObject(bullet);
 
 				this.fireAnimation.run();

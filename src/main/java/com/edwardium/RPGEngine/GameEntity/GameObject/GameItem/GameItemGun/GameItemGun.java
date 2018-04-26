@@ -5,6 +5,7 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
+import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
 import com.edwardium.RPGEngine.Vector2D;
 
 public abstract class GameItemGun extends GameItem implements IGameUsableItem {
@@ -31,21 +32,36 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 
 	public float fireVelocity = 1f;
 
+	protected TextureAnimation fireAnimation;
+
 	protected GameItemGun(Vector2D position, String name) {
 		super(position, name);
 	}
 
 	@Override
 	public boolean canUse(GameCharacter by, Vector2D to, GameObject at) {
-		//float diffAngle = by.getFacingDirection().angleBetween(Vector2D.subtract(to, by.position));
-		return this.cooldown == 0;
+		boolean returnBool = true;
+
+		if (to != null) {
+			float diffAngle = by.getFacingDirection().angleBetween(Vector2D.subtract(to, by.position));
+			returnBool = returnBool && diffAngle <= 0.01f;
+		}
+		return returnBool && this.cooldown == 0;
 	}
 
 	@Override
 	public abstract boolean use(GameCharacter by, Vector2D to, GameObject at);
 
 	@Override
+	public boolean cancelUse() {
+		return false;
+	}
+
+	@Override
 	public void update(float elapsedTime, float environmentDensity) {
+		if (this.fireAnimation != null)
+			this.fireAnimation.update(elapsedTime);
+
 		if (cooldown > 0) {
 			if (chargeup < maxChargeup) {
 				if (lastUse.by.ai.currentState == GameAI.CharacterState.CHARGING) {

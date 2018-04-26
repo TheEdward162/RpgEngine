@@ -15,6 +15,8 @@ import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Vector2D;
 
+import java.util.Random;
+
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
 
 public class Engine implements Runnable {
@@ -28,6 +30,8 @@ public class Engine implements Runnable {
 	public static final float PIXEL_TO_METER = 1.0f / 50.0f;
 
 	public static Engine gameEngine;
+
+	public Random randomGenerator;
 
 	// Game objects
 	private Thread gameThread;
@@ -43,6 +47,8 @@ public class Engine implements Runnable {
 		if (gameEngine != null)
 			gameEngine.cleanup();
 		gameEngine = this;
+
+		randomGenerator = new Random();
 	}
 
 	public void start() {
@@ -78,8 +84,10 @@ public class Engine implements Runnable {
 
 		gameInput.setGameCursorCenter(gameRenderer.getWindowSize().divide(2));
 
-		changeSceneController(SceneControllerType.MENU);
-		changeSceneController(SceneControllerType.INITSPLASH);
+		changeSceneController(SceneControllerType.GAME);
+
+//		changeSceneController(SceneControllerType.MENU);
+//		changeSceneController(SceneControllerType.INITSPLASH);
 
 		gameRenderer.setVSync(true);
 		gameRenderer.show();
