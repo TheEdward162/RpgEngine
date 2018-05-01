@@ -1,7 +1,7 @@
 package com.edwardium.RPGEngine.Renderer.OpenGL;
 
 import com.edwardium.RPGEngine.Renderer.Texture;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;

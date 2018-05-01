@@ -3,8 +3,11 @@ package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
+import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
+
+import javax.json.JsonObject;
 
 public abstract class GameProjectile extends GameItem {
 
@@ -52,7 +55,7 @@ public abstract class GameProjectile extends GameItem {
 		this.distanceTravelled += this.velocity.getMagnitude() * elapsedTime;
 		this.timeTravelled += elapsedTime;
 
-		if (	(maximumDistance > 0 && distanceTravelled >= maximumDistance)
+		if ((maximumDistance > 0 && distanceTravelled >= maximumDistance)
 				|| (maximumTime > 0 && timeTravelled >= maximumTime)
 				|| (minimumSpeed > 0 && velocity.getMagnitude() <= minimumSpeed))
 		{
@@ -60,5 +63,53 @@ public abstract class GameProjectile extends GameItem {
 		}
 
 		super.update(elapsedTime, environmentDensity);
+	}
+
+	@Override
+	protected GameObject membersFromJson(JsonObject sourceObj) {
+		super.membersFromJson(sourceObj);
+
+		try {
+			this.distanceTravelled = (float)sourceObj.getJsonNumber("distanceTravelled").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.timeTravelled = (float)sourceObj.getJsonNumber("timeTravelled").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.maximumDistance = (float)sourceObj.getJsonNumber("maximumDistance").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.maximumTime = (float)sourceObj.getJsonNumber("maximumTime").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.minimumSpeed = (float)sourceObj.getJsonNumber("minimumSpeed").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.damage = (float)sourceObj.getJsonNumber("damage").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		return this;
+	}
+
+	@Override
+	protected JsonBuilder toJSONBuilder() {
+		JsonBuilder builder = super.toJSONBuilder();
+
+		if (maximumDistance >= 0)
+			builder.add("maximumDistance", maximumDistance).add_optional("distanceTravelled", distanceTravelled, 0f);
+
+
+		if (maximumTime >= 0)
+			builder.add("maximumTime", maximumTime).add_optional("timeTravelled", timeTravelled, 0f);
+
+		if (minimumSpeed >= 0)
+			builder.add("minimumSpeed", minimumSpeed);
+
+		return builder;
 	}
 }

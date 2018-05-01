@@ -8,7 +8,9 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.Des
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
+
+import javax.json.JsonObject;
 
 public class GunDestroyer extends GameItemGun {
 
@@ -22,6 +24,11 @@ public class GunDestroyer extends GameItemGun {
 
 		this.fireAnimation = new TextureAnimation(maxChargeup, 5, new TextureInfo("sheet1", null, new Vector2D(32, 32), new Vector2D(32, 32)), new Vector2D(32, 0));
 		this.fireAnimation.jumpToZero = true;
+	}
+
+	public GunDestroyer(JsonObject sourceObj) {
+		this(Vector2D.fromJSON(sourceObj.getJsonObject("position")));
+		super.membersFromJson(sourceObj);
 	}
 
 	@Override
@@ -84,5 +91,9 @@ public class GunDestroyer extends GameItemGun {
 		}
 
 		super.update(elapsedTime, environmentDensity);
+	}
+
+	public JsonObject toJSON() {
+		return super.toJSONBuilder().add_optional("fireVelocity", fireVelocity, 3000f).build();
 	}
 }

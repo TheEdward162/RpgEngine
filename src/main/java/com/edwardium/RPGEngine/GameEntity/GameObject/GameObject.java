@@ -1,10 +1,14 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject;
 
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
+import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.GameSerializable;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
-public abstract class GameObject {
+import javax.json.JsonObject;
+
+public abstract class GameObject implements GameSerializable {
 
 	public Vector2D position;
 	public String name;
@@ -140,5 +144,60 @@ public abstract class GameObject {
 
 		rotationDelta = Vector2D.subtract(target, this.position).angleBetween(Vector2D.fromAM(this.rotation, 1));
 		return rotationDelta <= 0.5 / 180 * Math.PI;
+	}
+
+	protected GameObject membersFromJson(JsonObject sourceObj) {
+		try {
+			this.maxRotationSpeed = (float)sourceObj.getJsonNumber("maxRotationSpeed").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.rotation = (float)sourceObj.getJsonNumber("rotation").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.mass = (float)sourceObj.getJsonNumber("mass").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		this.velocity = Vector2D.fromJSON(sourceObj.getJsonObject("velocity"));
+
+		try {
+			this.doesCollide = sourceObj.getBoolean("doesCollide");
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.hitbox = GameHitbox.fromJSON(sourceObj.getJsonObject("hitbox"));
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.dragCoefficient = (float)sourceObj.getJsonNumber("dragCoefficient").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.isDrawn = sourceObj.getBoolean("isDrawn");
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.toDelete = sourceObj.getBoolean("toDelete");
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		return this;
+	}
+	protected JsonBuilder toJSONBuilder() {
+		JsonBuilder builder = new JsonBuilder().add("cname", getClass().getSimpleName());
+
+		if (this.position.getMagnitude() != 0)
+			builder.add("position", position);
+
+		if (this.velocity.getMagnitude() != 0)
+			builder.add("velocity", velocity);
+
+		builder.add_optional("rotation", rotation, 0)
+				.add_optional("doesCollide", doesCollide, true)
+				.add_optional("dragCoefficient", dragCoefficient, 0.1f)
+				.add_optional("isDrawn", isDrawn, true)
+				.add_optional("toDelete", toDelete, false);
+
+		return builder;
 	}
 }

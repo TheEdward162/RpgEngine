@@ -2,11 +2,11 @@ package com.edwardium.RPGEngine.Control.SceneController;
 
 import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.IO.Input;
-import com.edwardium.RPGEngine.Rectangle;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Rectangle;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
 import java.util.HashMap;
 

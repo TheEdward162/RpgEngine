@@ -3,11 +3,13 @@ package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
-import com.edwardium.RPGEngine.Rectangle;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Rectangle;
+import com.edwardium.RPGEngine.Utility.Vector2D;
+
+import javax.json.JsonObject;
 
 public class PistolBullet extends GameProjectile {
 
@@ -18,6 +20,11 @@ public class PistolBullet extends GameProjectile {
 		this.hitbox = new GameHitbox(new Rectangle(new Vector2D(-5f, -2.25f), new Vector2D(5f, 2.25f)));
 
 		this.damage = 5f;
+	}
+
+	public PistolBullet(JsonObject sourceObj) {
+		this(Vector2D.fromJSON(sourceObj.getJsonObject("position")), Vector2D.fromJSON(sourceObj.getJsonObject("velocity")));
+		super.membersFromJson(sourceObj);
 	}
 
 	@Override
@@ -41,5 +48,9 @@ public class PistolBullet extends GameProjectile {
 					new TextureInfo("default", new Color(0.4f, 0.4f, 0.4f, 1)));
 		}
 		super.render(gameRenderer, drawHitbox);
+	}
+
+	public JsonObject toJSON() {
+		return super.toJSONBuilder().add_optional("damage", damage, 5f).build();
 	}
 }

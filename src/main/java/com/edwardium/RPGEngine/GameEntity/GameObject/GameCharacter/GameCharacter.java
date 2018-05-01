@@ -10,11 +10,12 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
+
+import javax.json.JsonObject;
 
 public class GameCharacter extends GameObject {
 	public enum CharacterRelationship { NONE, FRIENDLY, NEUTRAL, ENEMY }
-
 	public enum CharacterFaction {
 		NONE(0b0), PLAYER(0b1), NEUTRAL(0b10), TRIANGLEHEADS(0b100), BUBBLENOSES(0b1000);
 
@@ -126,6 +127,29 @@ public class GameCharacter extends GameObject {
 		this.name = name;
 		this.inventory = new GameInventory(inventorySize);
 		this.ai = new PlayerAI(this);
+	}
+	public GameCharacter(JsonObject sourceObj) {
+		super.membersFromJson(sourceObj);
+
+		try {
+			this.maxWalkSpeed = (float)sourceObj.getJsonNumber("maxWalkSpeed").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		walkVector = Vector2D.fromJSON(sourceObj.getJsonObject("walkVector"));
+		inventory = GameInventory.fromJSON(sourceObj.getJsonObject("inventory"));
+		ai = GameAI.fromJSON(sourceObj.getJsonObject("ai"), this);
+
+		try {
+			this.factionFlag = sourceObj.getJsonNumber("factionFlag").intValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.maxHeath = (float)sourceObj.getJsonNumber("maxHeath").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.health = (float)sourceObj.getJsonNumber("health").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
 	}
 
 	@Override
@@ -265,5 +289,18 @@ public class GameCharacter extends GameObject {
 
 		if (this.health <= 0)
 			this.ai.currentState = GameAI.CharacterState.LOCKED;
+	}
+
+	public JsonObject toJSON() {
+		return super.toJSONBuilder()
+				.add("name", name)
+				.add_optional("maxWalkSpeed", maxWalkSpeed, 350f)
+				.add_optional("walkVector", walkVector, new Vector2D())
+				.add_optional("inventory", inventory, inventory.getSize() == 0)
+				.add("ai", ai)
+				.add_optional("faction", factionFlag, 0)
+				.add_optional("maxHealth", maxHeath, 100f)
+				.add_optional("health", health, 100f)
+				.build();
 	}
 }

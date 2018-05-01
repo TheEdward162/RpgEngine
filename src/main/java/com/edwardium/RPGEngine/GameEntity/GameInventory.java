@@ -2,13 +2,19 @@ package com.edwardium.RPGEngine.GameEntity;
 
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
-import com.edwardium.RPGEngine.Rectangle;
+import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.GameSerializable;
+import com.edwardium.RPGEngine.Utility.Rectangle;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
-public class GameInventory {
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+
+public class GameInventory implements GameSerializable {
 
 	private final GameItem[] items;
 
@@ -42,6 +48,9 @@ public class GameInventory {
 		return activeItem == null || !(activeItem instanceof IGameUsableItem) || ((IGameUsableItem) activeItem).canUse(null, null, null);
 	}
 
+	public int getSize() {
+		return items.length;
+	}
 	public int getFreeSpace() {
 		int free = 0;
 		for (GameItem item : items) {
@@ -118,7 +127,6 @@ public class GameInventory {
 				textColor = r_inventoryNumberActiveColor;
 //			renderer.drawString(renderer.basicFont, String.valueOf(i + 1) + ".", Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
 
-			// TODO: Render item image and item name
 			if (inventory.items[i] != null) {
 				Rectangle imageRectangle = Rectangle.setWidth(itemRectangle, 32);
 				renderer.drawRectangle(imageRectangle, 0, inventory.items[i].getInventoryTexture());
@@ -127,5 +135,21 @@ public class GameInventory {
 				renderer.drawString(renderer.basicFont, "Empty", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), null, 0, textColor);
 			}
 		}
+	}
+
+	@Override
+	public JsonObject toJSON() {
+		JsonBuilder builder = new JsonBuilder().add_optional("activeIndex", activeIndex, 0);
+		JsonArrayBuilder itemsArrayBuilder = Json.createArrayBuilder();
+		// TODO: Inventory
+
+		return builder.build();
+	}
+
+	public static GameInventory fromJSON(JsonObject sourceObj) {
+		if (sourceObj == null)
+			return new GameInventory(0);
+
+		return new GameInventory(0);
 	}
 }

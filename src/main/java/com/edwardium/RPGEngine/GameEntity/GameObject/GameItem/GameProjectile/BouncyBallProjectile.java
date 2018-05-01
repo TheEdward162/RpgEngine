@@ -7,7 +7,9 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
+
+import javax.json.JsonObject;
 
 public class BouncyBallProjectile extends GameProjectile {
 
@@ -20,7 +22,12 @@ public class BouncyBallProjectile extends GameProjectile {
 		this.hitbox = new GameHitbox(15f);
 		this.maximumTime = 2f;
 
-		this.damage = 2f;
+		this.damage = 20f;
+	}
+
+	public BouncyBallProjectile(JsonObject sourceObj) {
+		this(Vector2D.fromJSON(sourceObj.getJsonObject("position")), Vector2D.fromJSON(sourceObj.getJsonObject("velocity")));
+		super.membersFromJson(sourceObj);
 	}
 
 	@Override
@@ -58,5 +65,9 @@ public class BouncyBallProjectile extends GameProjectile {
 			gameRenderer.drawCircle(15f, this.position, new TextureInfo("default", new Color(0f, 1f, 0.502f, alpha)));
 		}
 		super.render(gameRenderer, drawHitbox);
+	}
+
+	public JsonObject toJSON() {
+		return super.toJSONBuilder().add_optional("damage", damage, 2f).build();
 	}
 }

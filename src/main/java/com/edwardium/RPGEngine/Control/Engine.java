@@ -4,7 +4,6 @@ import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.Control.SceneController.MenuSceneController;
 import com.edwardium.RPGEngine.Control.SceneController.SceneController;
 import com.edwardium.RPGEngine.Control.SceneController.SplashSceneController;
-import com.edwardium.RPGEngine.FPSCounter;
 import com.edwardium.RPGEngine.IO.Config;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.Renderer.Animation.ColorAnimation;
@@ -13,7 +12,8 @@ import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.OpenGL.OpenGLRenderer;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.FPSCounter;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
 import java.util.Random;
 
@@ -29,7 +29,7 @@ public class Engine implements Runnable {
 
 	public static final float PIXEL_TO_METER = 1.0f / 50.0f;
 
-	public static Engine gameEngine;
+	public static Engine gameEngine = new Engine();
 
 	public Random randomGenerator;
 
@@ -43,7 +43,7 @@ public class Engine implements Runnable {
 	private SceneController lastSceneController = null;
 	private SceneController currentSceneController;
 
-	public Engine() {
+	private Engine() {
 		if (gameEngine != null)
 			gameEngine.cleanup();
 		gameEngine = this;
@@ -95,6 +95,10 @@ public class Engine implements Runnable {
 		// start game loop
 		running = true;
 		loopUnsynced();
+
+		if (currentSceneController instanceof GameSceneController) {
+			((GameSceneController) currentSceneController).saveState("test.json");
+		}
 
 		// Game is over
 		cleanup();

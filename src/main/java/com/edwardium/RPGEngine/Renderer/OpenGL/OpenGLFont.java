@@ -3,7 +3,7 @@ package com.edwardium.RPGEngine.Renderer.OpenGL;
 import com.edwardium.RPGEngine.IO.IOUtil;
 import com.edwardium.RPGEngine.Renderer.Font;
 import com.edwardium.RPGEngine.Renderer.Vertex;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTBakedChar;

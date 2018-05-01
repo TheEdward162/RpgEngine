@@ -54,4 +54,16 @@ public class IOUtil {
 
 		return buffer;
 	}
+
+	public static String[] fileSplitExtension(File file) {
+		return fileSplitExtension(file.getName());
+	}
+	public static String[] fileSplitExtension(String name) {
+		int pos = name.lastIndexOf(".");
+		if (pos > 0 && pos < name.length() - 1) { // "." is not the first nor the last character
+			return new String[] { name.substring(0, pos), name.substring(pos + 1) };
+		}
+
+		return new String[] { name };
+	}
 }

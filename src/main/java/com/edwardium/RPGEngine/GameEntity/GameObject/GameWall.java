@@ -1,11 +1,13 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject;
 
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
-import com.edwardium.RPGEngine.Rectangle;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Rectangle;
+import com.edwardium.RPGEngine.Utility.Vector2D;
+
+import javax.json.JsonObject;
 
 public class GameWall extends GameObject {
 
@@ -15,10 +17,15 @@ public class GameWall extends GameObject {
 	public GameWall(Vector2D position, Rectangle shape) {
 		super(position, "Wall");
 
-		this.hitbox = new GameHitbox(shape);
 		this.shape = shape;
+		this.hitbox = new GameHitbox(shape);
 
 		this.mass = Float.POSITIVE_INFINITY;
+	}
+
+	public GameWall(JsonObject sourceObj) {
+		this(Vector2D.fromJSON(sourceObj.getJsonObject("position")), Rectangle.fromJSON(sourceObj.getJsonObject("shape")));
+		this.membersFromJson(sourceObj);
 	}
 
 	@Override
@@ -37,5 +44,11 @@ public class GameWall extends GameObject {
 	@Override
 	public void collideWith(GameObject other, Vector2D otherSideNormal) {
 
+	}
+
+	public JsonObject toJSON() {
+		return super.toJSONBuilder().add("shape", shape.toJSON()).add_optional("mass", mass, Float.POSITIVE_INFINITY).build();
+
+		// TODO: Penetrable
 	}
 }

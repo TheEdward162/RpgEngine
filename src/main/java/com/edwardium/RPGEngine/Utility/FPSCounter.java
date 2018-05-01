@@ -1,4 +1,4 @@
-package com.edwardium.RPGEngine;
+package com.edwardium.RPGEngine.Utility;
 
 public class FPSCounter {
 	private static double history[] = null;

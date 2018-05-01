@@ -2,7 +2,7 @@ package com.edwardium.RPGEngine.Renderer.Animation;
 
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
 public class FusedAnimation extends TextureAnimation {
 

@@ -1,8 +1,11 @@
-package com.edwardium.RPGEngine;
+package com.edwardium.RPGEngine.Utility;
 
+import com.edwardium.RPGEngine.IO.JsonBuilder;
+
+import javax.json.JsonObject;
 import java.util.Objects;
 
-public class Vector2D {
+public class Vector2D implements GameSerializable {
 	private float posX;
 	private float posY;
 
@@ -258,5 +261,21 @@ public class Vector2D {
 	@Override
 	public String toString() {
 		return getX() + "; " + getY();
+	}
+
+	public JsonObject toJSON() {
+		return new JsonBuilder().add("x", this.getX()).add("y", this.getY()).build();
+	}
+
+	public static Vector2D fromJSON(JsonObject sourceObj) {
+		// already protected from NullPointerException, no need to check for null here
+		try {
+			float x = (float)sourceObj.getJsonNumber("x").doubleValue();
+			float y = (float)sourceObj.getJsonNumber("y").doubleValue();
+
+			return new Vector2D(x, y);
+		} catch (NullPointerException | ClassCastException e) {
+			return new Vector2D();
+		}
 	}
 }

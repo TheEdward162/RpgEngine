@@ -5,8 +5,11 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
+import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
+
+import javax.json.JsonObject;
 
 public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 
@@ -78,5 +81,47 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 		}
 
 		super.update(elapsedTime, environmentDensity);
+	}
+
+	protected GameObject membersFromJson(JsonObject sourceObj) {
+		super.membersFromJson(sourceObj);
+
+		try {
+			this.maxCooldown = (float)sourceObj.getJsonNumber("maxCooldown").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.cooldown = (float)sourceObj.getJsonNumber("cooldown").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.maxChargeup = (float)sourceObj.getJsonNumber("maxChargeup").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.chargeup = (float)sourceObj.getJsonNumber("chargeup").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		try {
+			this.fireVelocity = (float)sourceObj.getJsonNumber("fireVelocity").doubleValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		// TODO: UseInfo and animations
+
+		return this;
+	}
+
+	@Override
+	protected JsonBuilder toJSONBuilder() {
+		JsonBuilder builder = super.toJSONBuilder();
+
+		if (maxCooldown > 0)
+			builder.add("maxCooldown", maxCooldown).add_optional("cooldown", cooldown, 0f);
+
+
+		if (maxChargeup > 0)
+			builder.add("maxChargeup", maxChargeup).add_optional("chargeup", chargeup, 0f);
+
+		return builder;
 	}
 }

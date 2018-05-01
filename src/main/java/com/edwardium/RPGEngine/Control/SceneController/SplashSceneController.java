@@ -4,7 +4,7 @@ import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.Renderer.Animation.FusedAnimation;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
 public class SplashSceneController extends SceneController {
 

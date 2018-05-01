@@ -2,7 +2,7 @@ package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem;
 
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
 public abstract class GameItem extends GameObject {
 

@@ -5,10 +5,15 @@ import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GameItemGun;
 
+import javax.json.JsonObject;
+
 public class SimpleEnemyAI extends GameAI {
 
 	public SimpleEnemyAI(GameCharacter character) {
 		super(character);
+	}
+	public SimpleEnemyAI(GameCharacter character, JsonObject sourceObj) {
+		super(character, sourceObj);
 	}
 
 	@Override
@@ -24,5 +29,10 @@ public class SimpleEnemyAI extends GameAI {
 		}
 
 		super.onUpdate(elapsedTime);
+	}
+
+	@Override
+	public JsonObject toJSON() {
+		return super.toJSONBuilder().build();
 	}
 }

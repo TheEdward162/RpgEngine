@@ -1,6 +1,6 @@
 package com.edwardium.RPGEngine.Renderer;
 
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
 public class TextureInfo {
 

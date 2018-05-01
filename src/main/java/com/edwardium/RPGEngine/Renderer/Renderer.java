@@ -1,7 +1,7 @@
 package com.edwardium.RPGEngine.Renderer;
 
-import com.edwardium.RPGEngine.Rectangle;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Rectangle;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
 // A Renderer takes care of all the window and graphics context initialization and cleanup.
 // Also provides methods to render stuff.

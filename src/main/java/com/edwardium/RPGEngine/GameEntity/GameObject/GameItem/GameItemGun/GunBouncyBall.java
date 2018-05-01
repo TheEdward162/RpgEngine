@@ -6,7 +6,9 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.BouncyBallProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
+
+import javax.json.JsonObject;
 
 public class GunBouncyBall extends GameItemGun {
 
@@ -16,6 +18,11 @@ public class GunBouncyBall extends GameItemGun {
 		super(position, "Bouncy Ball Gun");
 
 		this.fireVelocity = 400f;
+	}
+
+	public GunBouncyBall(JsonObject sourceObj) {
+		this(Vector2D.fromJSON(sourceObj.getJsonObject("position")));
+		super.membersFromJson(sourceObj);
 	}
 
 	@Override
@@ -73,6 +80,12 @@ public class GunBouncyBall extends GameItemGun {
 			this.currentProjectile = null;
 
 		super.update(elapsedTime, environmentDensity);
+	}
+
+	public JsonObject toJSON() {
+		return super.toJSONBuilder().add_optional("fireVelocity", fireVelocity, 400f).build();
+
+		// TODO: currentProjectile
 	}
 }
 

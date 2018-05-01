@@ -1,7 +1,7 @@
 package com.edwardium.RPGEngine.Renderer;
 
 import com.edwardium.RPGEngine.Renderer.OpenGL.OpenGLFont;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
 import java.nio.IntBuffer;
 

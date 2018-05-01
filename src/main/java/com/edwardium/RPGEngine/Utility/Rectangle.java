@@ -1,6 +1,10 @@
-package com.edwardium.RPGEngine;
+package com.edwardium.RPGEngine.Utility;
 
-public class Rectangle {
+import com.edwardium.RPGEngine.IO.JsonBuilder;
+
+import javax.json.JsonObject;
+
+public class Rectangle implements GameSerializable {
 
 	public static Rectangle setWidth(Rectangle a, float w) {
 		return new Rectangle(a).setWidth(w);
@@ -53,5 +57,16 @@ public class Rectangle {
 
 	public Vector2D center() {
 		return topLeft.center(bottomRight);
+	}
+
+	public JsonObject toJSON() {
+		return new JsonBuilder().add("topLeft", this.topLeft.toJSON()).add("bottomRight", this.bottomRight.toJSON()).build();
+	}
+
+	public static Rectangle fromJSON(JsonObject sourceObj) {
+		if (sourceObj == null)
+			return new Rectangle(new Vector2D(), new Vector2D());
+
+		return new Rectangle(Vector2D.fromJSON(sourceObj.getJsonObject("topLeft")), Vector2D.fromJSON(sourceObj.getJsonObject("bottomRight")));
 	}
 }

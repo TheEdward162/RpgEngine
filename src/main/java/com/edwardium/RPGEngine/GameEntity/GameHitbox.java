@@ -1,13 +1,20 @@
 package com.edwardium.RPGEngine.GameEntity;
 
 import com.edwardium.RPGEngine.Control.Engine;
-import com.edwardium.RPGEngine.Rectangle;
+import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.GameSerializable;
+import com.edwardium.RPGEngine.Utility.Rectangle;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
-public class GameHitbox {
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+
+public class GameHitbox implements GameSerializable {
 
 	private static class SATDistanceInfo {
 		public final Vector2D outsideNormal;
@@ -304,5 +311,43 @@ public class GameHitbox {
 				}
 			}
 		}
+	}
+
+	public JsonObject toJSON() {
+		JsonBuilder builder = new JsonBuilder();
+		if (radius != null) {
+			builder.add("radius", radius);
+			if (points[0].getMagnitude() != 0) { // is not (0, 0)
+				builder.add("points", Json.createArrayBuilder().add(points[0].toJSON()));
+			}
+		} else {
+			JsonArrayBuilder pointsArrayBuilder = Json.createArrayBuilder();
+			for (Vector2D point : points) {
+				pointsArrayBuilder.add(point.toJSON());
+			}
+			builder.add("points", pointsArrayBuilder);
+		}
+
+		return builder.build();
+	}
+
+	public static GameHitbox fromJSON(JsonObject sourceObj) {
+		Vector2D[] points;
+		try {
+			JsonArray pointsArray = sourceObj.getJsonArray("points");
+			points = new Vector2D[pointsArray.size()];
+			for (int i = 0; i < points.length; i++) {
+				points[i] = Vector2D.fromJSON(pointsArray.getJsonObject(i));
+			}
+		} catch (NullPointerException | ClassCastException e) {
+			points = new Vector2D[] { new Vector2D() };
+		}
+
+		try {
+			float radius = (float)sourceObj.getJsonNumber("radius").doubleValue();
+			return new GameHitbox(radius, points[0]);
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		return new GameHitbox(points);
 	}
 }

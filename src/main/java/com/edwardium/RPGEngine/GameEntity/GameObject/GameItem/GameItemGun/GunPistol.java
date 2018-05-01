@@ -7,7 +7,9 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.Pis
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Vector2D;
+
+import javax.json.JsonObject;
 
 public class GunPistol extends GameItemGun {
 
@@ -19,6 +21,11 @@ public class GunPistol extends GameItemGun {
 
 		this.fireAnimation = new TextureAnimation(0.2f, 1, new TextureInfo("sheet1", null, new Vector2D(64, 0), new Vector2D(32, 32)), new Vector2D(-32, 0));
 		this.fireAnimation.jumpToEnd();
+	}
+
+	public GunPistol(JsonObject sourceObj) {
+		this(Vector2D.fromJSON(sourceObj.getJsonObject("position")));
+		super.membersFromJson(sourceObj);
 	}
 
 	@Override
@@ -57,5 +64,9 @@ public class GunPistol extends GameItemGun {
 	@Override
 	public Vector2D getHeldSize() {
 		return new Vector2D(32, 32);
+	}
+
+	public JsonObject toJSON() {
+		return super.toJSONBuilder().add_optional("fireVelocity", fireVelocity, 1000f).build();
 	}
 }

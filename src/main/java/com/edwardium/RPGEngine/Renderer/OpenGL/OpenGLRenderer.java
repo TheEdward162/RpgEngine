@@ -1,8 +1,8 @@
 package com.edwardium.RPGEngine.Renderer.OpenGL;
 
-import com.edwardium.RPGEngine.Rectangle;
 import com.edwardium.RPGEngine.Renderer.*;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Rectangle;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;

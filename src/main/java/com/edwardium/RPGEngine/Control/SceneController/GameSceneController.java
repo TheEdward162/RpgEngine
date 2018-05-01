@@ -14,11 +14,18 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.Gam
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.IO.Input;
-import com.edwardium.RPGEngine.Rectangle;
+import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Vector2D;
+import com.edwardium.RPGEngine.Utility.Rectangle;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 
 import static com.edwardium.RPGEngine.Control.Engine.NANO_TIME_MULT;
@@ -137,7 +144,9 @@ public class GameSceneController extends SceneController {
 	}
 	private boolean updateInput(double unprocessedTime) {
 		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_ESCAPE, unprocessedTime)) {
-			Engine.gameEngine.restoreLastSceneController();
+			if (!Engine.gameEngine.restoreLastSceneController()) {
+				Engine.gameEngine.changeSceneController(Engine.SceneControllerType.MENU);
+			}
 			return false;
 		}
 
@@ -261,6 +270,23 @@ public class GameSceneController extends SceneController {
 		gameInput.unwatchKey(GLFW_KEY_H);
 
 		gameInput.unwatchKey(GLFW_KEY_ESCAPE);
+	}
+
+	public boolean saveState(String savePath) {
+		JsonBuilder builder = new JsonBuilder();
+		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+		for (GameObject object : gameObjects) {
+			arrayBuilder.add(object.toJSON());
+		}
+		builder.add("objects", arrayBuilder);
+		JsonObject root = builder.build();
+
+		try (Writer writer = new FileWriter(savePath)) {
+			writer.write(root.toString());
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	private void setTimeFactor(Float value) {
