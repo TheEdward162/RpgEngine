@@ -7,6 +7,7 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.DestroyerProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
+import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
@@ -33,7 +34,7 @@ public class GunDestroyer extends GameItemGun {
 
 	@Override
 	public TextureInfo getInventoryTexture() {
-		return null;
+		return new TextureInfo("sheet1", null, new Vector2D(0, 32), new Vector2D(32, 32));
 	}
 
 	@Override
@@ -91,6 +92,15 @@ public class GunDestroyer extends GameItemGun {
 		}
 
 		super.update(elapsedTime, environmentDensity);
+	}
+
+	@Override
+	public void render(Renderer gameRenderer) {
+		if (isDrawn) {
+			gameRenderer.drawRectangle(this.position, new Vector2D(64, 64), this.rotation,
+					getInventoryTexture());
+		}
+		super.render(gameRenderer);
 	}
 
 	public JsonObject toJSON() {

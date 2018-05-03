@@ -38,6 +38,10 @@ public abstract class GameAI implements GameSerializable {
 		return currentState == CharacterState.IDLE || currentState == CharacterState.CHARGING;
 	}
 
+	public boolean canPickupItem() {
+		return currentState == CharacterState.IDLE;
+	}
+
 	public boolean canUseItem() {
 		return currentState == CharacterState.IDLE;
 	}

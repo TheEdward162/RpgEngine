@@ -6,6 +6,7 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.PistolBullet;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
+import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
@@ -76,6 +77,15 @@ public class GunSMG extends GameItemGun {
 	@Override
 	public Vector2D getHeldSize() {
 		return new Vector2D(32, 32);
+	}
+
+	@Override
+	public void render(Renderer gameRenderer) {
+		if (isDrawn) {
+			gameRenderer.drawRectangle(this.position, new Vector2D(32, 32), this.rotation,
+					getInventoryTexture());
+		}
+		super.render(gameRenderer);
 	}
 
 	public JsonObject toJSON() {

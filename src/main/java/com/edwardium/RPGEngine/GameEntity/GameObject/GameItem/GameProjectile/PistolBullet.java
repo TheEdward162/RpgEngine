@@ -33,8 +33,8 @@ public class PistolBullet extends GameProjectile {
 	}
 
 	@Override
-	public void collideWith(GameObject other, Vector2D otherSideNormal) {
-		super.collideWith(other, otherSideNormal);
+	public void collideWith(GameObject other, Vector2D mySideNormal, Vector2D otherSideNormal) {
+		super.collideWith(other, mySideNormal, otherSideNormal);
 
 		if (other instanceof GameWall) {
 			this.toDelete = true;
@@ -42,12 +42,12 @@ public class PistolBullet extends GameProjectile {
 	}
 
 	@Override
-	public void render(Renderer gameRenderer, boolean drawHitbox) {
+	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
 			gameRenderer.drawRectangle(this.position, new Vector2D(10f, 4.5f), this.velocity.getAngle(),
 					new TextureInfo("default", new Color(0.4f, 0.4f, 0.4f, 1)));
 		}
-		super.render(gameRenderer, drawHitbox);
+		super.render(gameRenderer);
 	}
 
 	public JsonObject toJSON() {

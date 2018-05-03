@@ -293,10 +293,13 @@ public class GameHitbox implements GameSerializable {
 
 	}
 
-	private static Color hitboxColor = new Color(1, 0, 0);
+	private static Color defaultHitboxColor = new Color(1, 0, 0);
 	public static void renderHitbox(Renderer renderer, Vector2D position, float rotation, GameHitbox hitbox) {
+		renderHitbox(renderer, position, rotation, hitbox, defaultHitboxColor);
+	}
+	public static void renderHitbox(Renderer renderer, Vector2D position, float rotation, GameHitbox hitbox, Color color) {
 		if (hitbox.radius != null) {
-			renderer.drawCircle(hitbox.radius - 2f, hitbox.radius, 4f, position, new TextureInfo("default", hitboxColor));
+			renderer.drawCircle(hitbox.radius - 2f, hitbox.radius, 4f, position, new TextureInfo("default", color));
 		} else {
 			if (hitbox.points.length >= 2) {
 				for (int i = 0; i < hitbox.points.length; i++) {
@@ -307,7 +310,7 @@ public class GameHitbox implements GameSerializable {
 					Vector2D sideA = new Vector2D(hitbox.points[previousIndex]).rotateBy(rotation).add(position);
 					Vector2D sideB = new Vector2D(hitbox.points[i]).rotateBy(rotation).add(position);
 
-					renderer.drawLine(sideA, sideB, 2f, hitboxColor);
+					renderer.drawLine(sideA, sideB, 2f, color);
 				}
 			}
 		}

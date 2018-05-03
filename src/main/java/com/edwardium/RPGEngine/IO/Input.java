@@ -6,6 +6,8 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
 
 import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -64,10 +66,13 @@ public class Input {
 	private HashMap<Integer, KeyState> watchedKeys;
 	private ScrollState scrollState = new ScrollState();
 
+	private Set<Integer> keyLock;
+
 	public Input(long window) {
 		this.window = window;
 		lastMousePos = new Vector2D();
 		watchedKeys = new HashMap<>();
+		keyLock = new TreeSet<>();
 
 		// setup callbacks
 		// window key callback
@@ -108,18 +113,32 @@ public class Input {
 		watchedKeys.remove(key);
 	}
 
-	public int getKeyState(int code) {
+	private int getKeyState(int code) {
 		return glfwGetKey(window, code);
 	}
 	public boolean getKeyPressed(int code) {
-		return getKeyState(code) == GLFW_PRESS;
+		return checkLock(code, getKeyState(code) == GLFW_PRESS);
 	}
 
-	public int getMouseState(int code) {
+	private int getMouseState(int code) {
 		return glfwGetMouseButton(window, code);
 	}
 	public boolean getMousePressed(int code) {
-		return getMouseState(code) == GLFW_PRESS;
+		return checkLock(code, getMouseState(code) == GLFW_PRESS);
+	}
+
+	public void lockKey(int code) {
+		keyLock.add(code);
+	}
+	private boolean checkLock(int code, boolean actual) {
+		if (keyLock.contains(code)) {
+			if (!actual)
+				keyLock.remove(code);
+
+			return false;
+		}
+
+		return actual;
 	}
 
 	public KeyState getWatchedKeyState(int code) {
@@ -155,7 +174,7 @@ public class Input {
 		return scrollState.offsetY < 0 && (timeDiff <= timeThreshold);
 	}
 
-	public Vector2D getCursorPos() {
+	private Vector2D getCursorPos() {
 		return new Vector2D(lastMousePos);
 	}
 

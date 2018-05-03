@@ -242,6 +242,7 @@ public class Engine implements Runnable {
 				break;
 			case GAME:
 				currentSceneController = new GameSceneController(gameInput);
+				((GameSceneController) currentSceneController).reloadScene();
 				break;
 			case MENU:
 				currentSceneController = new MenuSceneController(gameInput);

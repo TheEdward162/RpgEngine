@@ -2,6 +2,7 @@ package com.edwardium.RPGEngine.GameEntity.GameObject;
 
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.IO.JsonBuilder;
+import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Utility.GameSerializable;
 import com.edwardium.RPGEngine.Utility.Vector2D;
@@ -45,15 +46,21 @@ public abstract class GameObject implements GameSerializable {
 		this.position.add(Vector2D.multiply(this.velocity, elapsedTime));
 	}
 
-	public void render(Renderer gameRenderer, boolean drawHitbox) {
-		if (isDrawn && drawHitbox) {
-			if (this.hitbox != null) {
-				GameHitbox.renderHitbox(gameRenderer, this.position, this.rotation, this.hitbox);
-			}
+	public void render(Renderer gameRenderer) {
+
+	}
+	public void renderHitbox(Renderer gameRenderer) {
+		if (isDrawn && this.hitbox != null) {
+			GameHitbox.renderHitbox(gameRenderer, this.position, this.rotation, this.hitbox);
+		}
+	}
+	public void renderHitbox(Renderer gameRenderer, Color color) {
+		if (isDrawn && this.hitbox != null) {
+			GameHitbox.renderHitbox(gameRenderer, this.position, this.rotation, this.hitbox, color);
 		}
 	}
 
-	protected GameObject applyForce(Vector2D force) {
+	public GameObject applyForce(Vector2D force) {
 		this.velocity.add(Vector2D.divide(force, this.mass));
 
 		return this;
@@ -93,7 +100,7 @@ public abstract class GameObject implements GameSerializable {
 		}
 	}
 
-	public void collideWith(GameObject other, Vector2D otherSideNormal) {
+	public void collideWith(GameObject other, Vector2D mySideNormal, Vector2D otherSideNormal) {
 
 	}
 

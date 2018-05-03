@@ -34,16 +34,21 @@ public class GameWall extends GameObject {
 	}
 
 	@Override
-	public void render(Renderer gameRenderer, boolean drawHitbox) {
+	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
 			gameRenderer.drawRectangle(Rectangle.shiftBy(this.shape, this.position), this.rotation, new TextureInfo("default", new Color(0.3f, 0.3f, 0.3f, 1f)));
 		}
-		super.render(gameRenderer, drawHitbox);
+		super.render(gameRenderer);
 	}
 
 	@Override
-	public void collideWith(GameObject other, Vector2D otherSideNormal) {
+	public void collideWith(GameObject other, Vector2D mnySideNormal, Vector2D otherSideNormal) {
+		other.position.subtract(mnySideNormal);
 
+		Vector2D rejection = other.velocity.rejection(mnySideNormal.getNormal());
+		if (rejection.angleBetween(mnySideNormal) == 0) {
+			other.velocity.subtract(rejection);
+		}
 	}
 
 	public JsonObject toJSON() {

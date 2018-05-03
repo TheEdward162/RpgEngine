@@ -5,13 +5,13 @@ import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.BouncyBallProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
+import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
 import javax.json.JsonObject;
 
 public class GunBouncyBall extends GameItemGun {
-
 	private BouncyBallProjectile currentProjectile = null;
 
 	public GunBouncyBall(Vector2D position) {
@@ -80,6 +80,15 @@ public class GunBouncyBall extends GameItemGun {
 			this.currentProjectile = null;
 
 		super.update(elapsedTime, environmentDensity);
+	}
+
+	@Override
+	public void render(Renderer gameRenderer) {
+		if (isDrawn) {
+			gameRenderer.drawRectangle(this.position, new Vector2D(32, 32), this.rotation,
+					getInventoryTexture());
+		}
+		super.render(gameRenderer);
 	}
 
 	public JsonObject toJSON() {

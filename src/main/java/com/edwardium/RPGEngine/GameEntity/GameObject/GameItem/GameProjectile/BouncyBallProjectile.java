@@ -36,7 +36,7 @@ public class BouncyBallProjectile extends GameProjectile {
 	}
 
 	@Override
-	public void collideWith(GameObject other, Vector2D otherSideNormal) {
+	public void collideWith(GameObject other, Vector2D mySideNormal, Vector2D otherSideNormal) {
 		if (other instanceof GameWall || other instanceof GameCharacter) {
 			if (other instanceof GameCharacter) {
 				((GameCharacter) other).damage(this.damage);
@@ -59,12 +59,12 @@ public class BouncyBallProjectile extends GameProjectile {
 	}
 
 	@Override
-	public void render(Renderer gameRenderer, boolean drawHitbox) {
+	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
 			float alpha = (maximumTime - timeTravelled) / maximumTime;
 			gameRenderer.drawCircle(15f, this.position, new TextureInfo("default", new Color(0f, 1f, 0.502f, alpha)));
 		}
-		super.render(gameRenderer, drawHitbox);
+		super.render(gameRenderer);
 	}
 
 	public JsonObject toJSON() {

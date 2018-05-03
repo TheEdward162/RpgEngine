@@ -6,7 +6,6 @@ import com.edwardium.RPGEngine.GameEntity.GameInventory;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
-import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
@@ -114,6 +113,8 @@ public class GameCharacter extends GameObject {
 
 	public float maxHeath = 100f;
 	public float health = 100f;
+
+	public float pickupRange = 50f;
 
 	public GameCharacter() {
 		this(new Vector2D(0, 0));
@@ -223,23 +224,35 @@ public class GameCharacter extends GameObject {
 		if (!ai.canUseItem())
 			return false;
 
-		GameItem activeItem = inventory.getActiveItem() ;
+		GameItem activeItem = inventory.getActiveItem();
 		if (activeItem != null && activeItem instanceof IGameUsableItem) {
 			return ((IGameUsableItem)activeItem).use(this, to, at);
 		}
 
 		return false;
 	}
+	public boolean dropActiveItem(float force) {
+		GameItem droppedItem = inventory.removeActiveItem();
+		if (droppedItem == null)
+			return false;
+
+		droppedItem.position = getFacingDirection().setMagnitude(38f).add(position);
+		Vector2D velocityVector = getFacingDirection().setMagnitude(force);
+		droppedItem.applyForce(velocityVector);
+
+		return true;
+	}
 
 	@Override
 	public void update(float elapsedTime, float environmentDensity) {
+		this.inventory.onUpdate(elapsedTime, environmentDensity);
 		this.ai.onUpdate(elapsedTime);
 
 		super.update(elapsedTime, environmentDensity);
 	}
 
 	@Override
-	public void render(Renderer gameRenderer, boolean drawHitbox) {
+	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
 			// shadow
 			gameRenderer.drawCircle(25f, this.position, new TextureInfo("default", new Color(0f, 0f, 0f, 0.3f)));
@@ -266,22 +279,12 @@ public class GameCharacter extends GameObject {
 			gameRenderer.drawString(gameRenderer.basicFont, healthString, new Vector2D(50, -10).add(this.position), null, 0, new Color(0f, 1f, 0f, 1f));
 		}
 
-		super.render(gameRenderer, drawHitbox);
+		super.render(gameRenderer);
 	}
 
 	@Override
-	public void collideWith(GameObject other, Vector2D otherSideNormal) {
-		if (other instanceof GameWall) {
-			// push out of the wall
-			this.position.subtract(otherSideNormal);
+	public void collideWith(GameObject other, Vector2D mnySideNormal, Vector2D otherSideNormal) {
 
-			// cancel out velocity in that direction
-			Vector2D wallRejection = this.velocity.rejection(otherSideNormal.getNormal());
-			if (wallRejection.angleBetween(otherSideNormal) == 0) {
-				this.velocity.subtract(wallRejection);
-				this.walkVector.set(0, 0);
-			}
-		}
 	}
 
 	public void damage(float damage) {
@@ -301,6 +304,7 @@ public class GameCharacter extends GameObject {
 				.add_optional("faction", factionFlag, 0)
 				.add_optional("maxHealth", maxHeath, 100f)
 				.add_optional("health", health, 100f)
+				.add_optional("pickupRange", pickupRange, 50f)
 				.build();
 	}
 }

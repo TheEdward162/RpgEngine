@@ -6,6 +6,8 @@ import com.edwardium.RPGEngine.Utility.Vector2D;
 
 public abstract class GameItem extends GameObject {
 
+	public boolean canPickup = false;
+
 	public GameItem(Vector2D position) {
 		this(position, "");
 	}

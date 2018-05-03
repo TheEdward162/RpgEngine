@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.Control.SceneController;
 
 import com.edwardium.RPGEngine.Control.Engine;
+import com.edwardium.RPGEngine.GameEntity.GameAI.PlayerAI;
 import com.edwardium.RPGEngine.GameEntity.GameAI.SimpleEnemyAI;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameInventory;
@@ -11,6 +12,8 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunDes
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunPistol;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun.GunSMG;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.GameProjectile;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameActivableItem;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.IO.Input;
@@ -27,12 +30,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 import static com.edwardium.RPGEngine.Control.Engine.NANO_TIME_MULT;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameSceneController extends SceneController {
 
+	public enum ItemFilter { PICKUPABLE, ACTIVABLE, USABLE }
 	public enum SpawnType { CHARACTER, PROJECTILE, ITEM }
 
 	private static class SpawnLimit {
@@ -51,7 +56,8 @@ public class GameSceneController extends SceneController {
 
 	private static final float UPDATE_STEP_TIME = 1 / 600f;
 
-	private Vector2D cameraPos;
+	public Vector2D cameraPos;
+	public Vector2D cursorPos;
 
 	private ArrayList<GameObject> gameObjects;
 	private GameCharacter player;
@@ -68,6 +74,7 @@ public class GameSceneController extends SceneController {
 	private static final SpawnLimit itemLimit = new SpawnLimit(1024);
 
 	private static boolean d_drawHitboxes = false;
+	private static Color highlightColor = new Color(255, 255, 0);
 
 	public GameSceneController(Input gameInput) {
 		super(gameInput);
@@ -83,44 +90,43 @@ public class GameSceneController extends SceneController {
 		gameInput.watchKey(GLFW_KEY_H);
 
 		gameInput.watchKey(GLFW_KEY_ESCAPE);
-
-		init();
 	}
 
-	private void init() {
+	public void reloadScene() {
+		gameObjects.clear();
+
 		// init player
 		player = new GameCharacter(new Vector2D(550, 20), "player", 10);
 		player.factionFlag = GameCharacter.CharacterFaction.addFaction(player.factionFlag, GameCharacter.CharacterFaction.PLAYER);
 
+		// player is outside of spawn limits?
+		gameObjects.add(player);
+
 		GameItem pistol = new GunPistol(new Vector2D(player.position));
+		registerGameObject(pistol);
 		GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));
+		registerGameObject(destroyerGun);
 		GameItem bouncyBallGun = new GunBouncyBall(new Vector2D(player.position));
+		registerGameObject(bouncyBallGun);
 		GameItem smg = new GunSMG(new Vector2D(player.position));
+		registerGameObject(smg);
+
 		player.inventory.insertItem(pistol);
 		player.inventory.insertItem(destroyerGun);
 		player.inventory.insertItem(bouncyBallGun);
 		//player.inventory.insertItem(smg);
 
-		registerGameObject(pistol);
-		registerGameObject(destroyerGun);
-		registerGameObject(bouncyBallGun);
-		registerGameObject(smg);
-
-		// player is outside of spawn limits?
-		gameObjects.add(player);
-
 		GameCharacter secondCharacter = new GameCharacter(new Vector2D(-100, -100), "Enemy Trianglehead", 3);
 		secondCharacter.ai = new SimpleEnemyAI(secondCharacter);
 		secondCharacter.factionFlag = GameCharacter.CharacterFaction.addFaction(secondCharacter.factionFlag, GameCharacter.CharacterFaction.TRIANGLEHEADS);
 		secondCharacter.maxRotationSpeed = .1f;
+		registerGameObject(secondCharacter);
 
-		GameItem secondPistol = new GunPistol(new Vector2D(secondCharacter.position));
+		GameItem secondPistol = new GunPistol(new Vector2D(50, 50).add(secondCharacter.position));
+		registerGameObject(secondPistol);
 
 		//secondCharacter.inventory.insertItem(bouncyBallGun);
 		secondCharacter.inventory.insertItem(smg);
-
-		registerGameObject(secondPistol);
-		registerGameObject(secondCharacter);
 
 		registerGameObject(new GameWall(new Vector2D(500, 0), new Rectangle(new Vector2D(-15, -50), new Vector2D(15, 50))));
 
@@ -156,6 +162,10 @@ public class GameSceneController extends SceneController {
 		}
 		// end DEBUG
 
+		// cursor pos
+		cursorPos = gameInput.getGameCursorPos().subtract(cameraPos);
+
+		// time
 		float timeChange = 0;
 		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_ADD, unprocessedTime) || gameInput.getScrollUpJustNow(unprocessedTime)) {
 			timeChange += 0.1f;
@@ -165,61 +175,23 @@ public class GameSceneController extends SceneController {
 		}
 		this.shiftTimeFactor(timeChange);
 
-		float walkX = 0;
-		float walkY = 0;
-		if (gameInput.getKeyPressed(GLFW_KEY_W)) {
-			walkY -= 1;
-		}
-		if (gameInput.getKeyPressed(GLFW_KEY_S)) {
-			walkY += 1;
-		}
-
-		if (gameInput.getKeyPressed(GLFW_KEY_D)) {
-			walkX += 1;
-		} if (gameInput.getKeyPressed(GLFW_KEY_A)) {
-			walkX -= 1;
-		}
-		if (walkX != 0 || walkY != 0)
-			player.walkTowards(new Vector2D(walkX, walkY));
-
-		// calculate cursor position relative to the center of the screen and camera position
-		Vector2D cursorPos = gameInput.getGameCursorPos().subtract(cameraPos);
-		player.rotateToPoint(cursorPos);
-
-		// inventory
-		int inventoryShift = 0;
-		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_UP, unprocessedTime)) {
-			inventoryShift -= 1;
-		}
-		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_DOWN, unprocessedTime)) {
-			inventoryShift += 1;
-		}
-		if (inventoryShift != 0)
-			player.inventory.shiftActiveIndex(inventoryShift);
-
-		int inventoryIndex = -1;
-		for (int i = GLFW_KEY_1; i < GLFW_KEY_9; i++) {
-			if (gameInput.getKeyPressed(i)) {
-				inventoryIndex = i - GLFW_KEY_1;
+		for (int i = 0; i < gameObjects.size(); i++) {
+			GameObject currentObject = gameObjects.get(i);
+			if (currentObject instanceof GameCharacter && ((GameCharacter) currentObject).ai instanceof PlayerAI) {
+				((PlayerAI) ((GameCharacter) currentObject).ai).updateInput(gameInput, unprocessedTime);
 			}
-		}
-		if (inventoryIndex != -1)
-			player.inventory.setActiveIndex(inventoryIndex);
-
-		if (gameInput.getMousePressed(GLFW_MOUSE_BUTTON_1)) {
-			player.useActiveItem(cursorPos, null);
 		}
 
 		return true;
 	}
 
-	private void updateGame(float elapsedTime, boolean updateWakl) {
+	private void updateGame(float elapsedTime, boolean updateWalk) {
 		ArrayList<GameObject> toRemove = new ArrayList<>();
 
 		for (int i = 0; i < gameObjects.size(); i++) {
 			GameObject currentObject = gameObjects.get(i);
 
-			if (updateWakl && currentObject instanceof GameCharacter) {
+			if (updateWalk && currentObject instanceof GameCharacter) {
 				((GameCharacter) currentObject).updateWalk();
 			}
 			currentObject.update(elapsedTime, environmentDensity);
@@ -230,8 +202,8 @@ public class GameSceneController extends SceneController {
 
 				GameHitbox.CollisionInfo collisionInfo = currentObject.checkCollision(currentObjectCollision);
 				if (collisionInfo != null && collisionInfo.doesCollide) {
-					currentObject.collideWith(currentObjectCollision, collisionInfo.BSurfaceNormal);
-					currentObjectCollision.collideWith(currentObject, collisionInfo.ASurfaceNormal);
+					currentObject.collideWith(currentObjectCollision, collisionInfo.ASurfaceNormal, collisionInfo.BSurfaceNormal);
+					currentObjectCollision.collideWith(currentObject, collisionInfo.BSurfaceNormal, collisionInfo.ASurfaceNormal);
 				}
 			}
 
@@ -240,18 +212,34 @@ public class GameSceneController extends SceneController {
 		}
 
 		for (GameObject gameObject : toRemove) {
-			gameObjects.remove(gameObject);
+			unregisterGameObject(gameObject);
 		}
 	}
 
 	@Override
 	public void render(Renderer renderer) {
+		// find the object to highlight (activable object in range of player closest to cursor
+		// or pickupable object if player is empty handed)
+		GameItem itemToHighlight = null;
+		if (player.inventory.getActiveItem() == null) {
+			itemToHighlight = getClosestItem(cursorPos, EnumSet.of(ItemFilter.PICKUPABLE), player.pickupRange, player.position);
+		}
+		if (itemToHighlight == null) {
+			itemToHighlight = getClosestItem(cursorPos, EnumSet.of(ItemFilter.ACTIVABLE), player.pickupRange, player.position);
+		}
+
 		cameraPos = Vector2D.inverse(player.position);
 
 		renderer.pushTransformMatrix();
 		renderer.applyTransformMatrix(null, null, cameraPos);
 		for (GameObject gameObject : gameObjects) {
-			gameObject.render(renderer, d_drawHitboxes);
+			gameObject.render(renderer);
+
+			if (itemToHighlight == gameObject) {
+				gameObject.renderHitbox(renderer, highlightColor);
+			} else if (d_drawHitboxes) {
+				gameObject.renderHitbox(renderer);
+			}
 		}
 		renderer.popTransformMatrix();
 
@@ -312,6 +300,15 @@ public class GameSceneController extends SceneController {
 				return false;
 		}
 	}
+	private void updateSpawnLimits(GameObject object, int delta) {
+		if (object instanceof GameCharacter)
+			characterLimit.current += delta;
+		else if (object instanceof GameProjectile)
+			projectileLimit.current += delta;
+		else if (object instanceof GameItem)
+			itemLimit.current += delta;
+	}
+
 	public boolean registerGameObject(GameObject object) {
 		if (gameObjects.contains(object))
 			return false;
@@ -319,16 +316,50 @@ public class GameSceneController extends SceneController {
 		gameObjects.add(object);
 
 		// bump up spawn limit
-		if (object instanceof GameCharacter)
-			characterLimit.current++;
-		else if (object instanceof GameProjectile)
-			projectileLimit.current++;
-		else if (object instanceof GameItem)
-			itemLimit.current++;
+		updateSpawnLimits(object, 1);
 
 		return true;
 	}
+	public boolean unregisterGameObject(GameObject object) {
+		boolean returnVal = gameObjects.remove(object);
 
+		if (returnVal) {
+			// bump down spawn limit
+			updateSpawnLimits(object, -1);
+		}
+
+		return returnVal;
+	}
+
+	public GameItem getClosestItem(Vector2D position, EnumSet<ItemFilter> filters, Float maxDistance) {
+		return getClosestItem(position, filters, maxDistance, position);
+	}
+	public GameItem getClosestItem(Vector2D position, EnumSet<ItemFilter> filters, Float maxDistance, Vector2D maxDistanceSource) {
+		GameItem closest = null;
+		for (GameObject object : gameObjects) {
+			if (object instanceof GameItem) {
+				if (closest == null || object.position.distance(position) < closest.position.distance(position)) {
+					boolean passedFilter = true;
+					if (maxDistance != null)
+						passedFilter = object.position.distance(maxDistanceSource) <= maxDistance;
+
+					if (filters.contains(ItemFilter.USABLE))
+						passedFilter &= object instanceof IGameUsableItem;
+
+					if (filters.contains(ItemFilter.PICKUPABLE))
+						passedFilter &= ((GameItem) object).canPickup;
+
+					if (filters.contains(ItemFilter.ACTIVABLE))
+						passedFilter &= object instanceof IGameActivableItem;
+
+					if (passedFilter)
+						closest = (GameItem) object;
+				}
+			}
+		}
+
+		return closest;
+	}
 	public GameCharacter getClosestCharacter(GameCharacter me, GameCharacter.CharacterRelationship filter) {
 		GameCharacter closest = null;
 		for (GameObject object : gameObjects) {

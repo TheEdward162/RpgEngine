@@ -43,7 +43,7 @@ public abstract class GameProjectile extends GameItem {
 	}
 
 	@Override
-	public void collideWith(GameObject other, Vector2D otherSideNormal) {
+	public void collideWith(GameObject other, Vector2D mySideNormal, Vector2D otherSideNormal) {
 		if (other instanceof GameCharacter) {
 			((GameCharacter) other).damage(this.damage);
 			this.toDelete = true;

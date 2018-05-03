@@ -32,8 +32,8 @@ public class DestroyerProjectile extends GameProjectile {
 	}
 
 	@Override
-	public void collideWith(GameObject other, Vector2D otherSideNormal) {
-		super.collideWith(other, otherSideNormal);
+	public void collideWith(GameObject other, Vector2D mySideNormal, Vector2D otherSideNormal) {
+		super.collideWith(other, mySideNormal, otherSideNormal);
 
 		if (other instanceof GameWall) {
 			this.toDelete = true;
@@ -41,12 +41,12 @@ public class DestroyerProjectile extends GameProjectile {
 	}
 
 	@Override
-	public void render(Renderer gameRenderer, boolean drawHitbox) {
+	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
 			gameRenderer.drawRectangle(this.position, new Vector2D(23f, 9f), this.velocity.getAngle(),
 					new TextureInfo("default", new Color(1, 0.502f, 0)));
 		}
-		super.render(gameRenderer, drawHitbox);
+		super.render(gameRenderer);
 	}
 
 	public JsonObject toJSON() {

@@ -39,6 +39,8 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 
 	protected GameItemGun(Vector2D position, String name) {
 		super(position, name);
+
+		canPickup = true;
 	}
 
 	@Override

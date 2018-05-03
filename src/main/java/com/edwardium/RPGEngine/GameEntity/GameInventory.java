@@ -1,5 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity;
 
+import com.edwardium.RPGEngine.Control.Engine;
+import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.IO.JsonBuilder;
@@ -74,6 +76,10 @@ public class GameInventory implements GameSerializable {
 		int firstEmpty = findFirstEmpty();
 		if (firstEmpty >= 0) {
 
+			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+			if (gsc != null)
+				gsc.unregisterGameObject(item);
+
 			items[firstEmpty] = item;
 			item.isDrawn = false;
 			item.doesCollide = false;
@@ -84,8 +90,20 @@ public class GameInventory implements GameSerializable {
 		}
 	}
 
-	public GameItem insertActiveItem(GameItem item) {
+	public void onUpdate(float elapsedTime, float environmentDensity) {
+		for (GameItem item : items) {
+			if (item != null) {
+				item.update(elapsedTime, environmentDensity);
+			}
+		}
+	}
+
+	public GameItem swapWithActiveItem(GameItem item) {
 		GameItem lastItem = removeActiveItem();
+
+		GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+		if (gsc != null)
+			gsc.unregisterGameObject(item);
 
 		items[activeIndex] = item;
 		item.isDrawn = false;
@@ -95,11 +113,16 @@ public class GameInventory implements GameSerializable {
 	}
 	public GameItem removeActiveItem() {
 		GameItem item = getActiveItem();
+		if (item == null)
+			return null;
 
 		items[activeIndex] = null;
 		item.isDrawn = true;
 		item.doesCollide = true;
 
+		GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+		if (gsc != null)
+			gsc.registerGameObject(item);
 		return item;
 	}
 
