@@ -69,6 +69,6 @@ public abstract class GameAI implements GameSerializable {
 	}
 
 	protected JsonBuilder toJSONBuilder() {
-		return new JsonBuilder().add("cname", getClass().getSimpleName()).add_optional("state", currentState.ordinal(), CharacterState.IDLE.ordinal());
+		return new JsonBuilder().add("cname", getClass().getCanonicalName()).add_optional("state", currentState.ordinal(), CharacterState.IDLE.ordinal());
 	}
 }

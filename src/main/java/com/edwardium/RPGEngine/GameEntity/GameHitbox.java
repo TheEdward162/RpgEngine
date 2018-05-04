@@ -351,6 +351,6 @@ public class GameHitbox implements GameSerializable {
 			return new GameHitbox(radius, points[0]);
 		} catch (NullPointerException | ClassCastException ignored) { }
 
-		return new GameHitbox(points);
+		return null;
 	}
 }

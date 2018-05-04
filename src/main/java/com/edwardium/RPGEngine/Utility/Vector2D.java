@@ -268,6 +268,9 @@ public class Vector2D implements GameSerializable {
 	}
 
 	public static Vector2D fromJSON(JsonObject sourceObj) {
+		return fromJSON(sourceObj, new Vector2D());
+	}
+	public static Vector2D fromJSON(JsonObject sourceObj, Vector2D def) {
 		// already protected from NullPointerException, no need to check for null here
 		try {
 			float x = (float)sourceObj.getJsonNumber("x").doubleValue();
@@ -275,7 +278,7 @@ public class Vector2D implements GameSerializable {
 
 			return new Vector2D(x, y);
 		} catch (NullPointerException | ClassCastException e) {
-			return new Vector2D();
+			return def;
 		}
 	}
 }

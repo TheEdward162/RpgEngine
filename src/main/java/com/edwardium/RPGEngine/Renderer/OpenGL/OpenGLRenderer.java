@@ -421,6 +421,9 @@ public class OpenGLRenderer extends Renderer {
 
 	@Override
 	public void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color, StringAlignment alignment) {
+		if (text.isEmpty())
+			return;
+
 		beginDraw(fontVAO, fontVBO, fontIBO, null, new TextureInfo(font.getTextureName(), color), true);
 
 		if (scale == null)

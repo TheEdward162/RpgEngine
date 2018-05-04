@@ -13,6 +13,7 @@ import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
@@ -25,6 +26,36 @@ public class GameInventory implements GameSerializable {
 	public GameInventory(int size) {
 		items = new GameItem[size];
 	}
+	public GameInventory(JsonObject sourceObj) {
+		if (sourceObj == null) {
+			items = new GameItem[0];
+			return;
+		}
+
+		try {
+			activeIndex = sourceObj.getJsonNumber("activeIndex").intValue();
+		} catch (NullPointerException | ClassCastException ignored) { }
+
+		JsonArray itemsArray = null;
+		try {
+			itemsArray = sourceObj.getJsonArray("items");
+		} catch (NullPointerException | ClassCastException ignored) {}
+
+		if (itemsArray == null) {
+			items = new GameItem[0];
+		} else {
+			items = new GameItem[itemsArray.size()];
+
+			for (int i = 0; i < items.length; i++) {
+				try {
+					if (itemsArray.isNull(i))
+						items[i] = null;
+					else
+						items[i] = (GameItem) GameItem.fromJSON(itemsArray.getJsonObject(i));
+				} catch (ClassCastException ignored) {}
+			}
+		}
+	}
 
 	public GameItem getActiveItem() {
 		return items.length > 0 ? items[activeIndex] : null;
@@ -34,7 +65,7 @@ public class GameInventory implements GameSerializable {
 	}
 
 	public void setActiveIndex(int index) {
-		if (!canSwitch())
+		if (!canSwitch() || items.length == 0)
 			return;
 
 		this.activeIndex = index % items.length;
@@ -73,9 +104,11 @@ public class GameInventory implements GameSerializable {
 	}
 
 	public boolean insertItem(GameItem item) {
+		if (item == null)
+			return false;
+
 		int firstEmpty = findFirstEmpty();
 		if (firstEmpty >= 0) {
-
 			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
 			if (gsc != null)
 				gsc.unregisterGameObject(item);
@@ -99,6 +132,9 @@ public class GameInventory implements GameSerializable {
 	}
 
 	public GameItem swapWithActiveItem(GameItem item) {
+		if (item == null)
+			return removeActiveItem();
+
 		GameItem lastItem = removeActiveItem();
 
 		GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
@@ -164,15 +200,16 @@ public class GameInventory implements GameSerializable {
 	public JsonObject toJSON() {
 		JsonBuilder builder = new JsonBuilder().add_optional("activeIndex", activeIndex, 0);
 		JsonArrayBuilder itemsArrayBuilder = Json.createArrayBuilder();
-		// TODO: Inventory
+
+		for (GameItem item : items) {
+			if (item == null) {
+				itemsArrayBuilder.addNull();
+			} else {
+				itemsArrayBuilder.add(item.toJSON());
+			}
+		}
+		builder.add("items", itemsArrayBuilder.build());
 
 		return builder.build();
-	}
-
-	public static GameInventory fromJSON(JsonObject sourceObj) {
-		if (sourceObj == null)
-			return new GameInventory(0);
-
-		return new GameInventory(0);
 	}
 }

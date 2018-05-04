@@ -8,6 +8,8 @@ import com.edwardium.RPGEngine.Utility.GameSerializable;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
 import javax.json.JsonObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public abstract class GameObject implements GameSerializable {
 
@@ -154,6 +156,12 @@ public abstract class GameObject implements GameSerializable {
 	}
 
 	protected GameObject membersFromJson(JsonObject sourceObj) {
+		this.position = Vector2D.fromJSON(sourceObj.getJsonObject("position"), this.position);
+
+		try {
+			this.name = sourceObj.getString("name");
+		} catch (NullPointerException | ClassCastException ignored) { }
+
 		try {
 			this.maxRotationSpeed = (float)sourceObj.getJsonNumber("maxRotationSpeed").doubleValue();
 		} catch (NullPointerException | ClassCastException ignored) { }
@@ -166,14 +174,17 @@ public abstract class GameObject implements GameSerializable {
 			this.mass = (float)sourceObj.getJsonNumber("mass").doubleValue();
 		} catch (NullPointerException | ClassCastException ignored) { }
 
-		this.velocity = Vector2D.fromJSON(sourceObj.getJsonObject("velocity"));
+		this.velocity = Vector2D.fromJSON(sourceObj.getJsonObject("velocity"), this.velocity);
 
 		try {
 			this.doesCollide = sourceObj.getBoolean("doesCollide");
 		} catch (NullPointerException | ClassCastException ignored) { }
 
 		try {
-			this.hitbox = GameHitbox.fromJSON(sourceObj.getJsonObject("hitbox"));
+			JsonObject hitboxObject = sourceObj.getJsonObject("hitbox");
+			if (hitboxObject != null) {
+				this.hitbox = GameHitbox.fromJSON(hitboxObject);
+			}
 		} catch (NullPointerException | ClassCastException ignored) { }
 
 		try {
@@ -191,7 +202,7 @@ public abstract class GameObject implements GameSerializable {
 		return this;
 	}
 	protected JsonBuilder toJSONBuilder() {
-		JsonBuilder builder = new JsonBuilder().add("cname", getClass().getSimpleName());
+		JsonBuilder builder = new JsonBuilder().add("cname", getClass().getCanonicalName());
 
 		if (this.position.getMagnitude() != 0)
 			builder.add("position", position);
@@ -206,5 +217,22 @@ public abstract class GameObject implements GameSerializable {
 				.add_optional("toDelete", toDelete, false);
 
 		return builder;
+	}
+
+	public static GameObject fromJSON(JsonObject sourceObj) {
+		String className = null;
+		try {
+			className = sourceObj.getString("cname");
+		} catch (NullPointerException | ClassCastException ignored) {
+			return null;
+		}
+
+		try {
+			Class<?> clazz = Class.forName(className);
+			Constructor<?> ctor = clazz.getConstructor(JsonObject.class);
+			return (GameObject) ctor.newInstance(sourceObj);
+		} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+			return null;
+		}
 	}
 }

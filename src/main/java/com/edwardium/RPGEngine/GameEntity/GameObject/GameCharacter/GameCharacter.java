@@ -130,6 +130,7 @@ public class GameCharacter extends GameObject {
 		this.ai = new PlayerAI(this);
 	}
 	public GameCharacter(JsonObject sourceObj) {
+		this();
 		super.membersFromJson(sourceObj);
 
 		try {
@@ -137,11 +138,11 @@ public class GameCharacter extends GameObject {
 		} catch (NullPointerException | ClassCastException ignored) { }
 
 		walkVector = Vector2D.fromJSON(sourceObj.getJsonObject("walkVector"));
-		inventory = GameInventory.fromJSON(sourceObj.getJsonObject("inventory"));
+		inventory = new GameInventory(sourceObj.getJsonObject("inventory"));
 		ai = GameAI.fromJSON(sourceObj.getJsonObject("ai"), this);
 
 		try {
-			this.factionFlag = sourceObj.getJsonNumber("factionFlag").intValue();
+			this.factionFlag = sourceObj.getJsonNumber("faction").intValue();
 		} catch (NullPointerException | ClassCastException ignored) { }
 
 		try {
