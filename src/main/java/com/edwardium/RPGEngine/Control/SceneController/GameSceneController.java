@@ -114,9 +114,7 @@ public class GameSceneController extends SceneController {
 		player = new GameCharacter(new Vector2D(550, 20), "player", 10);
 		player.factionFlag = GameCharacter.CharacterFaction.addFaction(player.factionFlag, GameCharacter.CharacterFaction.PLAYER);
 
-		if (true) {
-			loadState("test.json");
-		} else {
+		if (!loadState("test.json")) {
 			GameItem pistol = new GunPistol(new Vector2D(player.position));
 			registerGameObject(pistol);
 			GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));

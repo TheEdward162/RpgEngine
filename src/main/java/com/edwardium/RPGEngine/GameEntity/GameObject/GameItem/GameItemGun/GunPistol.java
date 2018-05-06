@@ -18,7 +18,7 @@ public class GunPistol extends GameItemGun {
 		super(position, "Pistol");
 
 		this.maxCooldown = 0.5f;
-		this.fireVelocity = 1000f;
+		this.fireVelocity = 1300f;
 
 		this.fireAnimation = new TextureAnimation(0.2f, 1, new TextureInfo("sheet1", null, new Vector2D(64, 0), new Vector2D(32, 32)), new Vector2D(-32, 0));
 		this.fireAnimation.jumpToEnd();

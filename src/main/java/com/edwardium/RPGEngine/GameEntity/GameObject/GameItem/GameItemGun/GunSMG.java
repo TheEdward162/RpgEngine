@@ -20,7 +20,7 @@ public class GunSMG extends GameItemGun {
 		super(position, "SMG");
 
 		this.maxCooldown = 0.25f;
-		this.fireVelocity = 900f;
+		this.fireVelocity = 1100f;
 
 		this.maxSpread = 0.0436332f; // ~2.5 degrees
 

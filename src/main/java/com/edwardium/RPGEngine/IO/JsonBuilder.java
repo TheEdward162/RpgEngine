@@ -5,6 +5,7 @@ import com.edwardium.RPGEngine.Utility.GameSerializable;
 import javax.json.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 
 public class JsonBuilder {
 	private JsonObjectBuilder builderInstance;
@@ -114,6 +115,23 @@ public class JsonBuilder {
 	public JsonBuilder add_optional(String s, GameSerializable obj, boolean opt) {
 		if (!opt)
 			return add(s, obj.toJSON());
+		return this;
+	}
+
+	public JsonBuilder add(String s, Collection<GameSerializable> objs) {
+		return add(s, (GameSerializable[]) objs.toArray());
+	}
+	public JsonBuilder add(String s, GameSerializable[] objs) {
+		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+
+		for (GameSerializable obj : objs) {
+			if (obj == null)
+				arrayBuilder.addNull();
+			else
+				arrayBuilder.add(obj.toJSON());
+		}
+
+		builderInstance.add(s, arrayBuilder);
 		return this;
 	}
 

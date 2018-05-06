@@ -11,7 +11,6 @@ import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Collection;
 import java.util.HashMap;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -41,12 +40,19 @@ public class OpenGLRenderer extends Renderer {
 	private int fontVBO;
 	private int fontIBO;
 
+	// shape buffers
+	private int shapeVAO;
+	private int shapeVBO;
+	private int shapeIBO;
+
 	// in case we get a string that is longer, we will either need to
 	// split it and render is separately, or, even better, ignore it and
 	// leave the only trace of the reason here in this comment
 	private final int fontMaxCharacters = 10;
 	private final int fontMaxVertices = fontMaxCharacters * 4;
-	private final int fontMaxVBOSize = fontMaxVertices * Vertex.elementCount;
+
+	// after this, we will need to split
+	private final int shapeMaxVertices = 16;
 
 	private boolean vsyncStatus = true;
 
@@ -115,6 +121,7 @@ public class OpenGLRenderer extends Renderer {
 		setupShaders();
 		setupTextures();
 		setupFonts();
+		setupShapes();
 	}
 
 	public long getWindowHandle() {
@@ -173,16 +180,6 @@ public class OpenGLRenderer extends Renderer {
 
 		return vboID;
 	}
-	private int createVBO(Collection<Vertex> vertices, int vboFlags) {
-		Vertex[] verticesArray = new Vertex[vertices.size()];
-		int i = 0;
-		for (Vertex vertex : vertices) {
-			verticesArray[i] = vertex;
-			i++;
-		}
-
-		return createVBO(verticesArray, vboFlags);
-	}
 
 	private int createIBO(int[] indices, int iboFlags) {
 		int iboID = glGenBuffers();
@@ -190,17 +187,6 @@ public class OpenGLRenderer extends Renderer {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (IntBuffer) BufferUtils.createIntBuffer(indices.length).put(indices).flip(), iboFlags);
 
 		return iboID;
-	}
-	private int createIBO(Collection<Integer> indices, int iboFlags) {
-		int[] indicesArray = new int[indices.size()];
-
-		int i = 0;
-		for (Integer index : indices) {
-			indicesArray[i] = index;
-			i++;
-		}
-
-		return createIBO(indicesArray, iboFlags);
 	}
 
 	private void setupTextures() {
@@ -222,7 +208,7 @@ public class OpenGLRenderer extends Renderer {
 		fontVAO = glGenVertexArrays();
 		glBindVertexArray(fontVAO);
 
-		fontVBO = createVBO(new Vertex[fontMaxVBOSize], GL_DYNAMIC_DRAW);
+		fontVBO = createVBO(new Vertex[fontMaxVertices], GL_DYNAMIC_DRAW);
 
 		glActiveTexture(GL_TEXTURE0);
 		basicFont.bakeBuffer(512, 512);
@@ -234,6 +220,21 @@ public class OpenGLRenderer extends Renderer {
 		glBindVertexArray(0);
 
 		// we can create a static indices buffer, because the indices never change
+		int[] indices = new int[fontMaxCharacters];
+		for (int i = 0; i < indices.length; i++) {
+			indices[i] = i;
+		}
+		fontIBO = createIBO(indices, GL_STATIC_DRAW);
+	}
+	private void setupShapes() {
+		shapeVAO = glGenVertexArrays();
+		glBindVertexArray(shapeVAO);
+
+		shapeVBO = createVBO(new Vertex[shapeMaxVertices], GL_DYNAMIC_DRAW);
+
+		glBindVertexArray(0);
+
+		// we can create a static indices buffer, because the indices never change, same as in fonts
 		int[] indices = new int[fontMaxCharacters];
 		for (int i = 0; i < indices.length; i++) {
 			indices[i] = i;
@@ -280,8 +281,7 @@ public class OpenGLRenderer extends Renderer {
 		// swap buffers
 		glfwSwapBuffers(window);
 
-		// Poll for window events. The key callback above will only be
-		// invoked during this call.
+		// Poll for window events.
 		glfwPollEvents();
 	}
 
@@ -459,6 +459,26 @@ public class OpenGLRenderer extends Renderer {
 	@Override
 	public void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color) {
 		drawString(font, text, position, scale, rotation, color, StringAlignment.TOPLEFT);
+	}
+
+	@Override
+	public void drawShape(Vertex[] shape, Vector2D position, Vector2D scale, float rotation, TextureInfo textureInfo) {
+		beginDraw(shapeVAO, shapeVBO, shapeIBO, null, textureInfo, true);
+
+		applyTransformMatrix(scale, rotation, position);
+
+		Vertex[][] splitVertices = Vertex.splitArrayByLength(shape, shapeMaxVertices);
+		for (Vertex[] subVertices : splitVertices) {
+			FloatBuffer verticesBuffer = Vertex.verticesToBuffer(subVertices);
+
+			// upload new data
+			glBufferSubData(GL_ARRAY_BUFFER, 0, verticesBuffer);
+
+			// draw
+			glDrawArrays(GL_TRIANGLE_FAN, 0, subVertices.length);
+		}
+
+		endDraw();
 	}
 
 	@Override

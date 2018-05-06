@@ -12,9 +12,7 @@ import com.edwardium.RPGEngine.Utility.GameSerializable;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
-import javax.json.Json;
 import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
 public class GameInventory implements GameSerializable {
@@ -199,16 +197,8 @@ public class GameInventory implements GameSerializable {
 	@Override
 	public JsonObject toJSON() {
 		JsonBuilder builder = new JsonBuilder().add_optional("activeIndex", activeIndex, 0);
-		JsonArrayBuilder itemsArrayBuilder = Json.createArrayBuilder();
 
-		for (GameItem item : items) {
-			if (item == null) {
-				itemsArrayBuilder.addNull();
-			} else {
-				itemsArrayBuilder.add(item.toJSON());
-			}
-		}
-		builder.add("items", itemsArrayBuilder.build());
+		builder.add("items", items);
 
 		return builder.build();
 	}

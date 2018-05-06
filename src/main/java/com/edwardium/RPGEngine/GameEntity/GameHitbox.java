@@ -9,9 +9,7 @@ import com.edwardium.RPGEngine.Utility.GameSerializable;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
-import javax.json.Json;
 import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
 public class GameHitbox implements GameSerializable {
@@ -321,14 +319,10 @@ public class GameHitbox implements GameSerializable {
 		if (radius != null) {
 			builder.add("radius", radius);
 			if (points[0].getMagnitude() != 0) { // is not (0, 0)
-				builder.add("points", Json.createArrayBuilder().add(points[0].toJSON()));
+				builder.add("points", points);
 			}
 		} else {
-			JsonArrayBuilder pointsArrayBuilder = Json.createArrayBuilder();
-			for (Vector2D point : points) {
-				pointsArrayBuilder.add(point.toJSON());
-			}
-			builder.add("points", pointsArrayBuilder);
+			builder.add("points", points);
 		}
 
 		return builder.build();

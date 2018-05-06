@@ -57,6 +57,8 @@ public abstract class Renderer {
 	public abstract void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color, StringAlignment alignment);
 	public abstract void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color);
 
+	public abstract void drawShape(Vertex[] shape, Vector2D position, Vector2D scale, float rotation, TextureInfo textureInfo);
+
 	public abstract boolean shouldClose();
 
 	public abstract void cleanup();

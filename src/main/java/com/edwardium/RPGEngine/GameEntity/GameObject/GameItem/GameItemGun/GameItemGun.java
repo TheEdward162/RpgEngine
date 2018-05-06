@@ -69,7 +69,7 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 
 		if (cooldown > 0) {
 			if (chargeup < maxChargeup) {
-				if (lastUse.by.ai.currentState == GameAI.CharacterState.CHARGING) {
+				if (lastUse != null && lastUse.by.ai.currentState == GameAI.CharacterState.CHARGING) {
 					chargeup = Math.min(maxChargeup, chargeup + elapsedTime);
 				} else {
 					// cancel charge

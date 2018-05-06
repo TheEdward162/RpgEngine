@@ -59,6 +59,13 @@ public class Rectangle implements GameSerializable {
 		return topLeft.center(bottomRight);
 	}
 
+	public Vector2D[] toShape() {
+		Vector2D topRight = new Vector2D(topLeft).setX(bottomRight.getX());
+		Vector2D bottomLeft = new Vector2D(topLeft).setY(bottomRight.getY());
+
+		return new Vector2D[] {topLeft, topRight, bottomRight, bottomLeft};
+	}
+
 	public JsonObject toJSON() {
 		return new JsonBuilder().add("topLeft", this.topLeft.toJSON()).add("bottomRight", this.bottomRight.toJSON()).build();
 	}

@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine.Renderer;
 
+import com.edwardium.RPGEngine.Utility.Vector2D;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -76,5 +77,35 @@ public class Vertex {
 		}
 
 		return result;
+	}
+
+	public static Vertex[] arrayFromVector2D(Vector2D[] sourceArray) {
+		Vector2D topCorner = new Vector2D();
+		Vector2D bottomCorner = new Vector2D();
+
+		for (Vector2D vec : sourceArray) {
+			if (vec.getX() < topCorner.getX())
+				topCorner.setX(vec.getX());
+			else if (vec.getX() > bottomCorner.getX())
+				bottomCorner.setX(vec.getX());
+
+			if (vec.getY() < topCorner.getY())
+				topCorner.setY(vec.getY());
+			else if (vec.getY() > bottomCorner.getY())
+				bottomCorner.setY(vec.getY());
+		}
+
+		float width = bottomCorner.getX() - topCorner.getX();
+		float height = bottomCorner.getY() - topCorner.getY();
+
+		Vertex[] resultArray = new Vertex[sourceArray.length];
+		for (int i = 0; i < sourceArray.length; i++) {
+			float s = (sourceArray[i].getX() - topCorner.getX()) / width;
+			float t = (sourceArray[i].getY() - topCorner.getY()) / height;
+
+			resultArray[i] = new Vertex(sourceArray[i].getX(), sourceArray[i].getY(), 0, s, t);
+		}
+
+		return resultArray;
 	}
 }
