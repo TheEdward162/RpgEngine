@@ -82,8 +82,8 @@ public class GunSMG extends GameItemGun {
 	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.drawRectangle(this.position, new Vector2D(32, 32), this.rotation,
-					getInventoryTexture());
+			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, 32f, this.rotation,
+					getInventoryTexture(), true));
 		}
 		super.render(gameRenderer);
 	}

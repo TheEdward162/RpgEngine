@@ -6,7 +6,6 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
 import javax.json.JsonObject;
@@ -62,7 +61,7 @@ public class BouncyBallProjectile extends GameProjectile {
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
 			float alpha = (maximumTime - timeTravelled) / maximumTime;
-			gameRenderer.drawCircle(15f, this.position, new TextureInfo("default", new Color(0f, 1f, 0.502f, alpha)));
+			gameRenderer.drawCircle(new Renderer.RenderInfo(this.position, 15f, 0f,  new Color(0f, 1f, 0.502f, alpha), true));
 		}
 		super.render(gameRenderer);
 	}

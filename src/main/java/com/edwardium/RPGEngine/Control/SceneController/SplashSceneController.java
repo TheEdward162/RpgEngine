@@ -4,7 +4,6 @@ import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.Renderer.Animation.FusedAnimation;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Utility.Vector2D;
 
 public class SplashSceneController extends SceneController {
 
@@ -37,7 +36,7 @@ public class SplashSceneController extends SceneController {
 
 	@Override
 	public void render(Renderer renderer) {
-		renderer.drawRectangle(new Vector2D(), renderer.getWindowSize(), 0, this.animation.getCurrentTexture());
+		renderer.drawRectangle(new Renderer.RenderInfo(null, renderer.getWindowSize(), 0f, this.animation.getCurrentTexture(), false));
 	}
 
 	@Override

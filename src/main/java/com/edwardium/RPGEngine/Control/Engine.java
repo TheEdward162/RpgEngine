@@ -203,8 +203,11 @@ public class Engine implements Runnable {
 
 		currentSceneController.render(gameRenderer);
 
-		gameRenderer.drawString(gameRenderer.basicFont, "VSYNC: " + (gameRenderer.getVSync() ? "ON" : "OFF"), gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -20)), null, 0, new Color());
-		gameRenderer.drawString(gameRenderer.basicFont, "FPS: " + String.format("%.1f", FPSCounter.getFPS()), gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), null, 0, new Color());
+		gameRenderer.drawString(gameRenderer.basicFont, "VSYNC: " + (gameRenderer.getVSync() ? "ON" : "OFF"),
+				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -20)),1f, 0f, new Color(), false));
+
+		gameRenderer.drawString(gameRenderer.basicFont, "FPS: " + String.format("%.1f", FPSCounter.getFPS()),
+				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), 1f, 0f, new Color(), false));
 
 		gameRenderer.afterLoop();
 	}

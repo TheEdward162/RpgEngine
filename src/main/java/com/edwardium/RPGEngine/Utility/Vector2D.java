@@ -213,6 +213,7 @@ public class Vector2D implements GameSerializable {
 	public Vector2D normalize() {
 		return this.setMagnitude(1);
 	}
+	public Vector2D scale(float s) { return scale(s, s); }
 	public Vector2D scale(float x, float y) {
 		this.posX *= x;
 		this.posY *= y;

@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.Renderer.OpenGL;
 
 import com.edwardium.RPGEngine.IO.IOUtil;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GL20;
@@ -155,43 +156,72 @@ public class OpenGLShaderBasic {
 		return program_id;
 	}
 
-	public void fillUniformData(float[] globalColor, CircleInfoStruct circleInfo, TextureInfoStruct textureInfo) {
-		if (globalColor != null) {
-			int globalColorLoc = glGetUniformLocation(getProgramID(), "un_globalColor");
-			glUniform4fv(globalColorLoc, globalColor);
+	public void fillUniformGlobalColor(float[] color) {
+		int globalColorLoc = glGetUniformLocation(getProgramID(), "un_globalColor");
+		glUniform4fv(globalColorLoc, color);
+	}
+
+	public void fillUniformCircleInfo(CircleInfoStruct circleInfo) {
+		if (circleInfo.minRadius != null) {
+			int circleMinRadiusLoc = glGetUniformLocation(getProgramID(), "un_circleInfo.minRadius");
+			glUniform1f(circleMinRadiusLoc, circleInfo.minRadius);
+		}
+		if (circleInfo.maxRadius != null) {
+			int circleMaxRadiusLoc = glGetUniformLocation(getProgramID(), "un_circleInfo.maxRadius");
+			glUniform1f(circleMaxRadiusLoc, circleInfo.maxRadius);
+		}
+		if (circleInfo.maxAngle != null) {
+			int circleMaxAngleLoc = glGetUniformLocation(getProgramID(), "un_circleInfo.maxAngle");
+			glUniform1f(circleMaxAngleLoc, circleInfo.maxAngle);
+		}
+	}
+
+	public void fillUnitformTextureInfo(TextureInfoStruct textureInfo) {
+		if (textureInfo.textureUnit != null) {
+			int textureIDLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.tex");
+			glUniform1i(textureIDLoc, textureInfo.textureUnit);
 		}
 
-		if (circleInfo != null) {
-			if (circleInfo.minRadius != null) {
-				int circleMinRadiusLoc = glGetUniformLocation(getProgramID(), "un_circleInfo.minRadius");
-				glUniform1f(circleMinRadiusLoc, circleInfo.minRadius);
-			}
-			if (circleInfo.maxRadius != null) {
-				int circleMaxRadiusLoc = glGetUniformLocation(getProgramID(), "un_circleInfo.maxRadius");
-				glUniform1f(circleMaxRadiusLoc, circleInfo.maxRadius);
-			}
-			if (circleInfo.maxAngle != null) {
-				int circleMaxAngleLoc = glGetUniformLocation(getProgramID(), "un_circleInfo.maxAngle");
-				glUniform1f(circleMaxAngleLoc, circleInfo.maxAngle);
-			}
+		if (textureInfo.textureSubs != null) {
+			int textureSubsLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.textureSubspace");
+			glUniform4fv(textureSubsLoc, textureInfo.textureSubs);
 		}
 
-		if (textureInfo != null) {
-			if (textureInfo.textureUnit != null) {
-				int textureIDLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.tex");
-				glUniform1i(textureIDLoc, textureInfo.textureUnit);
-			}
-
-			if (textureInfo.textureSubs != null) {
-				int textureSubsLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.textureSubspace");
-				glUniform4fv(textureSubsLoc, textureInfo.textureSubs);
-			}
-
-			if (textureInfo.overrideColor != null) {
-				int overrideColorLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.overrideColor");
-				glUniform1i(overrideColorLoc, textureInfo.overrideColor ? 1 : 0);
-			}
+		if (textureInfo.overrideColor != null) {
+			int overrideColorLoc = glGetUniformLocation(getProgramID(), "un_textureInfo.overrideColor");
+			glUniform1i(overrideColorLoc, textureInfo.overrideColor ? 1 : 0);
 		}
+	}
+
+	public void fillUniformLightInfo(int index, Vector2D position, float[] color, float power) {
+		int positionLoc = glGetUniformLocation(getProgramID(), "un_Lights[" + Integer.toString(index) + "].position");
+		glUniform4f(positionLoc, position.getX(), position.getY(), 0f, 1f);
+
+		int colorLoc = glGetUniformLocation(getProgramID(), "un_Lights[" + Integer.toString(index) + "].color");
+		glUniform4fv(colorLoc, color);
+
+		int powerLoc = glGetUniformLocation(getProgramID(), "un_Lights[" + Integer.toString(index) + "].power");
+		glUniform1f(powerLoc, power);
+	}
+
+	public void fillViewportSize(Vector2D size) {
+		int viewportSizeLoc = glGetUniformLocation(getProgramID(), "un_viewportSize");
+		glUniform2f(viewportSizeLoc, size.getX(), size.getY());
+	}
+
+	public void fillCameraPos(Vector2D position) {
+		int viewportSizeLoc = glGetUniformLocation(getProgramID(), "un_cameraPos");
+		glUniform2f(viewportSizeLoc, position.getX(), position.getY());
+	}
+
+	public void fillUniformLightCount(int count) {
+		int countLoc = glGetUniformLocation(getProgramID(), "un_lightCount");
+		glUniform1i(countLoc, count);
+	}
+
+	public void fillUniformUseLights(boolean useLights) {
+		int boolLoc = glGetUniformLocation(getProgramID(), "un_useLights");
+		glUniform1i(boolLoc, useLights ? 1 : 0);
 	}
 
 	public void cleanup() {

@@ -249,6 +249,18 @@ public class GameSceneController extends SceneController {
 
 		renderer.pushTransformMatrix();
 		renderer.applyTransformMatrix(null, null, cameraPos);
+		renderer.setCamera(cameraPos);
+
+		// lights
+		renderer.setLightCount(4);
+		renderer.setLight(0, new Vector2D(0f, 0f), new Color(.3f, .3f, .3f), -1f);
+		renderer.setLight(1, new Vector2D(-400f, -400f), new Color(1f, 0f, 0f), 10f);
+		renderer.setLight(2, new Vector2D(0f, 300f), new Color(1f, 1f, 0f), 35f);
+		//renderer.setLight(3, new Vector2D(50f, 0f).add(player.position), new Color(1f, 1f, 1f), 0f);
+
+		renderer.drawRectangle(new Renderer.RenderInfo(null, new Vector2D(1920, 1080), null, new Color(.2f, .2f, .2f), true));
+
+		// objects
 		for (GameObject gameObject : gameObjects) {
 			gameObject.render(renderer);
 
@@ -260,9 +272,10 @@ public class GameSceneController extends SceneController {
 		}
 		renderer.popTransformMatrix();
 
+		renderer.setLightCount(0);
 		GameInventory.renderInventory(player.inventory, renderer, renderer.getWindowSize().divide(2).inverse(), new Vector2D(1, 1));
 
-		renderer.drawString(renderer.basicFont, "Time factor: " + String.format("%.2f", this.timeFactor), renderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -35)), null, 0, new Color());
+		renderer.drawString(renderer.basicFont, "Time factor: " + String.format("%.2f", this.timeFactor),  new Renderer.RenderInfo(renderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -35)), 1f, 0f, new Color(), false));
 	}
 
 	@Override

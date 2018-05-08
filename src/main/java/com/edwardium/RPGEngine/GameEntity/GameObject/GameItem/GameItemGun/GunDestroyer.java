@@ -97,8 +97,8 @@ public class GunDestroyer extends GameItemGun {
 	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.drawRectangle(this.position, new Vector2D(64, 64), this.rotation,
-					getInventoryTexture());
+			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, 64f, this.rotation,
+					getInventoryTexture(), true));
 		}
 		super.render(gameRenderer);
 	}

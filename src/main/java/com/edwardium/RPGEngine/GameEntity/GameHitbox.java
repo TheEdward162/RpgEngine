@@ -4,7 +4,6 @@ import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.GameSerializable;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
@@ -297,7 +296,7 @@ public class GameHitbox implements GameSerializable {
 	}
 	public static void renderHitbox(Renderer renderer, Vector2D position, float rotation, GameHitbox hitbox, Color color) {
 		if (hitbox.radius != null) {
-			renderer.drawCircle(hitbox.radius - 2f, hitbox.radius, 4f, position, new TextureInfo("default", color));
+			renderer.drawCircle(hitbox.radius -2f, hitbox.radius, 4f, new Renderer.RenderInfo(position, 1f, 0f, color, false));
 		} else {
 			if (hitbox.points.length >= 2) {
 				for (int i = 0; i < hitbox.points.length; i++) {
@@ -308,7 +307,7 @@ public class GameHitbox implements GameSerializable {
 					Vector2D sideA = new Vector2D(hitbox.points[previousIndex]).rotateBy(rotation).add(position);
 					Vector2D sideB = new Vector2D(hitbox.points[i]).rotateBy(rotation).add(position);
 
-					renderer.drawLine(sideA, sideB, 2f, color);
+					renderer.drawLine(sideB, new Renderer.RenderInfo(sideA, 2f, 0f, color, false));
 				}
 			}
 		}

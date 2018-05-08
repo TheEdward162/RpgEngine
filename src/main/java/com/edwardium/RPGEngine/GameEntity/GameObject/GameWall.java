@@ -3,7 +3,6 @@ package com.edwardium.RPGEngine.GameEntity.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Renderer.Vertex;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
@@ -17,7 +16,6 @@ public class GameWall extends GameObject {
 	public boolean penetrable = false;
 
 	private final Vertex[] vertices;
-	private final TextureInfo tInfo = new TextureInfo("default", new Color(0.3f, 0.3f, 0.3f, 1f));
 
 	public GameWall(Vector2D position, Rectangle rect) {
 		this(position, rect.toShape());
@@ -50,7 +48,7 @@ public class GameWall extends GameObject {
 	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.drawShape(vertices, this.position, new Vector2D(1, 1), this.rotation, tInfo);
+			gameRenderer.drawShape(vertices, new Renderer.RenderInfo(this.position, 1f, this.rotation, new Color(0.3f, 0.3f, 0.3f, 1f), true));
 		}
 		super.render(gameRenderer);
 	}

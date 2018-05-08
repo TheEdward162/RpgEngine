@@ -256,28 +256,28 @@ public class GameCharacter extends GameObject {
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
 			// shadow
-			gameRenderer.drawCircle(25f, this.position, new TextureInfo("default", new Color(0f, 0f, 0f, 0.3f)));
+			//gameRenderer.drawCircle(new Renderer.RenderInfo(this.position, 25f, null, new Color(0f, 0f, 0f, 0.3f), true));
 
 			// body
-			gameRenderer.drawRectangle(this.position, new Vector2D(15, 25), this.getFacingDirection().getAngle(), new TextureInfo("default", new Color(1f, 1f, 0f, 1f)));
+			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, new Vector2D(15, 25), this.getFacingDirection().getAngle(), new Color(1f, 1f, 0f, 1f), true));
 
 			// facing direction
-			gameRenderer.drawLine(this.position, Vector2D.add(this.position, this.getFacingDirection().setMagnitude(30)), 2f, new Color(1f, 0f, 0f, 1f));
+			gameRenderer.drawLine( Vector2D.add(this.position, this.getFacingDirection().setMagnitude(30)), new Renderer.RenderInfo(this.position, 2f, null, new Color(1f, 0f, 0f, 1f), true));
 
 			// draw held item
 			GameItem activeItem = this.inventory.getActiveItem();
 			if (activeItem != null) {
 				TextureInfo activeItemTexture = activeItem.getHeldTexture();
 				if (activeItemTexture != null) {
-					gameRenderer.drawRectangle(Vector2D.add(this.position, this.getFacingDirection().setMagnitude(30)), activeItem.getHeldSize(), this.rotation, activeItemTexture);
+					gameRenderer.drawRectangle(new Renderer.RenderInfo(Vector2D.add(this.position, this.getFacingDirection().setMagnitude(30)), activeItem.getHeldSize(), this.rotation, activeItemTexture, true));
 				}
 			}
 
 			// name and HP
-			gameRenderer.drawString(gameRenderer.basicFont, this.name, new Vector2D(30, -30).add(this.position), null, 0, new Color(0f, 1f, 0f, 1f));
+			gameRenderer.drawString(gameRenderer.basicFont, this.name, new Renderer.RenderInfo(new Vector2D(30, -30).add(this.position), 1f, 0f, new Color(0f, 1f, 0f, 1f), false));
 
 			String healthString = Math.round(health) + " / " + Math.round(maxHeath);
-			gameRenderer.drawString(gameRenderer.basicFont, healthString, new Vector2D(50, -10).add(this.position), null, 0, new Color(0f, 1f, 0f, 1f));
+			gameRenderer.drawString(gameRenderer.basicFont, healthString, new Renderer.RenderInfo(new Vector2D(50, -10).add(this.position), 1f, 0f, new Color(0f, 1f, 0f, 1f), false));
 		}
 
 		super.render(gameRenderer);

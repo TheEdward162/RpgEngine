@@ -5,7 +5,6 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
@@ -44,8 +43,7 @@ public class PistolBullet extends GameProjectile {
 	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.drawRectangle(this.position, new Vector2D(10f, 4.5f), this.velocity.getAngle(),
-					new TextureInfo("default", new Color(0.4f, 0.4f, 0.4f, 1)));
+			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, new Vector2D(10f, 4.5f), this.velocity.getAngle(), new Color(0.4f, 0.4f, 0.4f), true));
 		}
 		super.render(gameRenderer);
 	}

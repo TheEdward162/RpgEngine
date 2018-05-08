@@ -4,7 +4,6 @@ import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
@@ -138,12 +137,12 @@ public class MenuSceneController extends SceneController {
 			Color itemBGColor = menuItemBackgroundColor;
 			if (i == currentMenuItemIndex)
 				itemBGColor = menuItemActiveBackgroundColor;
-			renderer.drawRectangle(currentRectangle, 0, new TextureInfo("default", itemBGColor));
+			renderer.drawRectangle(currentRectangle, new Renderer.RenderInfo(null, 1f, 0f, itemBGColor, false));
 
 			Color itemFGColor = menuItemForegroundColor;
 			if (i == currentMenuItemIndex)
 				itemFGColor = menuItemActiveForegroundColor;
-			renderer.drawString(renderer.basicFont, currentMenu[i].nameGetter.getName(), currentRectangle.center(), null, 0, itemFGColor, Renderer.StringAlignment.CENTER);
+			renderer.drawString(renderer.basicFont, currentMenu[i].nameGetter.getName(), new Renderer.RenderInfo(currentRectangle.center(), 1f, 0f, itemFGColor, false), Renderer.StringAlignment.CENTER);
 		}
 	}
 

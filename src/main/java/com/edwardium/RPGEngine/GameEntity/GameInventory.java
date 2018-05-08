@@ -7,7 +7,6 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.GameSerializable;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
@@ -176,7 +175,7 @@ public class GameInventory implements GameSerializable {
 			Vector2D centerPosition = itemRectangle.center();
 
 			// shadow
-			renderer.drawRectangle(centerPosition.scale(scale), Vector2D.scale(r_inventoryItemSize, scale), 0, new TextureInfo("default", r_inventoryShadowColor));
+			renderer.drawRectangle(new Renderer.RenderInfo(centerPosition.scale(scale), Vector2D.scale(r_inventoryItemSize, scale), 0f, r_inventoryShadowColor, false));
 
 			// number
 			Color textColor = r_inventoryNumberColor;
@@ -186,10 +185,10 @@ public class GameInventory implements GameSerializable {
 
 			if (inventory.items[i] != null) {
 				Rectangle imageRectangle = Rectangle.setWidth(itemRectangle, 32);
-				renderer.drawRectangle(imageRectangle, 0, inventory.items[i].getInventoryTexture());
-				renderer.drawString(renderer.basicFont, inventory.items[i].name, Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), null, 0, textColor);
+				renderer.drawRectangle(imageRectangle, new Renderer.RenderInfo(null, 1f, 0f, inventory.items[i].getInventoryTexture(), false));
+				renderer.drawString(renderer.basicFont, inventory.items[i].name, new Renderer.RenderInfo(Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), 1f, 0f, textColor, false));
 			} else {
-				renderer.drawString(renderer.basicFont, "Empty", Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), null, 0, textColor);
+				renderer.drawString(renderer.basicFont, "Empty", new Renderer.RenderInfo(Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), 1f, 0f, textColor, false));
 			}
 		}
 	}

@@ -115,7 +115,8 @@ public class OpenGLRenderer extends Renderer {
 
 		// Set the clear color
 		// Let there be midnight blue :3
-		glClearColor(0.098f, 0.098f, 0.439f, 0.0f);
+		//glClearColor(0.098f, 0.098f, 0.439f, 0.0f);
+		glClearColor(0f, 0f, 0f, 0f);
 
 		setupPrimitives();
 		setupShaders();
@@ -162,6 +163,8 @@ public class OpenGLRenderer extends Renderer {
 		// Enable transparency
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnable(GL_STENCIL_TEST);
 	}
 
 	private int createVBO(Vertex[] vertices, int vboFlags) {
@@ -239,7 +242,7 @@ public class OpenGLRenderer extends Renderer {
 		for (int i = 0; i < indices.length; i++) {
 			indices[i] = i;
 		}
-		fontIBO = createIBO(indices, GL_STATIC_DRAW);
+		shapeIBO = createIBO(indices, GL_STATIC_DRAW);
 	}
 
 	@Override
@@ -274,6 +277,9 @@ public class OpenGLRenderer extends Renderer {
 		glLoadIdentity();
 
 		glOrtho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
+
+//		//drawRectangle(new Vector2D(), new Vector2D(windowWidth, windowHeight), 0, new TextureInfo("default", new Color(0.2f, 0.2f, 0.2f)));
+		//tempLightTest();
 	}
 
 	@Override
@@ -306,7 +312,12 @@ public class OpenGLRenderer extends Renderer {
 		glPopMatrix();
 	}
 
-	private void beginDraw(int vao, int vbo, int ibo, OpenGLShaderBasic.CircleInfoStruct circleInfo, TextureInfo textureInfo, boolean overrideTextureColor) {
+	@Override
+	public void setCamera(Vector2D cameraPos) {
+		basicShader.fillCameraPos(cameraPos);
+	}
+
+	private void beginDraw(int vao, int vbo, int ibo, RenderInfo info, OpenGLShaderBasic.CircleInfoStruct circleInfo, boolean overrideTextureColor) {
 		glBindVertexArray(vao);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -321,22 +332,24 @@ public class OpenGLRenderer extends Renderer {
 		}
 
 		OpenGLTexture currentTexture;
-		if (textureInfo == null) {
-			textureInfo = new TextureInfo("debug");
-		}
-		if (textureInfo.textureName != null && gameTextures.containsKey(textureInfo.textureName))
-			currentTexture = gameTextures.get(textureInfo.textureName);
+		if (info.textureInfo.textureName != null && gameTextures.containsKey(info.textureInfo.textureName))
+			currentTexture = gameTextures.get(info.textureInfo.textureName);
 		else
 			currentTexture = gameTextures.get(defaultTexture);
 
-		OpenGLShaderBasic.TextureInfoStruct texInfoStruct = new OpenGLShaderBasic.TextureInfoStruct(currentTexture.getTextureUnit(), currentTexture.computeSubtexture(textureInfo.textureOffset, textureInfo.textureSize), overrideTextureColor);
+		OpenGLShaderBasic.TextureInfoStruct texInfoStruct = new OpenGLShaderBasic.TextureInfoStruct(currentTexture.getTextureUnit(),
+				currentTexture.computeSubtexture(info.textureInfo.textureOffset, info.textureInfo.textureSize), overrideTextureColor);
 
 		// use shader program
 		glUseProgram(basicShader.getProgramID());
 
 		glActiveTexture(currentTexture.getTextureUnit());
 		glBindTexture(GL_TEXTURE_2D, currentTexture.getTextureID());
-		basicShader.fillUniformData(textureInfo.textureColor.getAsArray(), circleInfo, texInfoStruct);
+		basicShader.fillUniformGlobalColor(info.textureInfo.textureColor.getAsArray());
+		basicShader.fillUniformCircleInfo(circleInfo);
+		basicShader.fillUnitformTextureInfo(texInfoStruct);
+		basicShader.fillViewportSize(new Vector2D(windowWidth, windowHeight));
+		basicShader.fillUniformUseLights(info.useLights);
 
 		// push model matrix
 		// a.k.a. only do transforms for this model
@@ -359,18 +372,18 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
-	public void drawLine(Vector2D from, Vector2D to, float width, Color color) {
-		if (width <= 0)
+	public void drawLine(Vector2D to, RenderInfo info) {
+		if (info.scale.getX() <= 0)
 			return;
 
-		Vector2D directionVector = Vector2D.subtract(to, from);
+		Vector2D directionVector = Vector2D.subtract(to, info.position);
 
-		beginDraw(squareVAO, squareVBO, squareIBO, null, new TextureInfo("default", color), false);
+		beginDraw(squareVAO, squareVBO, squareIBO, info, null, false);
 
 		// transforms
-		glTranslatef(from.getX() + directionVector.getX() / 2, from.getY() + directionVector.getY() / 2, 0); // translate
+		glTranslatef(info.position.getX() + directionVector.getX() / 2, info.position.getY() + directionVector.getY() / 2, 0); // translate
 		glRotatef(directionVector.getAngle() / (float)Math.PI * 180, 0, 0, 1f); // rotate around z axis
-		glScalef(directionVector.getMagnitude(), width , 1); // scale
+		glScalef(directionVector.getMagnitude(), info.scale.getX() , 1); // scale
 
 		glDrawArrays(GL_QUADS, 0, 4);
 
@@ -378,11 +391,11 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
-	public void drawRectangle(Vector2D center, Vector2D size, float rotationAngle, TextureInfo textureInfo) {
-		beginDraw(squareVAO, squareVBO, squareIBO, null, textureInfo, false);
+	public void drawRectangle(RenderInfo info) {
+		beginDraw(squareVAO, squareVBO, squareIBO, info, null, false);
 
 		// transforms
-		applyTransformMatrix(size, rotationAngle, center);
+		applyTransformMatrix(info.scale, info.rotation, info.position);
 
 		glDrawArrays(GL_QUADS, 0, 4);
 
@@ -390,16 +403,18 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
-	public void drawRectangle(Rectangle rectangle, float rotationAngle, TextureInfo textureInfo) {
-		drawRectangle(Vector2D.center(rectangle.topLeft, rectangle.bottomRight), Vector2D.subtract(rectangle.topLeft, rectangle.bottomRight).absolutize(), rotationAngle, textureInfo);
+	public void drawRectangle(Rectangle rectangle, RenderInfo info) {
+		drawRectangle(new RenderInfo(Vector2D.center(rectangle.topLeft, rectangle.bottomRight),
+				Vector2D.subtract(rectangle.topLeft, rectangle.bottomRight).absolutize(),
+				info.rotation, info.textureInfo, info.useLights));
 	}
 
 	@Override
-	public void drawCircle(float radius, Vector2D center, TextureInfo textureInfo) {
-		beginDraw(squareVAO, squareVBO, squareIBO, new OpenGLShaderBasic.CircleInfoStruct(0f, 0.5f, 4f), textureInfo, false);
+	public void drawCircle(RenderInfo info) {
+		beginDraw(squareVAO, squareVBO, squareIBO, info, new OpenGLShaderBasic.CircleInfoStruct(0f, 0.5f, 4f), false);
 
 		// transforms
-		applyTransformMatrix(new Vector2D(radius * 2, radius * 2), null, center);
+		applyTransformMatrix(new Vector2D(info.scale.getX() * 2, info.scale.getY() * 2), null, info.position);
 
 		glDrawArrays(GL_QUADS, 0, 4);
 
@@ -407,12 +422,12 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
-	public void drawCircle(float minRadius, float maxRadius, float maxAngle, Vector2D center, TextureInfo textureInfo) {
+	public void drawCircle(float minRadius, float maxRadius, float maxAngle, RenderInfo info) {
 		float unitMinRadius = minRadius / (2 * maxRadius);
-		beginDraw(squareVAO, squareVBO, squareIBO, new OpenGLShaderBasic.CircleInfoStruct(unitMinRadius, 0.5f, maxAngle), textureInfo, false);
+		beginDraw(squareVAO, squareVBO, squareIBO, info, new OpenGLShaderBasic.CircleInfoStruct(unitMinRadius, 0.5f, maxAngle), false);
 
 		// transforms
-		applyTransformMatrix(new Vector2D(maxRadius * 2, maxRadius * 2), null, center);
+		applyTransformMatrix(new Vector2D(maxRadius * 2, maxRadius * 2), null, info.position);
 
 		glDrawArrays(GL_QUADS, 0, 4);
 
@@ -420,28 +435,26 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
-	public void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color, StringAlignment alignment) {
+	public void drawString(Font font, String text, RenderInfo info, StringAlignment alignment) {
 		if (text.isEmpty())
 			return;
 
-		beginDraw(fontVAO, fontVBO, fontIBO, null, new TextureInfo(font.getTextureName(), color), true);
+		beginDraw(fontVAO, fontVBO, fontIBO, new RenderInfo(info.position, info.scale, info.rotation, new TextureInfo(font.getTextureName(), info.textureInfo.textureColor), info.useLights), null, true);
 
-		if (scale == null)
-			scale = new Vector2D(0.66f, 0.66f);
-
-		Font.FontVertices fontVertices = font.generateVertices(text, scale);
+		Font.FontVertices fontVertices = font.generateVertices(text, info.scale.scale(0.66f));
 
 		// do transforms
 		// text alignment is funky
 		// x position is the leftmost pixel of the text
 		// y position is the text baseline
-		Vector2D alignedPosition = new Vector2D(position);
+		Vector2D alignedPosition = new Vector2D(info.position);
 		switch (alignment) {
 			case CENTER:
-				alignedPosition.subtract(new Vector2D(fontVertices.size.getX() / 2 * scale.getX(), (fontVertices.size.getY() / 2 - fontVertices.baseline) * scale.getY()));
+				alignedPosition.subtract(new Vector2D(fontVertices.size.getX() / 2 * info.scale.getX(),
+						(fontVertices.size.getY() / 2 - fontVertices.baseline) * info.scale.getY()));
 				break;
 		}
-		applyTransformMatrix(scale, rotation, alignedPosition);
+		applyTransformMatrix(info.scale, info.rotation, alignedPosition);
 
 		Vertex[][] splitVertices = Vertex.splitArrayByLength(fontVertices.vertices, fontMaxVertices);
 		for (Vertex[] subVertices : splitVertices) {
@@ -457,15 +470,15 @@ public class OpenGLRenderer extends Renderer {
 		endDraw();
 	}
 	@Override
-	public void drawString(Font font, String text, Vector2D position, Vector2D scale, float rotation, Color color) {
-		drawString(font, text, position, scale, rotation, color, StringAlignment.TOPLEFT);
+	public void drawString(Font font, String text, RenderInfo info) {
+		drawString(font, text, info, StringAlignment.TOPLEFT);
 	}
 
 	@Override
-	public void drawShape(Vertex[] shape, Vector2D position, Vector2D scale, float rotation, TextureInfo textureInfo) {
-		beginDraw(shapeVAO, shapeVBO, shapeIBO, null, textureInfo, true);
+	public void drawShape(Vertex[] shape, RenderInfo info) {
+		beginDraw(shapeVAO, shapeVBO, shapeIBO, info, null, true);
 
-		applyTransformMatrix(scale, rotation, position);
+		applyTransformMatrix(null, info.rotation, info.position);
 
 		Vertex[][] splitVertices = Vertex.splitArrayByLength(shape, shapeMaxVertices);
 		for (Vertex[] subVertices : splitVertices) {
@@ -479,6 +492,16 @@ public class OpenGLRenderer extends Renderer {
 		}
 
 		endDraw();
+	}
+
+	@Override
+	public void setLight(int index, Vector2D position, Color color, float power) {
+		basicShader.fillUniformLightInfo(index, position.scale(1f, 1f), color.getAsArray(), power);
+	}
+
+	@Override
+	public void setLightCount(int count) {
+		basicShader.fillUniformLightCount(count);
 	}
 
 	@Override

@@ -5,7 +5,6 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.Renderer.Color;
 import com.edwardium.RPGEngine.Renderer.Renderer;
-import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
@@ -43,8 +42,9 @@ public class DestroyerProjectile extends GameProjectile {
 	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.drawRectangle(this.position, new Vector2D(23f, 9f), this.velocity.getAngle(),
-					new TextureInfo("default", new Color(1, 0.502f, 0)));
+			gameRenderer.setLight(3, this.position, new Color(1, 0.502f, 0), 200f);
+			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, new Vector2D(23f, 9f), this.velocity.getAngle(),
+					new Color(1, 0.502f, 0), true));
 		}
 		super.render(gameRenderer);
 	}
