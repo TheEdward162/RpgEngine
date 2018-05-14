@@ -6,6 +6,8 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.PistolBullet;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
+import com.edwardium.RPGEngine.Renderer.Color;
+import com.edwardium.RPGEngine.Renderer.Light;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.Vector2D;
@@ -77,6 +79,15 @@ public class GunSMG extends GameItemGun {
 	@Override
 	public Vector2D getHeldSize() {
 		return new Vector2D(32, 32);
+	}
+
+	@Override
+	public void updateLights(GameSceneController gsc) {
+		int animStep = fireAnimation.getStep();
+		if (animStep == 0) {
+			gsc.greatestFunctionEVER(new Light(new Vector2D(28f, 0f).setAngle(this.rotation).add(this.position), new Color(1f, 0.502f, 0f), 5f));
+		}
+		super.updateLights(gsc);
 	}
 
 	@Override

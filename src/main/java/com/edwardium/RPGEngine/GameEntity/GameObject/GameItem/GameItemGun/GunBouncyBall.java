@@ -75,11 +75,11 @@ public class GunBouncyBall extends GameItemGun {
 	}
 
 	@Override
-	public void update(float elapsedTime, float environmentDensity) {
+	public void updatePhysics(float elapsedTime, float environmentDensity) {
 		if (this.currentProjectile != null && this.currentProjectile.toDelete)
 			this.currentProjectile = null;
 
-		super.update(elapsedTime, environmentDensity);
+		super.updatePhysics(elapsedTime, environmentDensity);
 	}
 
 	@Override

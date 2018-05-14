@@ -2,6 +2,7 @@ package com.edwardium.RPGEngine.GameEntity;
 
 import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
+import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
 import com.edwardium.RPGEngine.IO.JsonBuilder;
@@ -120,10 +121,17 @@ public class GameInventory implements GameSerializable {
 		}
 	}
 
-	public void onUpdate(float elapsedTime, float environmentDensity) {
+	public void onUpdate(GameCharacter owner, float elapsedTime, float environmentDensity, boolean updateLights, GameSceneController gsc) {
 		for (GameItem item : items) {
 			if (item != null) {
-				item.update(elapsedTime, environmentDensity);
+				if (owner != null) {
+					item.position = owner.getFacingDirection().setMagnitude(item.getHeldSize().getX() / 2).add(owner.position);
+					item.rotation = owner.rotation;
+				}
+				if (elapsedTime > 0)
+					item.updatePhysics(elapsedTime, environmentDensity);
+				if (updateLights)
+					item.updateLights(gsc);
 			}
 		}
 	}

@@ -51,7 +51,7 @@ public abstract class GameProjectile extends GameItem {
 	}
 
 	@Override
-	public void update(float elapsedTime, float environmentDensity) {
+	public void updatePhysics(float elapsedTime, float environmentDensity) {
 		this.distanceTravelled += this.velocity.getMagnitude() * elapsedTime;
 		this.timeTravelled += elapsedTime;
 
@@ -62,7 +62,7 @@ public abstract class GameProjectile extends GameItem {
 			this.toDelete = true;
 		}
 
-		super.update(elapsedTime, environmentDensity);
+		super.updatePhysics(elapsedTime, environmentDensity);
 	}
 
 	@Override

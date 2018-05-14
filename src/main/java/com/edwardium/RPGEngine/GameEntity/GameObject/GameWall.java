@@ -41,11 +41,6 @@ public class GameWall extends GameObject {
 	}
 
 	@Override
-	public void update(float elapsedTime, float environmentDensity) {
-		super.update(elapsedTime, environmentDensity);
-	}
-
-	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
 			gameRenderer.drawShape(vertices, new Renderer.RenderInfo(this.position, 1f, this.rotation, new Color(0.3f, 0.3f, 0.3f, 1f), true));

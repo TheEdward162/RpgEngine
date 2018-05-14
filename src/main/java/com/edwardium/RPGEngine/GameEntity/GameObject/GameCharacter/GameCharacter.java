@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter;
 
+import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameAI.GameAI;
 import com.edwardium.RPGEngine.GameEntity.GameAI.PlayerAI;
 import com.edwardium.RPGEngine.GameEntity.GameInventory;
@@ -245,11 +246,17 @@ public class GameCharacter extends GameObject {
 	}
 
 	@Override
-	public void update(float elapsedTime, float environmentDensity) {
-		this.inventory.onUpdate(elapsedTime, environmentDensity);
+	public void updateLights(GameSceneController gsc) {
+		this.inventory.onUpdate(this, 0f, 0f, true, gsc);
+		super.updateLights(gsc);
+	}
+
+	@Override
+	public void updatePhysics(float elapsedTime, float environmentDensity) {
+		this.inventory.onUpdate(null, elapsedTime, environmentDensity, false, null);
 		this.ai.onUpdate(elapsedTime);
 
-		super.update(elapsedTime, environmentDensity);
+		super.updatePhysics(elapsedTime, environmentDensity);
 	}
 
 	@Override

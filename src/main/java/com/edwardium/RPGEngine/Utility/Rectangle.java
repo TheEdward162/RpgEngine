@@ -17,6 +17,17 @@ public class Rectangle implements GameSerializable {
 		return new Rectangle(a).shiftBy(shift);
 	}
 
+	public static boolean pointCollision(Rectangle r, Vector2D point, float marginX, float marginY) {
+		return point.getX() >= r.topLeft.getX() - marginX && point.getX() <= r.bottomRight.getX() + marginX
+				&& point.getY() >= r.topLeft.getY() - marginY && point.getY() <= r.bottomRight.getY() + marginY;
+	}
+	public static boolean pointCollision(Rectangle r, Vector2D point, float margin) {
+		return pointCollision(r, point, margin, margin);
+	}
+	public static boolean pointCollision(Rectangle r, Vector2D point) {
+		return pointCollision(r, point, 0);
+	}
+
 	public Vector2D topLeft;
 	public Vector2D bottomRight;
 
@@ -46,6 +57,13 @@ public class Rectangle implements GameSerializable {
 		this.bottomRight.setY(this.topLeft.getY() + h);
 
 		return this;
+	}
+
+	public Vector2D getTopRight() {
+		return new Vector2D(topLeft).setX(bottomRight.getX());
+	}
+	public Vector2D getBottomLeft() {
+		return new Vector2D(topLeft).setY(bottomRight.getY());
 	}
 
 	public Rectangle shiftBy(Vector2D shift) {

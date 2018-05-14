@@ -1,10 +1,12 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 
+import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.Renderer.Color;
+import com.edwardium.RPGEngine.Renderer.Light;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 
@@ -14,6 +16,8 @@ public class BouncyBallProjectile extends GameProjectile {
 
 	private int maximumBounces = 3;
 	private int bounces = 0;
+
+	private Color currentColor;
 
 	public BouncyBallProjectile(Vector2D position, Vector2D velocity) {
 		super(position, "Bouncy Ball of Death", velocity);
@@ -58,10 +62,16 @@ public class BouncyBallProjectile extends GameProjectile {
 	}
 
 	@Override
+	public void updateLights(GameSceneController gsc) {
+		currentColor = new Color(0f, 1f, 0.502f, (maximumTime - timeTravelled) / maximumTime);
+		gsc.greatestFunctionEVER(new Light(this.position, currentColor, currentColor.A() * 15f, 0f));
+		super.updateLights(gsc);
+	}
+
+	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			float alpha = (maximumTime - timeTravelled) / maximumTime;
-			gameRenderer.drawCircle(new Renderer.RenderInfo(this.position, 15f, 0f,  new Color(0f, 1f, 0.502f, alpha), true));
+			gameRenderer.drawCircle(new Renderer.RenderInfo(this.position, 15f, 0f,  currentColor, true));
 		}
 		super.render(gameRenderer);
 	}

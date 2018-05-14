@@ -19,6 +19,7 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.Color;
+import com.edwardium.RPGEngine.Renderer.Light;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
@@ -77,6 +78,10 @@ public class GameSceneController extends SceneController {
 	private ArrayList<GameObject> gameObjects;
 	private GameCharacter player;
 
+	private Light[] currentLights;
+	private int currentLightsSize = 0;
+	private final Light ambientLight = new Light(new Vector2D(), new Color(0.3f, 0.3f, 0.3f), -1f, 0f);
+
 	// air density
 	private float environmentDensity = 1.2f;
 	private float timeFactor = 1f;
@@ -96,6 +101,7 @@ public class GameSceneController extends SceneController {
 
 		cameraPos = new Vector2D();
 		gameObjects = new ArrayList<>();
+		currentLights = new Light[Renderer.MAX_LIGHTS - 1];
 
 		gameInput.watchKey(GLFW_KEY_UP);
 		gameInput.watchKey(GLFW_KEY_DOWN);
@@ -111,10 +117,10 @@ public class GameSceneController extends SceneController {
 		gameObjects.clear();
 
 		// init player
-		player = new GameCharacter(new Vector2D(550, 20), "player", 10);
+		player = new GameCharacter(new Vector2D(550, 0), "player", 10);
 		player.factionFlag = GameCharacter.CharacterFaction.addFaction(player.factionFlag, GameCharacter.CharacterFaction.PLAYER);
 
-		if (!loadState("test.json")) {
+		if (!loadState("save.json")) {
 			GameItem pistol = new GunPistol(new Vector2D(player.position));
 			registerGameObject(pistol);
 			GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));
@@ -137,6 +143,8 @@ public class GameSceneController extends SceneController {
 
 			GameItem secondPistol = new GunPistol(new Vector2D(50, 50).add(secondCharacter.position));
 			registerGameObject(secondPistol);
+			GameItem secondSmg = new GunSMG(new Vector2D(143, 258));
+			registerGameObject(secondSmg);
 
 			//secondCharacter.inventory.insertItem(bouncyBallGun);
 			secondCharacter.inventory.insertItem(smg);
@@ -147,6 +155,16 @@ public class GameSceneController extends SceneController {
 
 			registerGameObject(new GameWall(new Vector2D(-50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(-3.14f / 4));
 			registerGameObject(new GameWall(new Vector2D(50, 250), new Rectangle(new Vector2D(-5, -30), new Vector2D(5, 30))).rotateBy(3.14f / 4));
+
+			registerGameObject(new GameWall(new Vector2D(-150f, 0f), new Vector2D[] {
+					new Vector2D(-15, -50),
+					new Vector2D(15, -50),
+					new Vector2D(25, 0f),
+					new Vector2D(15, 50),
+					new Vector2D(-15, 50)
+			}));
+
+			registerGameObject(new GameWall(new Vector2D(0, 500), new Rectangle(new Vector2D(-400, -60), new Vector2D(400, 60))));
 		}
 
 		// player is outside of spawn limits?
@@ -156,12 +174,10 @@ public class GameSceneController extends SceneController {
 	@Override
 	public void update(double unprocessedTime) {
 		if (updateInput(unprocessedTime)) {
-			updateGame(UPDATE_STEP_TIME * timeFactor, true);
-
-			float remainingTime = (float)(unprocessedTime * NANO_TIME_MULT) - UPDATE_STEP_TIME;
-			while (remainingTime > 0) {
-				updateGame(UPDATE_STEP_TIME * timeFactor, false);
-				remainingTime -= UPDATE_STEP_TIME;
+			float remainingTime = (float)(unprocessedTime * NANO_TIME_MULT);
+			int numUpdates = (int)Math.ceil(remainingTime / UPDATE_STEP_TIME);
+			for (int i = 0; i < numUpdates; i++) {
+				updateGame(UPDATE_STEP_TIME * timeFactor, i == 0, i == numUpdates - 1);
 			}
 		}
 	}
@@ -185,10 +201,16 @@ public class GameSceneController extends SceneController {
 		// time
 		float timeChange = 0;
 		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_ADD, unprocessedTime) || gameInput.getScrollUpJustNow(unprocessedTime)) {
-			timeChange += 0.1f;
+			if (Math.round(timeFactor * 100f) / 100f < 0.1f)
+				timeChange += 0.01f;
+			else
+				timeChange += 0.1f;
 		}
 		if (gameInput.getWatchedKeyJustPressed(GLFW_KEY_KP_SUBTRACT, unprocessedTime) || gameInput.getScrollDownJustNow(unprocessedTime)) {
-			timeChange -= 0.1f;
+			if (timeFactor <= 0.1f)
+				timeChange -= 0.01f;
+			else
+				timeChange -= 0.1f;
 		}
 		this.shiftTimeFactor(timeChange);
 
@@ -202,7 +224,7 @@ public class GameSceneController extends SceneController {
 		return true;
 	}
 
-	private void updateGame(float elapsedTime, boolean updateWalk) {
+	private void updateGame(float elapsedTime, boolean updateWalk, boolean updateLights) {
 		ArrayList<GameObject> toRemove = new ArrayList<>();
 
 		for (int i = 0; i < gameObjects.size(); i++) {
@@ -211,7 +233,7 @@ public class GameSceneController extends SceneController {
 			if (updateWalk && currentObject instanceof GameCharacter) {
 				((GameCharacter) currentObject).updateWalk();
 			}
-			currentObject.update(elapsedTime, environmentDensity);
+			currentObject.updatePhysics(elapsedTime, environmentDensity);
 
 			// collisions
 			for (int j = i + 1; j < gameObjects.size(); j++) {
@@ -226,6 +248,8 @@ public class GameSceneController extends SceneController {
 
 			if (currentObject.toDelete)
 				toRemove.add(currentObject);
+			else if (updateLights)
+				currentObject.updateLights(this);
 		}
 
 		for (GameObject gameObject : toRemove) {
@@ -233,8 +257,43 @@ public class GameSceneController extends SceneController {
 		}
 	}
 
+	private void applyLights(Renderer renderer) {
+		// LIGHTS ARE THE BEST THING EVEEER
+		renderer.setLight(0, ambientLight);
+
+		int numLights = Math.min(Renderer.MAX_LIGHTS - 1, currentLightsSize);
+		int currentLightIndex = 1;
+
+		Vector2D viewportSize = renderer.getWindowSize();
+		Vector2D halfViewport = Vector2D.scale(viewportSize, 0.5f);
+		Rectangle viewportRectangle = new Rectangle(Vector2D.scale(viewportSize, -0.5f).subtract(cameraPos), Vector2D.scale(viewportSize, 0.5f).subtract(cameraPos));
+
+		for (int i = 0; i < numLights; i++) {
+			Light light = currentLights[i];
+			if (Rectangle.pointCollision(viewportRectangle, light.position, light.cutoff != 0 ? light.cutoff : light.power * Light.DEFAULT_CUTOFF_MULT)) {
+				// shader coords are bottom-left based
+				float xScreen = light.position.getX() + cameraPos.getX() + halfViewport.getX();
+				float yScreen = -(light.position.getY() + cameraPos.getY() - halfViewport.getY());
+				Vector2D newLightPosition = new Vector2D(xScreen, yScreen);
+
+				renderer.setLight(currentLightIndex, new Light(newLightPosition, light.color, light.power, light.cutoff));
+				currentLightIndex++;
+			}
+		}
+		renderer.setLightCount(currentLightIndex);
+		currentLightsSize = 0;
+
+//		greatestFunctionEVER(new Light(new Vector2D((float)Math.sin(tmp * 2f) * 150f, (float)Math.cos(tmp * 2f) * 150f), new Color(0f, 0f, 1f), 20f, 0f));
+//		greatestFunctionEVER(new Light(player.position, new Color(1f, 0f, 0f), 15f));
+//		greatestFunctionEVER(new Light(cursorPos, new Color(0f, 1f, 0f), 15f));
+//		greatestFunctionEVER(new Light(cursorPos, new Color(0f, 1f, 0f), 15f));
+	}
+
 	@Override
 	public void render(Renderer renderer) {
+		cameraPos = Vector2D.inverse(player.position);
+		applyLights(renderer);
+
 		// find the object to highlight (activable object in range of player closest to cursor
 		// or pickupable object if player is empty handed)
 		GameItem itemToHighlight = null;
@@ -245,20 +304,8 @@ public class GameSceneController extends SceneController {
 			itemToHighlight = getClosestItem(cursorPos, EnumSet.of(ItemFilter.ACTIVABLE), player.pickupRange, player.position);
 		}
 
-		cameraPos = Vector2D.inverse(player.position);
-
 		renderer.pushTransformMatrix();
 		renderer.applyTransformMatrix(null, null, cameraPos);
-		renderer.setCamera(cameraPos);
-
-		// lights
-		renderer.setLightCount(4);
-		renderer.setLight(0, new Vector2D(0f, 0f), new Color(.3f, .3f, .3f), -1f);
-		renderer.setLight(1, new Vector2D(-400f, -400f), new Color(1f, 0f, 0f), 10f);
-		renderer.setLight(2, new Vector2D(0f, 300f), new Color(1f, 1f, 0f), 35f);
-		//renderer.setLight(3, new Vector2D(50f, 0f).add(player.position), new Color(1f, 1f, 1f), 0f);
-
-		renderer.drawRectangle(new Renderer.RenderInfo(null, new Vector2D(1920, 1080), null, new Color(.2f, .2f, .2f), true));
 
 		// objects
 		for (GameObject gameObject : gameObjects) {
@@ -272,7 +319,6 @@ public class GameSceneController extends SceneController {
 		}
 		renderer.popTransformMatrix();
 
-		renderer.setLightCount(0);
 		GameInventory.renderInventory(player.inventory, renderer, renderer.getWindowSize().divide(2).inverse(), new Vector2D(1, 1));
 
 		renderer.drawString(renderer.basicFont, "Time factor: " + String.format("%.2f", this.timeFactor),  new Renderer.RenderInfo(renderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -35)), 1f, 0f, new Color(), false));
@@ -417,6 +463,16 @@ public class GameSceneController extends SceneController {
 		}
 
 		return returnVal;
+	}
+
+	public boolean greatestFunctionEVER(Light light) {
+		if (currentLightsSize < currentLights.length) {
+			currentLights[currentLightsSize] = light;
+			currentLightsSize++;
+			return true;
+		}
+
+		return false;
 	}
 
 	public GameItem getClosestItem(Vector2D position, EnumSet<ItemFilter> filters, Float maxDistance) {

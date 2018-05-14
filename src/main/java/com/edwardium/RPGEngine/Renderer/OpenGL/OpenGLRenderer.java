@@ -116,7 +116,7 @@ public class OpenGLRenderer extends Renderer {
 		// Set the clear color
 		// Let there be midnight blue :3
 		//glClearColor(0.098f, 0.098f, 0.439f, 0.0f);
-		glClearColor(0f, 0f, 0f, 0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1f);
 
 		setupPrimitives();
 		setupShaders();
@@ -164,7 +164,7 @@ public class OpenGLRenderer extends Renderer {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glEnable(GL_STENCIL_TEST);
+		//glEnable(GL_STENCIL_TEST);
 	}
 
 	private int createVBO(Vertex[] vertices, int vboFlags) {
@@ -229,6 +229,7 @@ public class OpenGLRenderer extends Renderer {
 		}
 		fontIBO = createIBO(indices, GL_STATIC_DRAW);
 	}
+
 	private void setupShapes() {
 		shapeVAO = glGenVertexArrays();
 		glBindVertexArray(shapeVAO);
@@ -270,16 +271,23 @@ public class OpenGLRenderer extends Renderer {
 	@Override
 	public void beforeLoop() {
 		// clear the framebuffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glViewport(0, 0, windowWidth, windowHeight);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 
-		glOrtho(-windowWidth / 2, windowWidth / 2, windowHeight / 2, -windowHeight / 2, 0.0f, 1.0f);
+		Rectangle viewport = new Rectangle(new Vector2D(-windowWidth / 2f, - windowHeight / 2f), new Vector2D(windowWidth / 2f, windowHeight / 2f));
 
-//		//drawRectangle(new Vector2D(), new Vector2D(windowWidth, windowHeight), 0, new TextureInfo("default", new Color(0.2f, 0.2f, 0.2f)));
-		//tempLightTest();
+		glOrtho(viewport.topLeft.getX(), viewport.bottomRight.getX(), viewport.bottomRight.getY(), viewport.topLeft.getY(), 0.0f, 1.0f);
+
+		// for lights
+		drawShape(Vertex.arrayFromVector2D(new Vector2D[] {
+				viewport.topLeft,
+				viewport.getBottomLeft(),
+				viewport.bottomRight,
+				viewport.getTopRight()
+		}), new RenderInfo(null, 1f, 0f, new TextureInfo("default", new Color(0.5f, 0.5f, 0.5f)), true));
 	}
 
 	@Override
@@ -312,11 +320,6 @@ public class OpenGLRenderer extends Renderer {
 		glPopMatrix();
 	}
 
-	@Override
-	public void setCamera(Vector2D cameraPos) {
-		basicShader.fillCameraPos(cameraPos);
-	}
-
 	private void beginDraw(int vao, int vbo, int ibo, RenderInfo info, OpenGLShaderBasic.CircleInfoStruct circleInfo, boolean overrideTextureColor) {
 		glBindVertexArray(vao);
 		glEnableVertexAttribArray(0);
@@ -345,10 +348,9 @@ public class OpenGLRenderer extends Renderer {
 
 		glActiveTexture(currentTexture.getTextureUnit());
 		glBindTexture(GL_TEXTURE_2D, currentTexture.getTextureID());
-		basicShader.fillUniformGlobalColor(info.textureInfo.textureColor.getAsArray());
+		basicShader.fillUniformGlobalColor(info.textureInfo.textureColor);
 		basicShader.fillUniformCircleInfo(circleInfo);
 		basicShader.fillUnitformTextureInfo(texInfoStruct);
-		basicShader.fillViewportSize(new Vector2D(windowWidth, windowHeight));
 		basicShader.fillUniformUseLights(info.useLights);
 
 		// push model matrix
@@ -495,8 +497,8 @@ public class OpenGLRenderer extends Renderer {
 	}
 
 	@Override
-	public void setLight(int index, Vector2D position, Color color, float power) {
-		basicShader.fillUniformLightInfo(index, position.scale(1f, 1f), color.getAsArray(), power);
+	public void setLight(int index, Light light) {
+		basicShader.fillUniformLightInfo(index, light);
 	}
 
 	@Override

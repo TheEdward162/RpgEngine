@@ -7,6 +7,8 @@ import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.DestroyerProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.Renderer.Animation.TextureAnimation;
+import com.edwardium.RPGEngine.Renderer.Color;
+import com.edwardium.RPGEngine.Renderer.Light;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.Vector2D;
@@ -18,7 +20,7 @@ public class GunDestroyer extends GameItemGun {
 	public GunDestroyer(Vector2D position) {
 		super(position, "Destroyer Gun");
 
-		this.maxCooldown = 0.3f;
+		this.maxCooldown = 0.5f;
 
 		this.maxChargeup = 0.5f;
 		this.fireVelocity = 3000f;
@@ -75,7 +77,16 @@ public class GunDestroyer extends GameItemGun {
 	}
 
 	@Override
-	public void update(float elapsedTime, float environmentDensity) {
+	public void updateLights(GameSceneController gsc) {
+		int animStep = fireAnimation.getStep();
+		if (animStep > 0) {
+			gsc.greatestFunctionEVER(new Light(new Vector2D(28f, 0f).setAngle(this.rotation).add(this.position), new Color(1f, 0.502f, 0f), (float) animStep));
+		}
+		super.updateLights(gsc);
+	}
+
+	@Override
+	public void updatePhysics(float elapsedTime, float environmentDensity) {
 		if (this.chargeup == maxChargeup) {
 			this.chargeup++;
 
@@ -91,7 +102,7 @@ public class GunDestroyer extends GameItemGun {
 				this.lastUse.by.ai.currentState = GameAI.CharacterState.IDLE;
 		}
 
-		super.update(elapsedTime, environmentDensity);
+		super.updatePhysics(elapsedTime, environmentDensity);
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package com.edwardium.RPGEngine.IO;
 
 import com.edwardium.RPGEngine.Utility.Vector2D;
-import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
 
@@ -60,7 +59,7 @@ public class Input {
 
 	private final long window;
 
-	private Vector2D lastMousePos;
+	//private Vector2D lastMousePos;
 	private Vector2D gameCursorCenter = new Vector2D();
 
 	private HashMap<Integer, KeyState> watchedKeys;
@@ -70,7 +69,7 @@ public class Input {
 
 	public Input(long window) {
 		this.window = window;
-		lastMousePos = new Vector2D();
+		//lastMousePos = new Vector2D();
 		watchedKeys = new HashMap<>();
 		keyLock = new TreeSet<>();
 
@@ -89,12 +88,12 @@ public class Input {
 		});
 
 		// cursor pos callback
-		glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
-			@Override
-			public void invoke(long window, double x, double y) {
-				lastMousePos.set((float)x, (float)y);
-			}
-		});
+//		glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
+//			@Override
+//			public void invoke(long window, double x, double y) {
+//				lastMousePos.set((float)x, (float)y);
+//			}
+//		});
 
 		glfwSetScrollCallback(window, new GLFWScrollCallback() {
 			@Override
@@ -175,7 +174,11 @@ public class Input {
 	}
 
 	private Vector2D getCursorPos() {
-		return new Vector2D(lastMousePos);
+		double[] xpos = {0};
+		double[] ypos = {0};
+		glfwGetCursorPos(window, xpos, ypos);
+
+		return new Vector2D((float)xpos[0], (float)ypos[0]);
 	}
 
 	public void setGameCursorCenter(Vector2D center) {

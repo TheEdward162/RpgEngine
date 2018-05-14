@@ -21,10 +21,12 @@ public class TextureAnimation extends Animation {
 	}
 
 	public TextureInfo getCurrentTexture() {
-		int currentStep = Math.round(currentTime / length * steps);
-		Vector2D currentOffset = new Vector2D(textureOffsetJump).multiply(currentStep).add(baseTexture.textureOffset);
+		Vector2D currentOffset = new Vector2D(textureOffsetJump).multiply(getStep()).add(baseTexture.textureOffset);
 
 		return new TextureInfo(baseTexture.textureName, null, currentOffset, baseTexture.textureSize);
 	}
 
+	public int getStep() {
+		return Math.round(currentTime / length * steps);
+	}
 }

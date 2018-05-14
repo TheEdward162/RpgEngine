@@ -63,7 +63,7 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 	}
 
 	@Override
-	public void update(float elapsedTime, float environmentDensity) {
+	public void updatePhysics(float elapsedTime, float environmentDensity) {
 		if (this.fireAnimation != null)
 			this.fireAnimation.update(elapsedTime);
 
@@ -82,7 +82,7 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 			}
 		}
 
-		super.update(elapsedTime, environmentDensity);
+		super.updatePhysics(elapsedTime, environmentDensity);
 	}
 
 	protected GameObject membersFromJson(JsonObject sourceObj) {

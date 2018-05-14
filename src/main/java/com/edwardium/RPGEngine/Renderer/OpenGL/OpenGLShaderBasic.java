@@ -1,6 +1,8 @@
 package com.edwardium.RPGEngine.Renderer.OpenGL;
 
 import com.edwardium.RPGEngine.IO.IOUtil;
+import com.edwardium.RPGEngine.Renderer.Color;
+import com.edwardium.RPGEngine.Renderer.Light;
 import com.edwardium.RPGEngine.Utility.Vector2D;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
@@ -156,9 +158,9 @@ public class OpenGLShaderBasic {
 		return program_id;
 	}
 
-	public void fillUniformGlobalColor(float[] color) {
+	public void fillUniformGlobalColor(Color color) {
 		int globalColorLoc = glGetUniformLocation(getProgramID(), "un_globalColor");
-		glUniform4fv(globalColorLoc, color);
+		glUniform4fv(globalColorLoc, color.getAsArray());
 	}
 
 	public void fillUniformCircleInfo(CircleInfoStruct circleInfo) {
@@ -193,25 +195,25 @@ public class OpenGLShaderBasic {
 		}
 	}
 
-	public void fillUniformLightInfo(int index, Vector2D position, float[] color, float power) {
-		int positionLoc = glGetUniformLocation(getProgramID(), "un_Lights[" + Integer.toString(index) + "].position");
-		glUniform4f(positionLoc, position.getX(), position.getY(), 0f, 1f);
+	public void fillUniformLightInfo(int index, Light light) {
+		String arrBase = "un_Lights[" + index + "]";
 
-		int colorLoc = glGetUniformLocation(getProgramID(), "un_Lights[" + Integer.toString(index) + "].color");
-		glUniform4fv(colorLoc, color);
+		int positionLoc = glGetUniformLocation(getProgramID(), arrBase + ".position");
+		glUniform4f(positionLoc, light.position.getX(), light.position.getY(), 0f, 1f);
 
-		int powerLoc = glGetUniformLocation(getProgramID(), "un_Lights[" + Integer.toString(index) + "].power");
-		glUniform1f(powerLoc, power);
+		int colorLoc = glGetUniformLocation(getProgramID(), arrBase + ".color");
+		glUniform4fv(colorLoc, light.color.getAsArray());
+
+		int powerLoc = glGetUniformLocation(getProgramID(), arrBase + ".power");
+		glUniform1f(powerLoc, light.power);
+
+		int cutoffLoc = glGetUniformLocation(getProgramID(), arrBase + ".cutoff");
+		glUniform1f(cutoffLoc, light.cutoff);
 	}
 
 	public void fillViewportSize(Vector2D size) {
 		int viewportSizeLoc = glGetUniformLocation(getProgramID(), "un_viewportSize");
 		glUniform2f(viewportSizeLoc, size.getX(), size.getY());
-	}
-
-	public void fillCameraPos(Vector2D position) {
-		int viewportSizeLoc = glGetUniformLocation(getProgramID(), "un_cameraPos");
-		glUniform2f(viewportSizeLoc, position.getX(), position.getY());
 	}
 
 	public void fillUniformLightCount(int count) {

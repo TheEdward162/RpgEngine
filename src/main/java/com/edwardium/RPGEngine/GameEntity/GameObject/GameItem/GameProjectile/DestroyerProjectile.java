@@ -1,9 +1,11 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 
+import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
 import com.edwardium.RPGEngine.Renderer.Color;
+import com.edwardium.RPGEngine.Renderer.Light;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Utility.Rectangle;
 import com.edwardium.RPGEngine.Utility.Vector2D;
@@ -40,9 +42,19 @@ public class DestroyerProjectile extends GameProjectile {
 	}
 
 	@Override
+	public void updatePhysics(float elapsedTime, float environmentDensity) {
+		super.updatePhysics(elapsedTime, environmentDensity);
+	}
+
+	@Override
+	public void updateLights(GameSceneController gsc) {
+		gsc.greatestFunctionEVER(new Light(this.position, new Color(1f, 0.502f, 0f), 25f, 0f));
+		super.updateLights(gsc);
+	}
+
+	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.setLight(3, this.position, new Color(1, 0.502f, 0), 200f);
 			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, new Vector2D(23f, 9f), this.velocity.getAngle(),
 					new Color(1, 0.502f, 0), true));
 		}

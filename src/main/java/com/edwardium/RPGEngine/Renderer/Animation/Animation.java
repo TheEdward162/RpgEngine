@@ -53,4 +53,8 @@ public abstract class Animation {
 		this.stop();
 		this.jumpToStart();
 	}
+
+	public float getPercent() {
+		return this.length != 0 ? this.currentTime / this.length : 0f;
+	}
 }

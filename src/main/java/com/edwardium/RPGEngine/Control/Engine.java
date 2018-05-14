@@ -97,7 +97,7 @@ public class Engine implements Runnable {
 		loopUnsynced();
 
 		if (currentSceneController instanceof GameSceneController) {
-			((GameSceneController) currentSceneController).saveState("test.json");
+			((GameSceneController) currentSceneController).saveState("save.json");
 		}
 
 		// Game is over
@@ -130,19 +130,19 @@ public class Engine implements Runnable {
 //
 //			lastTime = nowTime;
 //
-//			// only update input once, even if we do more game updates
+//			// only updatePhysics input once, even if we do more game updates
 //			if (unprocessedTime >= UPDATE_CAP / NANO_TIME_MULT) {
-//				FPSCounter.update(unprocessedTime);
+//				FPSCounter.updatePhysics(unprocessedTime);
 //				updateInput(unprocessedTime / 2);
 //				System.err.println(unprocessedTime);
 //			}
 //
-//			// update while we are all caught up
+//			// updatePhysics while we are all caught up
 //			while (unprocessedTime >= UPDATE_CAP / NANO_TIME_MULT) {
 //				if (gameRenderer.shouldClose())
 //					break;
 //
-//				update(UPDATE_CAP * timeFactor);
+//				updatePhysics(UPDATE_CAP * timeFactor);
 //				unprocessedTime -= UPDATE_CAP / NANO_TIME_MULT;
 //
 //				// Since we updated, we also want to render
@@ -207,7 +207,7 @@ public class Engine implements Runnable {
 				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -20)),1f, 0f, new Color(), false));
 
 		gameRenderer.drawString(gameRenderer.basicFont, "FPS: " + String.format("%.1f", FPSCounter.getFPS()),
-				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), 1f, 0f, new Color(), false));
+				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), 1f, 0f, new Color(1f, 0f, 0f), false));
 
 		gameRenderer.afterLoop();
 	}

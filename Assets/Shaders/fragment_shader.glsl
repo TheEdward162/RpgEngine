@@ -4,8 +4,6 @@ varying vec4 out_shadowColor;
 varying vec2 out_textureCoord;
 
 // uniforms
-uniform vec2 un_viewportSize;
-uniform vec2 un_cameraPos;
 uniform vec4 un_globalColor;
 
 uniform bool un_useLights;
@@ -31,9 +29,10 @@ struct LightInfo {
 	vec4 color;
 
 	float power;
-	float cutOff;
+	float cutoff;
 };
-uniform LightInfo un_Lights[8];
+const int MAX_LIGHTS = 64;
+uniform LightInfo un_Lights[MAX_LIGHTS];
 
 bool checkCircle() {
 	vec2 circlePos = out_textureCoord - vec2(0.5, 0.5);
@@ -64,21 +63,26 @@ vec4 calcLightColor() {
     if (!un_useLights)
         return vec4(1.0, 1.0, 1.0, 1.0);
 
-    vec4 fragCoord = vec4(gl_FragCoord.x, un_viewportSize.y - gl_FragCoord.y, gl_FragCoord.zw);
-    vec4 fragCoordWorld = fragCoord - vec4(un_cameraPos.xy + un_viewportSize.xy / 2.0, 0.0, 1.0);
+	vec4 lightColor = vec4(0.0, 0.0, 0.0, 0.0);
+	int numLights = min(un_lightCount, MAX_LIGHTS);
 
-	vec4 lightColor = vec4(0.0, 0.0, 0.0, 1.0);
-	for (int i = 0; i < un_lightCount; i++) {
+	for (int i = 0; i < numLights; i++) {
 	    vec4 lColor = un_Lights[i].color;
-	    if (un_Lights[i].power >= 0.0) {
-		    float attenuation = un_Lights[i].power / length(un_Lights[i].position - fragCoordWorld);
-		    lColor *= vec4(attenuation, attenuation, attenuation, pow(attenuation, 3.0));
+	    // lights with power <= 0 are ambient
+	    if (un_Lights[i].power > 0.0) {
+	        float distance = length(un_Lights[i].position - gl_FragCoord);
+
+	        if (un_Lights[i].cutoff <= 0.0 || distance <= un_Lights[i].cutoff) {
+                float attenuation = un_Lights[i].power / distance;
+                lColor *= vec4(attenuation, attenuation, attenuation, pow(attenuation, 3.0));
+		    } else {
+		        continue;
+		    }
 	    }
 
 		lightColor += lColor;
 	}
 
-	//return vec4(fragCoordWorld.x / 1920.0, fragCoordWorld.y / 1080.0, 0.0, 1.0);
 	return lightColor;
 }
 

@@ -60,6 +60,8 @@ public class Vector2D implements GameSerializable {
 	public static Vector2D normalize(Vector2D a) {
 		return new Vector2D(a).normalize();
 	}
+
+	public static Vector2D scale(Vector2D a, float s) { return new Vector2D(a).scale(s); }
 	public static Vector2D scale(Vector2D a, float x, float y) { return new Vector2D(a).scale(x, y); }
 	public static Vector2D scale(Vector2D a, Vector2D scaleVector) { return new Vector2D(a).scale(scaleVector); }
 
@@ -213,6 +215,7 @@ public class Vector2D implements GameSerializable {
 	public Vector2D normalize() {
 		return this.setMagnitude(1);
 	}
+
 	public Vector2D scale(float s) { return scale(s, s); }
 	public Vector2D scale(float x, float y) {
 		this.posX *= x;

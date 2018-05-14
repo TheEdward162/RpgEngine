@@ -38,6 +38,8 @@ public abstract class Renderer {
 
 	public enum StringAlignment { TOPLEFT, CENTER, BOTTOMRIGHT }
 
+	public static final int MAX_LIGHTS = 64;
+
 	protected String windowTitle;
 	protected int windowWidth;
 	protected int windowHeight;
@@ -77,8 +79,6 @@ public abstract class Renderer {
 	public abstract void applyTransformMatrix(Vector2D scale, Float rotation, Vector2D translation);
 	public abstract void popTransformMatrix();
 
-	public abstract void setCamera(Vector2D cameraPos);
-
 	public abstract void drawLine(Vector2D destPoint, RenderInfo info);
 	public abstract void drawRectangle(RenderInfo info);
 	public abstract void drawRectangle(Rectangle rectangle, RenderInfo info);
@@ -91,7 +91,7 @@ public abstract class Renderer {
 
 	public abstract void drawShape(Vertex[] shape, RenderInfo info);
 
-	public abstract void setLight(int index, Vector2D position, Color color, float power);
+	public abstract void setLight(int index, Light light);
 	public abstract void setLightCount(int count);
 
 	public abstract boolean shouldClose();

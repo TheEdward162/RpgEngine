@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 
+import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
@@ -38,6 +39,12 @@ public class PistolBullet extends GameProjectile {
 		if (other instanceof GameWall) {
 			this.toDelete = true;
 		}
+	}
+
+	@Override
+	public void updateLights(GameSceneController gsc) {
+		//gsc.greatestFunctionEVER(new Light(this.position, new Color(0.4f, 0.4f, 0.4f, 1.0f), 50f));
+		super.updateLights(gsc);
 	}
 
 	@Override

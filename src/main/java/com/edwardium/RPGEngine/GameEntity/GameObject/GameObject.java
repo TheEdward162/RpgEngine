@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject;
 
+import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Renderer.Color;
@@ -43,9 +44,12 @@ public abstract class GameObject implements GameSerializable {
 		this.name = name;
 	}
 
-	public void update(float elapsedTime, float environmentDensity) {
+	public void updatePhysics(float elapsedTime, float environmentDensity) {
 		this.applyForce(calculateResistanceForce(environmentDensity).multiply(elapsedTime));
 		this.position.add(Vector2D.multiply(this.velocity, elapsedTime));
+	}
+	public void updateLights(GameSceneController gsc) {
+
 	}
 
 	public void render(Renderer gameRenderer) {
