@@ -101,6 +101,15 @@ public class GameInventory implements GameSerializable {
 		return -1;
 	}
 
+	public int findFirstItem() {
+		for (int i = 0; i < items.length; i++) {
+			if (items[i] != null)
+				return i;
+		}
+
+		return -1;
+	}
+
 	public boolean insertItem(GameItem item) {
 		if (item == null)
 			return false;
@@ -171,30 +180,55 @@ public class GameInventory implements GameSerializable {
 	private static final float r_inventoryItemSpace = 5;
 
 	private static final Color r_inventoryShadowColor = new Color(0, 0, 0, 0.5f);
+	private static final Color r_inventoryShadowChargingColor = new Color(1f, 0, 0, 0.2f);
+	private static final Color r_inventoryShadowCooldownColor = new Color(0, 0, 1f, 0.2f);
+
 	private static final Color r_inventoryNumberColor = new Color(1, 1, 1, 1f);
 	private static final Color r_inventoryNumberActiveColor = new Color(1f, 0, 0, 1f);
 
 	public static void renderInventory(GameInventory inventory, Renderer renderer, Vector2D basePosition, Vector2D scale) {
 		for (int i = 0; i < inventory.items.length; i++) {
+			GameItem currentItem = inventory.items[i];
+			boolean isActive = inventory.activeIndex == i;
+
 			Rectangle itemRectangle = new Rectangle(
-					new Vector2D(basePosition).add(new Vector2D(0, i * (r_inventoryItemSize.getY() + r_inventoryItemSpace))),
-					new Vector2D(basePosition).add(new Vector2D(0, i * (r_inventoryItemSize.getY() + r_inventoryItemSpace))).add(r_inventoryItemSize)
+					new Vector2D(basePosition).add(new Vector2D(0, i * (r_inventoryItemSize.getY() + r_inventoryItemSpace)).scale(scale)),
+					new Vector2D(basePosition).add(new Vector2D(0, i * (r_inventoryItemSize.getY() + r_inventoryItemSpace)).scale(scale)).add(Vector2D.scale(r_inventoryItemSize, scale))
 			);
 			Vector2D centerPosition = itemRectangle.center();
 
 			// shadow
-			renderer.drawRectangle(new Renderer.RenderInfo(centerPosition.scale(scale), Vector2D.scale(r_inventoryItemSize, scale), 0f, r_inventoryShadowColor, false));
+//			renderer.drawRectangle(new Renderer.RenderInfo(centerPosition.scale(scale), Vector2D.scale(r_inventoryItemSize, scale), 0f, r_inventoryShadowColor, false));
+			renderer.drawRectangle(itemRectangle, new Renderer.RenderInfo(null, 1f, 0f, r_inventoryShadowColor, false));
+
+			if (isActive && currentItem != null) {
+				if (currentItem instanceof IGameUsableItem) {
+					IGameUsableItem usableItem = (IGameUsableItem) currentItem;
+
+					float chargeupPercent = usableItem.getMaxChargeup() != 0 ? usableItem.getChargeup() / usableItem.getMaxChargeup() : 0;
+					if (chargeupPercent > 0) {
+						Rectangle chargeupShadowRectangle = new Rectangle(itemRectangle).scale(chargeupPercent, 1f);
+						renderer.drawRectangle(chargeupShadowRectangle, new Renderer.RenderInfo(null, 1f, 0f, r_inventoryShadowChargingColor, false));
+					} else {
+						float cooldownPercent = usableItem.getMaxCooldown() != 0 ? usableItem.getCooldown() / usableItem.getMaxCooldown() : 0;
+						if (cooldownPercent > 0) {
+							Rectangle cooldownShadowRectangle = new Rectangle(itemRectangle).scale(cooldownPercent, 1f);
+							renderer.drawRectangle(cooldownShadowRectangle, new Renderer.RenderInfo(null, 1f, 0f, r_inventoryShadowCooldownColor, false));
+						}
+					}
+				}
+			}
 
 			// number
 			Color textColor = r_inventoryNumberColor;
-			if (inventory.activeIndex == i)
+			if (isActive)
 				textColor = r_inventoryNumberActiveColor;
 //			renderer.drawString(renderer.basicFont, String.valueOf(i + 1) + ".", Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), new Vector2D(1, 1), textColor);
 
-			if (inventory.items[i] != null) {
+			if (currentItem != null) {
 				Rectangle imageRectangle = Rectangle.setWidth(itemRectangle, 32);
-				renderer.drawRectangle(imageRectangle, new Renderer.RenderInfo(null, 1f, 0f, inventory.items[i].getInventoryTexture(), false));
-				renderer.drawString(renderer.basicFont, inventory.items[i].name, new Renderer.RenderInfo(Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), 1f, 0f, textColor, false));
+				renderer.drawRectangle(imageRectangle, new Renderer.RenderInfo(null, 1f, 0f, currentItem.getInventoryTexture(), false));
+				renderer.drawString(renderer.basicFont, currentItem.name, new Renderer.RenderInfo(Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), 1f, 0f, textColor, false));
 			} else {
 				renderer.drawString(renderer.basicFont, "Empty", new Renderer.RenderInfo(Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), 1f, 0f, textColor, false));
 			}

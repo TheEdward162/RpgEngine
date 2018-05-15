@@ -131,7 +131,7 @@ public class MenuSceneController extends SceneController {
 		Vector2D basePosition = new Vector2D().subtract(new Vector2D(menuItemSize).divide(2)).subtract(new Vector2D(0, (menuItemSize.getY() + menuItemSpace) * (currentMenu.length - 1) / 2));
 
 		for (int i = 0; i < currentMenu.length; i++) {
-			Vector2D currentPosition = Vector2D.add(basePosition, new Vector2D(0, menuItemSize.getY() + menuItemSpace).multiply(i));
+			Vector2D currentPosition = Vector2D.add(basePosition, new Vector2D(0, menuItemSize.getY() + menuItemSpace).scale(i));
 			Rectangle currentRectangle = new Rectangle(currentPosition, Vector2D.add(currentPosition, menuItemSize));
 
 			Color itemBGColor = menuItemBackgroundColor;

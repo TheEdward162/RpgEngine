@@ -20,8 +20,7 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class OpenGLRenderer extends Renderer {
@@ -44,6 +43,9 @@ public class OpenGLRenderer extends Renderer {
 	private int shapeVAO;
 	private int shapeVBO;
 	private int shapeIBO;
+
+	// frame buffer for shadow pass
+	private int shadowFBO;
 
 	// in case we get a string that is longer, we will either need to
 	// split it and render is separately, or, even better, ignore it and
@@ -167,31 +169,6 @@ public class OpenGLRenderer extends Renderer {
 		//glEnable(GL_STENCIL_TEST);
 	}
 
-	private int createVBO(Vertex[] vertices, int vboFlags) {
-		FloatBuffer verticesBuffer = Vertex.verticesToBuffer(vertices);
-
-		int vboID = glGenBuffers();
-		glBindBuffer(GL_ARRAY_BUFFER, vboID);
-		glBufferData(GL_ARRAY_BUFFER, verticesBuffer, vboFlags);
-
-		glVertexAttribPointer(OpenGLShaderBasic.attribute_position, Vertex.positionElementCount, GL_FLOAT, false, Vertex.stride, Vertex.positionPointerOffset);
-		glVertexAttribPointer(OpenGLShaderBasic.attribute_vertexColor, Vertex.colorElementCount, GL_FLOAT, false, Vertex.stride, Vertex.colorPointerOffset);
-		glVertexAttribPointer(OpenGLShaderBasic.attribute_textureCoord, Vertex.textureCoordElementCount, GL_FLOAT, false, Vertex.stride, Vertex.texturePointerOffset);
-
-		// Deselect VBO
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		return vboID;
-	}
-
-	private int createIBO(int[] indices, int iboFlags) {
-		int iboID = glGenBuffers();
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (IntBuffer) BufferUtils.createIntBuffer(indices.length).put(indices).flip(), iboFlags);
-
-		return iboID;
-	}
-
 	private void setupTextures() {
 		gameTextures = new HashMap<>();
 		gameTextures.put("default", new OpenGLTexture("Assets/Textures/default.png", GL_TEXTURE0));
@@ -246,6 +223,10 @@ public class OpenGLRenderer extends Renderer {
 		shapeIBO = createIBO(indices, GL_STATIC_DRAW);
 	}
 
+	private void setupStages() {
+		shadowFBO = glGenFramebuffers();
+	}
+
 	@Override
 	public void show() {
 		glfwShowWindow(window);
@@ -279,13 +260,13 @@ public class OpenGLRenderer extends Renderer {
 
 		Rectangle viewport = new Rectangle(new Vector2D(-windowWidth / 2f, - windowHeight / 2f), new Vector2D(windowWidth / 2f, windowHeight / 2f));
 
-		glOrtho(viewport.topLeft.getX(), viewport.bottomRight.getX(), viewport.bottomRight.getY(), viewport.topLeft.getY(), 0.0f, 1.0f);
+		glOrtho(viewport.getTopLeft().getX(), viewport.getBottomRight().getX(), viewport.getBottomRight().getY(), viewport.getTopLeft().getY(), 0.0f, 1.0f);
 
 		// for lights
 		drawShape(Vertex.arrayFromVector2D(new Vector2D[] {
-				viewport.topLeft,
+				viewport.getTopLeft(),
 				viewport.getBottomLeft(),
-				viewport.bottomRight,
+				viewport.getBottomRight(),
 				viewport.getTopRight()
 		}), new RenderInfo(null, 1f, 0f, new TextureInfo("default", new Color(0.5f, 0.5f, 0.5f)), true));
 	}
@@ -406,8 +387,8 @@ public class OpenGLRenderer extends Renderer {
 
 	@Override
 	public void drawRectangle(Rectangle rectangle, RenderInfo info) {
-		drawRectangle(new RenderInfo(Vector2D.center(rectangle.topLeft, rectangle.bottomRight),
-				Vector2D.subtract(rectangle.topLeft, rectangle.bottomRight).absolutize(),
+		drawRectangle(new RenderInfo(Vector2D.center(rectangle.getTopLeft(), rectangle.getBottomRight()),
+				Vector2D.subtract(rectangle.getTopLeft(), rectangle.getBottomRight()).absolutize(),
 				info.rotation, info.textureInfo, info.useLights));
 	}
 
@@ -530,5 +511,30 @@ public class OpenGLRenderer extends Renderer {
 
 			window = null;
 		}
+	}
+
+	private static int createVBO(Vertex[] vertices, int vboFlags) {
+		FloatBuffer verticesBuffer = Vertex.verticesToBuffer(vertices);
+
+		int vboID = glGenBuffers();
+		glBindBuffer(GL_ARRAY_BUFFER, vboID);
+		glBufferData(GL_ARRAY_BUFFER, verticesBuffer, vboFlags);
+
+		glVertexAttribPointer(OpenGLShaderBasic.attribute_position, Vertex.positionElementCount, GL_FLOAT, false, Vertex.stride, Vertex.positionPointerOffset);
+		glVertexAttribPointer(OpenGLShaderBasic.attribute_vertexColor, Vertex.colorElementCount, GL_FLOAT, false, Vertex.stride, Vertex.colorPointerOffset);
+		glVertexAttribPointer(OpenGLShaderBasic.attribute_textureCoord, Vertex.textureCoordElementCount, GL_FLOAT, false, Vertex.stride, Vertex.texturePointerOffset);
+
+		// Deselect VBO
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		return vboID;
+	}
+
+	private static int createIBO(int[] indices, int iboFlags) {
+		int iboID = glGenBuffers();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (IntBuffer) BufferUtils.createIntBuffer(indices.length).put(indices).flip(), iboFlags);
+
+		return iboID;
 	}
 }

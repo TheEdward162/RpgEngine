@@ -94,7 +94,7 @@ public class GunBouncyBall extends GameItemGun {
 	public JsonObject toJSON() {
 		return super.toJSONBuilder().add_optional("fireVelocity", fireVelocity, 400f).build();
 
-		// TODO: currentProjectile
+		// TODO: currentProjectile a.k.a. references while saving
 	}
 }
 

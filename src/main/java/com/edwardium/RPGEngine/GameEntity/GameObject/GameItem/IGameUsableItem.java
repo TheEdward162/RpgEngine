@@ -8,4 +8,10 @@ public interface IGameUsableItem {
 	boolean canUse(GameCharacter by, Vector2D to, GameObject at);
 	boolean use(GameCharacter by, Vector2D to, GameObject at);
 	boolean cancelUse();
+
+	float getCooldown();
+	float getMaxCooldown();
+
+	float getChargeup();
+	float getMaxChargeup();
 }

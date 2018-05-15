@@ -55,7 +55,7 @@ public class BouncyBallProjectile extends GameProjectile {
 				} else {
 					Vector2D collideSide = otherSideNormal.getNormal();
 					Vector2D rejection = this.velocity.rejection(collideSide);
-					this.velocity.subtract(rejection.multiply(2));
+					this.velocity.subtract(rejection.scale(2));
 				}
 			}
 		}

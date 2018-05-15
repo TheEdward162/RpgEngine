@@ -13,7 +13,6 @@ import javax.json.JsonObject;
 public class GameWall extends GameObject {
 
 	private Vector2D[] shape;
-	public boolean penetrable = false;
 
 	private final Vertex[] vertices;
 
@@ -78,7 +77,5 @@ public class GameWall extends GameObject {
 
 	public JsonObject toJSON() {
 		return super.toJSONBuilder().add("shape", shape).add_optional("mass", mass, Float.POSITIVE_INFINITY).build();
-
-		// TODO: Penetrable
 	}
 }

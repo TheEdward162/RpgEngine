@@ -27,11 +27,11 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 
 	protected UseInfo lastUse = null;
 
-	public float maxCooldown = 0f;
-	public float cooldown = 0;
+	float maxCooldown = 0f;
+	float cooldown = 0;
 
-	public float maxChargeup = 0f;
-	public float chargeup = 0f;
+	float maxChargeup = 0f;
+	float chargeup = 0f;
 
 	public float fireVelocity = 1f;
 
@@ -63,12 +63,32 @@ public abstract class GameItemGun extends GameItem implements IGameUsableItem {
 	}
 
 	@Override
+	public float getCooldown() {
+		return cooldown;
+	}
+
+	@Override
+	public float getMaxCooldown() {
+		return maxCooldown;
+	}
+
+	@Override
+	public float getChargeup() {
+		return chargeup;
+	}
+
+	@Override
+	public float getMaxChargeup() {
+		return maxChargeup;
+	}
+
+	@Override
 	public void updatePhysics(float elapsedTime, float environmentDensity) {
 		if (this.fireAnimation != null)
 			this.fireAnimation.update(elapsedTime);
 
 		if (cooldown > 0) {
-			if (chargeup < maxChargeup) {
+			if (chargeup >= 0 && chargeup < maxChargeup) {
 				if (lastUse != null && lastUse.by.ai.currentState == GameAI.CharacterState.CHARGING) {
 					chargeup = Math.min(maxChargeup, chargeup + elapsedTime);
 				} else {

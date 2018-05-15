@@ -1,15 +1,28 @@
 package com.edwardium.RPGEngine.Utility;
 
+/**
+ * Static class for counting FPS.
+ */
 public class FPSCounter {
 	private static double history[] = null;
 
 	private static int headPointer;
 
+	private FPSCounter() {}
+
+	/**
+	 * @param length Length of the time history.
+	 *
+	 * Initializes the counter and sets the size of the internal history array.
+	 */
 	public static void init(int length) {
 		history = new double[length];
 		headPointer = 0;
 	}
 
+	/**
+	 * @param elapsedTime Time that has elapsed since last frame.
+	 */
 	public static void update(double elapsedTime) {
 		if (history == null || history.length <= 0)
 			return;
@@ -22,6 +35,9 @@ public class FPSCounter {
 		headPointer = nextIndex;
 	}
 
+	/**
+	 * @return Average FPS calculated from current history.
+	 */
 	public static float getFPS() {
 		if (history == null || history.length <= 0)
 			return 0;

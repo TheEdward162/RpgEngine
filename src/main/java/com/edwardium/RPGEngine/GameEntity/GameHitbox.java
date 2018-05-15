@@ -66,10 +66,10 @@ public class GameHitbox implements GameSerializable {
 	}
 	public GameHitbox(Rectangle rectangle) {
 		this(new Vector2D[] {
-				rectangle.topLeft,
-				new Vector2D(rectangle.bottomRight).scale(-1, 1),
-				rectangle.bottomRight,
-				new Vector2D(rectangle.topLeft).scale(-1, 1)
+				rectangle.getTopLeft(),
+				new Vector2D(rectangle.getBottomRight()).scale(-1, 1),
+				rectangle.getBottomRight(),
+				new Vector2D(rectangle.getTopLeft()).scale(-1, 1)
 		});
 	}
 
@@ -92,47 +92,6 @@ public class GameHitbox implements GameSerializable {
 			return false;
 		return Vector2D.distance(myPosition, otherPosition) <= this.broadRadius + other.broadRadius;
 	}
-
-	/*private boolean checkBroadVelocity(Vector2D myPosition, Vector2D myVelocity, float myRotation, GameHitbox other, Vector2D otherPosition, Vector2D otherVelocity, float otherRotation) {
-		// Math saves the day
-		// A(u) = myPosition + u * myVelocity
-		// B(u) = otherPosition + u * otherVelocity
-		// D(u) = |A(u) - B(u)| = |myPosition + u * myVelocity - otherPosition - u * otherVelocity|
-		// = |myPosition - otherPosition + u * (myVelocity - otherVelocity)|
-		//
-		// Solve D(u) <= this.broadRadius + other.broadRadius for u
-		// |myPosition - otherPosition + u * (myVelocity - otherVelocity)| <= this.broadRadius + other.broadRadius
-		// (myPosition - otherPosition + u * (myVelocity - otherVelocity))^2 <= (this.broadRadius + other.broadRadius)^2
-		// sub myPosition - otherPosition = A, sub (myVelocity - otherVelocity) = B, sub this.broadRadius + other.broadRadius = C
-		// (A + u * B)^2 <= C^2
-		// A^2 + 2uAB + (uB)^2 <= c^2
-		//
-		// B^2 * u^2 + 2AB * u + A^2 - C^2 <= 0
-		// B^2(u^2 + 2Au / B + (A^2 - C^2) / B^2) <= 0
-		// B^2((u + A / B)^2 + (A^2 - C^2) / B^2 - A^2 / B^2) <= 0
-		// B^2(u + A / B)^2 + (A^2 - C^2) - A^2 <= 0
-		// B^2(u + A / B)^2 <= C^2
-		// (u + A / B)^2 <= C^2 / B^2
-		// (u + A / B) <= +- C / B
-		// u <= +- C / B - A / B
-
-		float A = Vector2D.subtract(myPosition, otherPosition).getMagnitude();
-		float B = Vector2D.subtract(myVelocity, otherVelocity).getMagnitude();
-		float C = this.broadRadius + other.broadRadius;
-
-		if (B == 0)
-			return checkBroad(myPosition, other, otherPosition) && checkNarrow(myPosition, myRotation, other, otherPosition, otherRotation);
-
-		float uMin = -C / B - A / B;
-		float uMax = C / B - A / B;
-
-		if ((uMin >= 0 && uMin <= 1) || (uMax >= 0 && uMax <= 1)) {
-			// TODO: Think
-			return true;
-		}
-
-		return false;
-	}*/
 
 	private CollisionInfo checkNarrow(Vector2D myPosition, float myRotation, GameHitbox other, Vector2D otherPosition, float otherRotation) {
 		if (other == null)

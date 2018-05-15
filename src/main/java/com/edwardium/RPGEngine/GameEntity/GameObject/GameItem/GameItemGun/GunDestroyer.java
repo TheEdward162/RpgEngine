@@ -88,7 +88,7 @@ public class GunDestroyer extends GameItemGun {
 	@Override
 	public void updatePhysics(float elapsedTime, float environmentDensity) {
 		if (this.chargeup == maxChargeup) {
-			this.chargeup++;
+			this.chargeup = -1f;
 
 			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
 			if (gsc != null && gsc.canSpawnType(GameSceneController.SpawnType.PROJECTILE)) {

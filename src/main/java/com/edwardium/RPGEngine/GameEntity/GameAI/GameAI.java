@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameAI;
 
+import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.IO.JsonBuilder;
 import com.edwardium.RPGEngine.Utility.GameSerializable;
@@ -23,7 +24,11 @@ public abstract class GameAI implements GameSerializable {
 
 		try {
 			currentState = CharacterState.values()[sourceObj.getJsonNumber("state").intValue()];
-		} catch (ArrayIndexOutOfBoundsException | NullPointerException | ClassCastException ignored) { }
+
+			// until serialization references are done
+			if (currentState == CharacterState.CHARGING)
+				currentState = CharacterState.IDLE;
+		} catch (ArrayIndexOutOfBoundsException | NullPointerException | ClassCastException ignored) {}
 	}
 
 	public boolean canRotate() {
@@ -49,6 +54,21 @@ public abstract class GameAI implements GameSerializable {
 	public void onUpdate(float elapsedTime) {
 		if (currentState == CharacterState.CHARGING && character.velocity.getMagnitude() != 0)
 			this.currentState = CharacterState.IDLE;
+	}
+
+	public void onDeath() {
+		currentState = GameAI.CharacterState.LOCKED;
+
+		// drop all items
+		int firstActiveItemIndex = character.inventory.findFirstItem();
+		while (firstActiveItemIndex >= 0) {
+			character.inventory.setActiveIndex(firstActiveItemIndex);
+			float throwForce = 5f + (Engine.gameEngine.randomGenerator.nextFloat() - 0.5f) * 5f;
+			float throwAngle = (float)(Engine.gameEngine.randomGenerator.nextGaussian() * Math.PI);
+			character.dropActiveItem(throwForce, throwAngle);
+
+			firstActiveItemIndex = character.inventory.findFirstItem();
+		}
 	}
 
 	public static GameAI fromJSON(JsonObject sourceObj, GameCharacter character) {

@@ -21,7 +21,7 @@ public class TextureAnimation extends Animation {
 	}
 
 	public TextureInfo getCurrentTexture() {
-		Vector2D currentOffset = new Vector2D(textureOffsetJump).multiply(getStep()).add(baseTexture.textureOffset);
+		Vector2D currentOffset = new Vector2D(textureOffsetJump).scale(getStep()).add(baseTexture.textureOffset);
 
 		return new TextureInfo(baseTexture.textureName, null, currentOffset, baseTexture.textureSize);
 	}

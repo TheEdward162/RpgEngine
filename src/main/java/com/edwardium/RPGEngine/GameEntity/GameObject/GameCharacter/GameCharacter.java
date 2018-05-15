@@ -234,12 +234,15 @@ public class GameCharacter extends GameObject {
 		return false;
 	}
 	public boolean dropActiveItem(float force) {
+		return dropActiveItem(force, 0f);
+	}
+	public boolean dropActiveItem(float force, float angle) {
 		GameItem droppedItem = inventory.removeActiveItem();
 		if (droppedItem == null)
 			return false;
 
 		droppedItem.position = getFacingDirection().setMagnitude(38f).add(position);
-		Vector2D velocityVector = getFacingDirection().setMagnitude(force);
+		Vector2D velocityVector = getFacingDirection().setMagnitude(force).setAngle(this.rotation + angle);
 		droppedItem.applyForce(velocityVector);
 
 		return true;
@@ -298,8 +301,9 @@ public class GameCharacter extends GameObject {
 	public void damage(float damage) {
 		this.health = Math.max(0f, this.health - damage);
 
-		if (this.health <= 0)
-			this.ai.currentState = GameAI.CharacterState.LOCKED;
+		if (this.health <= 0) {
+			this.ai.onDeath();
+		}
 	}
 
 	public JsonObject toJSON() {

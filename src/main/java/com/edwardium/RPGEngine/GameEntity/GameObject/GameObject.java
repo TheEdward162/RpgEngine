@@ -45,8 +45,8 @@ public abstract class GameObject implements GameSerializable {
 	}
 
 	public void updatePhysics(float elapsedTime, float environmentDensity) {
-		this.applyForce(calculateResistanceForce(environmentDensity).multiply(elapsedTime));
-		this.position.add(Vector2D.multiply(this.velocity, elapsedTime));
+		this.applyForce(calculateResistanceForce(environmentDensity).scale(elapsedTime));
+		this.position.add(Vector2D.scale(this.velocity, elapsedTime));
 	}
 	public void updateLights(GameSceneController gsc) {
 

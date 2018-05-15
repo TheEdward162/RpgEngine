@@ -31,7 +31,7 @@ public class FusedAnimation extends TextureAnimation {
 	@Override
 	public TextureInfo getCurrentTexture() {
 		int currentStep = Math.round(currentTime / length * steps);
-		Vector2D currentOffset = new Vector2D(textureOffsetJump).multiply(currentStep).add(baseTexture.textureOffset);
+		Vector2D currentOffset = new Vector2D(textureOffsetJump).scale(currentStep).add(baseTexture.textureOffset);
 
 		Color currentColor = colorAnimation.getCurrentColor();
 		return new TextureInfo(baseTexture.textureName, currentColor, currentOffset, baseTexture.textureSize);
