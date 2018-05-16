@@ -1,7 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity.GameAI;
 
 import com.edwardium.RPGEngine.Control.Engine;
-import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
+import com.edwardium.RPGEngine.Control.SceneController.PlaySceneController;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.IO.Input;
@@ -26,7 +26,7 @@ public class PlayerAI extends GameAI {
 	}
 
 	public void updateInput(Input gameInput, double unprocessedTime) {
-		GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+		PlaySceneController gsc = Engine.gameEngine.getCurrentPlayController();
 		if (gsc == null)
 			return;
 
@@ -76,7 +76,7 @@ public class PlayerAI extends GameAI {
 			} else if (canPickupItem()) {
 				gameInput.lockKey(GLFW_MOUSE_BUTTON_1);
 
-				GameItem closestItem = gsc.getClosestItem(gsc.cursorPos, EnumSet.of(GameSceneController.ItemFilter.PICKUPABLE), character.pickupRange, character.position);
+				GameItem closestItem = gsc.getClosestItem(gsc.cursorPos, EnumSet.of(PlaySceneController.ItemFilter.PICKUPABLE), character.pickupRange, character.position);
 				if (closestItem != null) {
 					character.inventory.swapWithActiveItem(closestItem);
 				}

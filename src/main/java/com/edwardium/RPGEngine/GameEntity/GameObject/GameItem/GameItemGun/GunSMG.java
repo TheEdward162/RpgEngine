@@ -1,7 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 
 import com.edwardium.RPGEngine.Control.Engine;
-import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
+import com.edwardium.RPGEngine.Control.SceneController.PlaySceneController;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.PistolBullet;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
@@ -42,8 +42,8 @@ public class GunSMG extends GameItemGun {
 	@Override
 	public boolean use(GameCharacter by, Vector2D to, GameObject at) {
 		if (canUse(by, to, at)) {
-			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
-			if (gsc != null && gsc.canSpawnType(GameSceneController.SpawnType.PROJECTILE)) {
+			PlaySceneController gsc = Engine.gameEngine.getCurrentPlayController();
+			if (gsc != null && gsc.canSpawnType(PlaySceneController.SpawnType.PROJECTILE)) {
 				this.cooldown = maxCooldown;
 				this.lastUse = new UseInfo(by, to, at);
 
@@ -82,10 +82,10 @@ public class GunSMG extends GameItemGun {
 	}
 
 	@Override
-	public void updateLights(GameSceneController gsc) {
+	public void updateLights(PlaySceneController gsc) {
 		int animStep = fireAnimation.getStep();
 		if (animStep == 0) {
-			gsc.greatestFunctionEVER(new Light(new Vector2D(28f, 0f).setAngle(this.rotation).add(this.position), new Color(1f, 0.502f, 0f), 5f));
+			gsc.registerLight(new Light(new Vector2D(28f, 0f).setAngle(this.rotation).add(this.position), new Color(1f, 0.502f, 0f), 5f));
 		}
 		super.updateLights(gsc);
 	}

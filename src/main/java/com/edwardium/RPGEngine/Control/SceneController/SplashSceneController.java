@@ -40,6 +40,16 @@ public class SplashSceneController extends SceneController {
 	}
 
 	@Override
+	public void freeze() {
+
+	}
+
+	@Override
+	public void restore() {
+
+	}
+
+	@Override
 	public void cleanup() {
 
 	}

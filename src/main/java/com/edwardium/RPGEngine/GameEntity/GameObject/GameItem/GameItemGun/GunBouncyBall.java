@@ -1,7 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun;
 
 import com.edwardium.RPGEngine.Control.Engine;
-import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
+import com.edwardium.RPGEngine.Control.SceneController.PlaySceneController;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile.BouncyBallProjectile;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
@@ -48,8 +48,8 @@ public class GunBouncyBall extends GameItemGun {
 	@Override
 	public boolean use(GameCharacter by, Vector2D to, GameObject at) {
 		if (canUse(by, to, at)) {
-			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
-			if (gsc != null && gsc.canSpawnType(GameSceneController.SpawnType.PROJECTILE)) {
+			PlaySceneController gsc = Engine.gameEngine.getCurrentPlayController();
+			if (gsc != null && gsc.canSpawnType(PlaySceneController.SpawnType.PROJECTILE)) {
 				this.cooldown = maxCooldown;
 				this.lastUse = new UseInfo(by, to, at);
 

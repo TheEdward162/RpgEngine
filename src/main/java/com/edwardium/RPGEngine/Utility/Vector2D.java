@@ -71,6 +71,16 @@ public class Vector2D implements GameSerializable {
 	}
 
 	/**
+	 * @param a Vector to add.
+	 * @param x The x change.
+	 * @param y The y change.
+	 * @return New vector that is an addition of a and (x, y).
+	 */
+	public static Vector2D add(Vector2D a, float x, float y) {
+		return new Vector2D(a).add(x, y);
+	}
+
+	/**
 	 * @param array Vectors to add to.
 	 * @param shift Vector to add.
 	 * @return Array of new vectors that are translations of vectors in array by shift.
@@ -387,6 +397,18 @@ public class Vector2D implements GameSerializable {
 	public Vector2D add(Vector2D other) {
 		this.posX += other.posX;
 		this.posY += other.posY;
+
+		return this;
+	}
+
+	/**
+	 * @param x The x change.
+	 * @param y The y change.
+	 * @return This reference.
+	 */
+	public Vector2D add(float x, float y) {
+		this.posX += x;
+		this.posY += y;
 
 		return this;
 	}

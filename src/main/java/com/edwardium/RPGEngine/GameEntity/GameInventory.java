@@ -1,7 +1,7 @@
 package com.edwardium.RPGEngine.GameEntity;
 
 import com.edwardium.RPGEngine.Control.Engine;
-import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
+import com.edwardium.RPGEngine.Control.SceneController.PlaySceneController;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItem;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.IGameUsableItem;
@@ -116,7 +116,7 @@ public class GameInventory implements GameSerializable {
 
 		int firstEmpty = findFirstEmpty();
 		if (firstEmpty >= 0) {
-			GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+			PlaySceneController gsc = Engine.gameEngine.getCurrentPlayController();
 			if (gsc != null)
 				gsc.unregisterGameObject(item);
 
@@ -130,7 +130,7 @@ public class GameInventory implements GameSerializable {
 		}
 	}
 
-	public void onUpdate(GameCharacter owner, float elapsedTime, float environmentDensity, boolean updateLights, GameSceneController gsc) {
+	public void onUpdate(GameCharacter owner, float elapsedTime, float environmentDensity, boolean updateLights, PlaySceneController gsc) {
 		for (GameItem item : items) {
 			if (item != null) {
 				if (owner != null) {
@@ -151,7 +151,7 @@ public class GameInventory implements GameSerializable {
 
 		GameItem lastItem = removeActiveItem();
 
-		GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+		PlaySceneController gsc = Engine.gameEngine.getCurrentPlayController();
 		if (gsc != null)
 			gsc.unregisterGameObject(item);
 
@@ -170,7 +170,7 @@ public class GameInventory implements GameSerializable {
 		item.isDrawn = true;
 		item.doesCollide = true;
 
-		GameSceneController gsc = Engine.gameEngine.getCurrentGameController();
+		PlaySceneController gsc = Engine.gameEngine.getCurrentPlayController();
 		if (gsc != null)
 			gsc.registerGameObject(item);
 		return item;
@@ -228,9 +228,9 @@ public class GameInventory implements GameSerializable {
 			if (currentItem != null) {
 				Rectangle imageRectangle = Rectangle.setWidth(itemRectangle, 32);
 				renderer.drawRectangle(imageRectangle, new Renderer.RenderInfo(null, 1f, 0f, currentItem.getInventoryTexture(), false));
-				renderer.drawString(renderer.basicFont, currentItem.name, new Renderer.RenderInfo(Vector2D.add(centerPosition, new Vector2D(37 - r_inventoryItemSize.getX() / 2, 6)), 1f, 0f, textColor, false));
+				renderer.drawString(renderer.basicFont, currentItem.name, new Renderer.RenderInfo(Vector2D.add(centerPosition, 37 - r_inventoryItemSize.getX() / 2, 6), 1f, 0f, textColor, false));
 			} else {
-				renderer.drawString(renderer.basicFont, "Empty", new Renderer.RenderInfo(Vector2D.add(centerPosition, new Vector2D(5 - r_inventoryItemSize.getX() / 2, 6)), 1f, 0f, textColor, false));
+				renderer.drawString(renderer.basicFont, "Empty", new Renderer.RenderInfo(Vector2D.add(centerPosition, 5 - r_inventoryItemSize.getX() / 2, 6), 1f, 0f, textColor, false));
 			}
 		}
 	}

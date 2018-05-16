@@ -1,6 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter;
 
-import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
+import com.edwardium.RPGEngine.Control.SceneController.PlaySceneController;
 import com.edwardium.RPGEngine.GameEntity.GameAI.GameAI;
 import com.edwardium.RPGEngine.GameEntity.GameAI.PlayerAI;
 import com.edwardium.RPGEngine.GameEntity.GameInventory;
@@ -249,7 +249,7 @@ public class GameCharacter extends GameObject {
 	}
 
 	@Override
-	public void updateLights(GameSceneController gsc) {
+	public void updateLights(PlaySceneController gsc) {
 		this.inventory.onUpdate(this, 0f, 0f, true, gsc);
 		super.updateLights(gsc);
 	}

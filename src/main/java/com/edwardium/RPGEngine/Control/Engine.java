@@ -1,9 +1,6 @@
 package com.edwardium.RPGEngine.Control;
 
-import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
-import com.edwardium.RPGEngine.Control.SceneController.MenuSceneController;
-import com.edwardium.RPGEngine.Control.SceneController.SceneController;
-import com.edwardium.RPGEngine.Control.SceneController.SplashSceneController;
+import com.edwardium.RPGEngine.Control.SceneController.*;
 import com.edwardium.RPGEngine.IO.Config;
 import com.edwardium.RPGEngine.IO.Input;
 import com.edwardium.RPGEngine.Renderer.Animation.ColorAnimation;
@@ -13,14 +10,13 @@ import com.edwardium.RPGEngine.Renderer.OpenGL.OpenGLRenderer;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.FPSCounter;
-import com.edwardium.RPGEngine.Utility.Vector2D;
 
 import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
 
 public class Engine implements Runnable {
-	public enum SceneControllerType { INITSPLASH, GAME, MENU, QUIT }
+	public enum SceneControllerType { INITSPLASH, GAME, EDITOR, MENU, QUIT }
 
 	// in seconds
 	public static final float UPDATE_CAP = 1.0f / 60.0f;
@@ -96,9 +92,9 @@ public class Engine implements Runnable {
 		running = true;
 		loopUnsynced();
 
-		if (currentSceneController instanceof GameSceneController) {
-			((GameSceneController) currentSceneController).saveState("save.json");
-		}
+//		if (currentSceneController instanceof PlaySceneController) {
+//			((PlaySceneController) currentSceneController).saveState("save.json");
+//		}
 
 		// Game is over
 		cleanup();
@@ -204,10 +200,10 @@ public class Engine implements Runnable {
 		currentSceneController.render(gameRenderer);
 
 		gameRenderer.drawString(gameRenderer.basicFont, "VSYNC: " + (gameRenderer.getVSync() ? "ON" : "OFF"),
-				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -20)),1f, 0f, new Color(), false));
+				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(5, -20),1f, 0f, new Color(), false));
 
 		gameRenderer.drawString(gameRenderer.basicFont, "FPS: " + String.format("%.1f", FPSCounter.getFPS()),
-				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -5)), 1f, 0f, new Color(1f, 0f, 0f), false));
+				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(5, -5), 1f, 0f, new Color(1f, 0f, 0f), false));
 
 		gameRenderer.afterLoop();
 	}
@@ -220,9 +216,9 @@ public class Engine implements Runnable {
 		gameRenderer.setVSync(!currentVSync);
 	}
 
-	public GameSceneController getCurrentGameController() {
-		if (currentSceneController instanceof GameSceneController)
-			return (GameSceneController) currentSceneController;
+	public PlaySceneController getCurrentPlayController() {
+		if (currentSceneController instanceof PlaySceneController)
+			return (PlaySceneController) currentSceneController;
 		else
 			return null;
 	}
@@ -231,7 +227,10 @@ public class Engine implements Runnable {
 		if (lastSceneController != null)
 			lastSceneController.cleanup();
 
-		lastSceneController = currentSceneController;
+		if (currentSceneController != null) {
+			currentSceneController.freeze();
+			lastSceneController = currentSceneController;
+		}
 
 		switch (type) {
 			case INITSPLASH:
@@ -244,8 +243,11 @@ public class Engine implements Runnable {
 				currentSceneController = new SplashSceneController(gameInput, anim, 2f);
 				break;
 			case GAME:
-				currentSceneController = new GameSceneController(gameInput);
-				((GameSceneController) currentSceneController).reloadScene();
+				currentSceneController = new PlaySceneController(gameInput);
+				((PlaySceneController) currentSceneController).reloadScene();
+				break;
+			case EDITOR:
+				currentSceneController = new EditorSceneController(gameInput);
 				break;
 			case MENU:
 				currentSceneController = new MenuSceneController(gameInput);
@@ -263,6 +265,7 @@ public class Engine implements Runnable {
 		currentSceneController = lastSceneController;
 		lastSceneController = temp;
 
+		currentSceneController.restore();
 		return true;
 	}
 

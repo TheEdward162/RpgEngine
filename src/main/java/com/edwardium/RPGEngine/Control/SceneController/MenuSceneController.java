@@ -56,8 +56,10 @@ public class MenuSceneController extends SceneController {
 		// build menus
 		MenuItem[] mainMenu = {
 				new MenuItem(() -> "Start Game",
-						() -> { switchMenu(MenuType.PAUSE); Engine.gameEngine.changeSceneController(Engine.SceneControllerType.GAME);}),
-				new MenuItem(() -> "Settings", () -> this.switchMenu(MenuType.SETTINGS)),
+						() -> { switchMenu(MenuType.PAUSE); Engine.gameEngine.changeSceneController(Engine.SceneControllerType.GAME); }),
+				new MenuItem(() -> "Level editor",
+						() -> { switchMenu(MenuType.PAUSE); Engine.gameEngine.changeSceneController(Engine.SceneControllerType.EDITOR); }),
+				new MenuItem(() -> "Settings", () -> switchMenu(MenuType.SETTINGS)),
 				new MenuItem(() -> "Quit", () -> Engine.gameEngine.changeSceneController(Engine.SceneControllerType.QUIT))
 		};
 		menus.put(MenuType.MAIN, mainMenu);
@@ -71,15 +73,13 @@ public class MenuSceneController extends SceneController {
 
 		MenuItem[] pauseMenu = {
 				new MenuItem(() -> "Continue", () -> Engine.gameEngine.restoreLastSceneController()),
-				new MenuItem(() -> "Settings", () -> this.switchMenu(MenuType.SETTINGS)),
+				new MenuItem(() -> "Settings", () -> switchMenu(MenuType.SETTINGS)),
 				new MenuItem(() -> "Quit to menu", () -> switchMenu(MenuType.MAIN)),
 				new MenuItem(() -> "Quit", () -> Engine.gameEngine.changeSceneController(Engine.SceneControllerType.QUIT))
 		};
 		menus.put(MenuType.PAUSE, pauseMenu);
 
-		gameInput.watchKey(GLFW_KEY_UP);
-		gameInput.watchKey(GLFW_KEY_DOWN);
-		gameInput.watchKey(GLFW_KEY_ENTER);
+		restore();
 	}
 
 	private void switchMenu(MenuType to) {
@@ -144,6 +144,18 @@ public class MenuSceneController extends SceneController {
 				itemFGColor = menuItemActiveForegroundColor;
 			renderer.drawString(renderer.basicFont, currentMenu[i].nameGetter.getName(), new Renderer.RenderInfo(currentRectangle.center(), 1f, 0f, itemFGColor, false), Renderer.StringAlignment.CENTER);
 		}
+	}
+
+	@Override
+	public void freeze() {
+		cleanup();
+	}
+
+	@Override
+	public void restore() {
+		gameInput.watchKey(GLFW_KEY_UP);
+		gameInput.watchKey(GLFW_KEY_DOWN);
+		gameInput.watchKey(GLFW_KEY_ENTER);
 	}
 
 	@Override

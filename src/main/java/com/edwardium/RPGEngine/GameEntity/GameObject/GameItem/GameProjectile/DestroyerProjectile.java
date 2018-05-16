@@ -1,6 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 
-import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
+import com.edwardium.RPGEngine.Control.SceneController.PlaySceneController;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameWall;
@@ -47,8 +47,8 @@ public class DestroyerProjectile extends GameProjectile {
 	}
 
 	@Override
-	public void updateLights(GameSceneController gsc) {
-		gsc.greatestFunctionEVER(new Light(this.position, new Color(1f, 0.502f, 0f), 25f, 0f));
+	public void updateLights(PlaySceneController gsc) {
+		gsc.registerLight(new Light(this.position, new Color(1f, 0.502f, 0f), 25f, 0f));
 		super.updateLights(gsc);
 	}
 

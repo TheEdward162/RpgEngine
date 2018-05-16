@@ -1,6 +1,6 @@
 package com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile;
 
-import com.edwardium.RPGEngine.Control.SceneController.GameSceneController;
+import com.edwardium.RPGEngine.Control.SceneController.PlaySceneController;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter.GameCharacter;
 import com.edwardium.RPGEngine.GameEntity.GameObject.GameObject;
@@ -62,9 +62,9 @@ public class BouncyBallProjectile extends GameProjectile {
 	}
 
 	@Override
-	public void updateLights(GameSceneController gsc) {
+	public void updateLights(PlaySceneController gsc) {
 		currentColor = new Color(0f, 1f, 0.502f, (maximumTime - timeTravelled) / maximumTime);
-		gsc.greatestFunctionEVER(new Light(this.position, currentColor, currentColor.A() * 15f, 0f));
+		gsc.registerLight(new Light(this.position, currentColor, currentColor.A() * 15f, 0f));
 		super.updateLights(gsc);
 	}
 
