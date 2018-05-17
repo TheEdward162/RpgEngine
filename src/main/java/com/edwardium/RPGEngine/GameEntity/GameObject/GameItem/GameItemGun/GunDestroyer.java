@@ -94,7 +94,7 @@ public class GunDestroyer extends GameItemGun {
 			if (gsc != null && gsc.canSpawnType(PlaySceneController.SpawnType.PROJECTILE)) {
 				Vector2D velocityVector = Vector2D.subtract(this.lastUse.to, this.lastUse.by.position).setMagnitude(fireVelocity);
 				DestroyerProjectile projectile = new DestroyerProjectile(Vector2D.add(this.lastUse.by.position, this.lastUse.by.getFacingDirection().setMagnitude(64f)), velocityVector);
-				projectile.rotation = velocityVector.getAngle();
+				projectile.rotateTo(velocityVector.getAngle(), true);
 				gsc.registerGameObject(projectile);
 			}
 

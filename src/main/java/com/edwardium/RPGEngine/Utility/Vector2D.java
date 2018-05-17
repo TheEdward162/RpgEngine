@@ -3,6 +3,7 @@ package com.edwardium.RPGEngine.Utility;
 import com.edwardium.RPGEngine.IO.JsonBuilder;
 
 import javax.json.JsonObject;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -130,101 +131,125 @@ public class Vector2D implements GameSerializable {
 	}
 
 	/**
+	 * @see Vector2D#scale(float)
+	 *
 	 * @param a Vector to scale.
 	 * @param s Factor by which to scale.
 	 * @return New vector that is a copy of a scaled by s.
-	 *
-	 * @see Vector2D#scale(float)
 	 */
 	public static Vector2D scale(Vector2D a, float s) { return new Vector2D(a).scale(s); }
 
 	/**
+	 * @see Vector2D#scale(float, float)
+	 *
 	 * @param a Vector to scale.
 	 * @param x Factor by which to scale x coordinate.
 	 * @param y Factor by which to scale y coordinate.
 	 * @return New vector that is a copy of a but scaled by x and y.
-	 *
-	 * @see Vector2D#scale(float, float)
 	 */
 	public static Vector2D scale(Vector2D a, float x, float y) { return new Vector2D(a).scale(x, y); }
 
 	/**
+	 * @see Vector2D#scale(Vector2D)
+	 *
 	 * @param a Vector to scale.
 	 * @param scaleVector Vector by which's coordinates to scale x coordinate.
-	 * @return New vector that is a copy of a but scaled by scaleVector.getX() and scaleVector.getY().
-	 *
-	 * @see Vector2D#scale(Vector2D)
+	 * @return New vector that is a copy of a but scaled by {@code scaleVector.getX()} and {@code scaleVector.getY()}.
 	 */
 	public static Vector2D scale(Vector2D a, Vector2D scaleVector) { return new Vector2D(a).scale(scaleVector); }
 
 	/**
+	 * Equivalent to calling {@code a.distance(b)}
+	 * @see Vector2D#distance(Vector2D)
+	 *
 	 * @param a Vector a.
 	 * @param b Vector b.
 	 * @return Distance from vector a to vector b.
-	 *
-	 * Equivalent to calling a.distance(b)
-	 * @see Vector2D#distance(Vector2D)
 	 */
 	public static float distance(Vector2D a, Vector2D b) { return a.distance(b); }
 
 	/**
+	 * Equivalent to calling {@code a.center(b)}
+	 * @see Vector2D#center(Vector2D)
+	 *
 	 * @param a Vector a.
 	 * @param b Vector b.
 	 * @return New vector that points to the center between a and b.
-	 *
-	 * Equivalent to calling a.center(b)
-	 * @see Vector2D#center(Vector2D)
 	 */
 	public static Vector2D center(Vector2D a, Vector2D b) { return a.center(b); }
 
 	/**
+	 * @param vectors Array of vectors.
+	 * @return New vector that points to the average of {@code vectors}.
+	 */
+	public static Vector2D center(Vector2D[] vectors) {
+		Vector2D centerVector = new Vector2D();
+		for (Vector2D vec : vectors) {
+			centerVector.add(vec);
+		}
+
+		return centerVector.divide(vectors.length);
+	}
+
+	/**
+	 * Equivalent to calling {@code Vector2D.ccenter(vectors.toArray(new Vector2D[vectors.size()]))}.
+	 * @see Vector2D#center(Vector2D[])
+	 *
+	 * @param vectors Collection of vectors.
+	 * @return New vector that points to the average of {@code vectors}.
+	 */
+	public static Vector2D center(Collection<Vector2D> vectors) {
+		return center(vectors.toArray(new Vector2D[vectors.size()]));
+	}
+
+	/**
+	 * Equivalent to calling {@code a.dot(b)}
+	 * @see Vector2D#dot(Vector2D)
+	 *
 	 * @param a Vector a.
 	 * @param b Vector b.
 	 * @return The dot product of a and b.
-	 *
-	 * Equivalent to calling a.dot(b)
-	 * @see Vector2D#dot(Vector2D)
 	 */
 	public static float dot(Vector2D a, Vector2D b) {
 		return a.dot(b);
 	}
 
 	/**
+	 * Equivalent to calling {@code a.angleBetween(b)}
+	 * @see Vector2D#angleBetween(Vector2D)
+	 *
 	 * @param a Vector a.
 	 * @param b Vector b.
-	 * @return Angle (in radians) between and and b.
-	 *
-	 * Equivalent to calling a.angleBetween(b)
-	 * @see Vector2D#angleBetween(Vector2D)
+	 * @return Angle (in radians) between a and b.
 	 */
 	public static float angleBetween(Vector2D a, Vector2D b) { return a.angleBetween(b); }
 
 	/**
+	 * Equivalent to calling {@code a.projection(axis)}
+	 * @see Vector2D#projection(Vector2D)
+	 *
 	 * @param a Vector a.
 	 * @param axis Axis vector.
 	 * @return New vector that is a projection of a onto axis.
-	 *
-	 * Equivalent to calling a.projection(axis)
-	 * @see Vector2D#projection(Vector2D)
 	 */
 	public static Vector2D projection(Vector2D a, Vector2D axis) {
 		return a.projection(axis);
 	}
 
 	/**
+	 * Equivalent to calling {@code a.rejection(axis)}
+	 * @see Vector2D#rejection(Vector2D)
+	 *
 	 * @param a Vector a.
 	 * @param axis Axis vector.
 	 * @return New vector that is a rejection of a from axis.
-	 *
-	 * Equivalent to calling a.rejection(axis)
-	 * @see Vector2D#rejection(Vector2D)
 	 */
 	public static Vector2D rejection(Vector2D a, Vector2D axis) {
 		return a.rejection(axis);
 	}
 
 	/**
-	 * Empty constructor. Same as Vector2D(0, 0);
+	 * Empty constructor. Same as {@code new Vector2D(0, 0)}.
 	 */
 	public Vector2D() {
 		this(0, 0);
@@ -241,7 +266,8 @@ public class Vector2D implements GameSerializable {
 
 
 	/**
-	 * Copy constructor
+	 * Copy constructor.
+	 *
 	 * @param copy Vector2D object to copy
 	 */
 	public Vector2D(Vector2D copy) {
@@ -299,6 +325,7 @@ public class Vector2D implements GameSerializable {
 
 	/**
 	 * Sets both x and y coordinate.
+	 *
 	 * @param x The x coordinate to set.
 	 * @param y The y coordinate to set.
 	 * @return This reference.
@@ -306,6 +333,19 @@ public class Vector2D implements GameSerializable {
 	public Vector2D set(float x, float y) {
 		this.setX(x);
 		this.setY(y);
+
+		return this;
+	}
+
+	/**
+	 * Sets both x and y coordinate to those of {@code other}.
+	 *
+	 * @param other Vector to copy from.
+	 * @return This reference.
+	 */
+	public Vector2D set(Vector2D other) {
+		this.setX(other.getX());
+		this.setY(other.getY());
 
 		return this;
 	}
@@ -340,7 +380,7 @@ public class Vector2D implements GameSerializable {
 	}
 
 	/**
-	 * @return sqrt(x^2 + y^2).
+	 * @return {@code sqrt(x^2 + y^2)}.
 	 */
 	public float getMagnitude() {
 		return (float)Math.sqrt(posX * posX + posY * posY);
@@ -370,6 +410,7 @@ public class Vector2D implements GameSerializable {
 
 	/**
 	 * Multiplies this by -1.
+	 *
 	 * @return This reference.
 	 */
 	// Unary arithmetics
@@ -378,9 +419,9 @@ public class Vector2D implements GameSerializable {
 	}
 
 	/**
-	 * @return This reference.
-	 *
 	 * Sets x and y coordinates to absolute values.
+	 *
+	 * @return This reference.
 	 */
 	public Vector2D absolutize() {
 		this.posX = Math.abs(this.posX);
@@ -425,11 +466,11 @@ public class Vector2D implements GameSerializable {
 	}
 
 	/**
+	 * Equivalent to calling {@code scale(1 / d)}
+	 * @see Vector2D#scale(float) scale
+	 *
 	 * @param d The factor to divide by. Must not be zero.
 	 * @return This reference.
-	 *
-	 * Same as calling scale(1 / d)
-	 * @see Vector2D#scale(float) scale
 	 */
 	public Vector2D divide(float d) {
 		return this.scale(1 / d);
@@ -448,20 +489,20 @@ public class Vector2D implements GameSerializable {
 	}
 
 	/**
-	 * @return This reference.
-	 *
-	 * Same as calling limit(1)
+	 * Equivalent to calling {@code limit(1)}
 	 * @see Vector2D#limit(float)
+	 *
+	 * @return This reference.
 	 */
 	public Vector2D normalize() {
 		return this.setMagnitude(1);
 	}
 
 	/**
+	 * @see Vector2D#scale(float, float)
+	 *
 	 * @param s Factor to scale by. Same as calling scale(s, s)
 	 * @return This reference.
-	 *
-	 * @see Vector2D#scale(float, float)
 	 */
 	public Vector2D scale(float s) { return scale(s, s); }
 
@@ -478,21 +519,21 @@ public class Vector2D implements GameSerializable {
 	}
 
 	/**
+	 * Equivalent to calling {@code scale(scaleVector.getX(), scaleVector.getY())}
+	 * @see Vector2D#scale(float, float)
+	 *
 	 * @param scaleVector The vector by which's coordinates to scale this vector.
 	 * @return This reference.
-	 *
-	 * Same as calling scale(scaleVector.getX(), scaleVector.getY())
-	 * @see Vector2D#scale(float, float)
 	 */
 	public Vector2D scale(Vector2D scaleVector) {
 		return scale(scaleVector.getX(), scaleVector.getY());
 	}
 
 	/**
+	 * The distance is calculated by constructing a new vector that is a subtraction of other from this and then computing magnitude.
+	 *
 	 * @param other Vector to which to measure distance.
 	 * @return Distance to other.
-	 *
-	 * The distance is calculated by constructing a new vector that is a subtraction of other from this and then computing magnitude.
 	 */
 	public float distance(Vector2D other) {
 		return Vector2D.subtract(this, other).getMagnitude();
@@ -544,11 +585,11 @@ public class Vector2D implements GameSerializable {
 	}
 
 	/**
+	 * Equivalent to calling {@code this.projection(axis).inverse().add(this)}
+	 * @see Vector2D#projection(Vector2D)
+	 *
 	 * @param axis Vector to reject from.
 	 * @return New vector that is a rejection of this onto axis.
-	 *
-	 * This is equal to calling this.projection(axis).inverse().add(this)
-	 * @see Vector2D#projection(Vector2D)
 	 */
 	public Vector2D rejection(Vector2D axis) {
 		Vector2D projectionVector = projection(axis);
@@ -560,7 +601,7 @@ public class Vector2D implements GameSerializable {
 	 */
 	@Override
 	public String toString() {
-		return getX() + "; " + getY();
+		return String.format("%.2f", getX()) + "; " + String.format("%.2f", getY());
 	}
 
 	/**

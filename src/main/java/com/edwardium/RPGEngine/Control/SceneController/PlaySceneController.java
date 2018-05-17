@@ -1,5 +1,6 @@
 package com.edwardium.RPGEngine.Control.SceneController;
 
+import com.edwardium.RPGEngine.Control.Engine;
 import com.edwardium.RPGEngine.GameEntity.GameAI.PlayerAI;
 import com.edwardium.RPGEngine.GameEntity.GameAI.SimpleEnemyAI;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
@@ -63,7 +64,7 @@ public class PlaySceneController extends GameSceneController {
 
 	private Light[] currentLights;
 	private int currentLightsSize = 0;
-	protected static final Light ambientLight = new Light(new Vector2D(), new Color(0.5f, 0.5f, 0.5f), -1f, 0f);
+	protected static final Light ambientLight = new Light(new Vector2D(), Color.GREY, -1f, 0f);
 
 	// air density
 	private float environmentDensity = 1.2f;
@@ -80,8 +81,6 @@ public class PlaySceneController extends GameSceneController {
 		super(gameInput);
 
 		currentLights = new Light[Renderer.MAX_LIGHTS - 1];
-
-
 	}
 
 	@Override
@@ -281,6 +280,9 @@ public class PlaySceneController extends GameSceneController {
 		cameraPos = Vector2D.inverse(player.position);
 		applyLights(renderer);
 
+		super.renderBegin(renderer);
+		super.render(renderer);
+
 		// find the object to highlight (activable object in range of player closest to cursor
 		// or pickupable object if player is empty handed)
 		GameItem itemToHighlight = null;
@@ -290,12 +292,16 @@ public class PlaySceneController extends GameSceneController {
 		if (itemToHighlight == null) {
 			itemToHighlight = getClosestItem(cursorPos, EnumSet.of(ItemFilter.ACTIVABLE), player.pickupRange, player.position);
 		}
+		if (itemToHighlight != null) {
+			itemToHighlight.renderHitbox(renderer, r_highlightColor);
+		}
 
-		render(renderer, itemToHighlight);
+		super.renderEnd(renderer);
 
 		GameInventory.renderInventory(player.inventory, renderer, renderer.getWindowSize().divide(2).inverse(), new Vector2D(1, 1));
 
-		renderer.drawString(renderer.basicFont, "Time factor: " + String.format("%.2f", this.timeFactor),  new Renderer.RenderInfo(renderer.getWindowSize().divide(2).scale(-1, 1).add(new Vector2D(5, -35)), 1f, 0f, new Color(), false));
+		Engine.gameEngine.drawDefaultCornerStrings();
+		Engine.gameEngine.drawCornerString(String.format("Time factor: %.2f", this.timeFactor));
 	}
 
 	@Override

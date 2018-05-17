@@ -135,7 +135,7 @@ public class GameInventory implements GameSerializable {
 			if (item != null) {
 				if (owner != null) {
 					item.position = owner.getFacingDirection().setMagnitude(item.getHeldSize().getX() / 2).add(owner.position);
-					item.rotation = owner.rotation;
+					item.rotateTo(owner.getRotation(), true);
 				}
 				if (elapsedTime > 0)
 					item.updatePhysics(elapsedTime, environmentDensity);
@@ -183,8 +183,8 @@ public class GameInventory implements GameSerializable {
 	private static final Color r_inventoryShadowChargingColor = new Color(1f, 0, 0, 0.2f);
 	private static final Color r_inventoryShadowCooldownColor = new Color(0, 0, 1f, 0.2f);
 
-	private static final Color r_inventoryNumberColor = new Color(1, 1, 1, 1f);
-	private static final Color r_inventoryNumberActiveColor = new Color(1f, 0, 0, 1f);
+	private static final Color r_inventoryNumberColor = Color.WHITE;
+	private static final Color r_inventoryNumberActiveColor = Color.RED;
 
 	public static void renderInventory(GameInventory inventory, Renderer renderer, Vector2D basePosition, Vector2D scale) {
 		for (int i = 0; i < inventory.items.length; i++) {

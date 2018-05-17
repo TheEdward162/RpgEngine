@@ -18,7 +18,7 @@ public abstract class GameObject implements GameSerializable {
 	public String name;
 
 	public float maxRotationSpeed = -0.1f;
-	public float rotation = 0;
+	protected float rotation = 0;
 
 	public float mass = 1;
 	public Vector2D velocity;
@@ -114,9 +114,21 @@ public abstract class GameObject implements GameSerializable {
 		return new Vector2D(1, 0).setAngle(this.rotation);
 	}
 
-	public GameObject rotateBy(float angle) {
+	/**
+	 * @return Rotation angle. In radians.
+	 */
+	public float getRotation() {
+		return this.rotation;
+	}
+
+	/**
+	 * @param angle Rotation angle. In radians.
+	 * @param force Whether to force the full rotation or adhere to {@code maxRotationSpeed}.
+	 * @return This reference.
+	 */
+	public GameObject rotateBy(float angle, boolean force) {
 		// constrain angle
-		if (maxRotationSpeed >= 0) {
+		if (!force && maxRotationSpeed >= 0) {
 			if (angle > maxRotationSpeed) {
 				angle = maxRotationSpeed;
 			} else if (angle < -maxRotationSpeed) {
@@ -137,11 +149,48 @@ public abstract class GameObject implements GameSerializable {
 
 		return this;
 	}
-	public GameObject rotateTo(float angle) {
+
+	/**
+	 * Equivalent to calling {@code rotateBy(angle, false)}
+	 * @see GameObject#rotateBy(float, boolean)
+	 *
+	 * @param angle Rotation angle. In radians.
+	 * @return This reference.
+	 */
+	public GameObject rotateBy(float angle) {
+		return rotateBy(angle, false);
+	}
+
+	/**
+	 * This function rotates this object until it's rotation angle is equal to angle.
+	 *
+	 * @param angle Angle to rotate towards. In radians.
+	 * @param force Whether to force the full rotation or adhere to maxRotationSpeed.
+	 * @return This reference.
+	 */
+	public GameObject rotateTo(float angle, boolean force) {
 		Vector2D angledVector = Vector2D.fromAM(angle, 1);
 		float rotationDelta = angledVector.angleBetween(Vector2D.fromAM(this.rotation, 1));
-		return rotateBy(rotationDelta);
+		return rotateBy(rotationDelta, force);
 	}
+
+	/**
+	 * Equivalent to calling {@code rotateTo(angle, false)}
+	 * @see GameObject#rotateTo(float, boolean)
+	 *
+	 * @param angle Angle to rotate towards. In radians.
+	 * @return This reference.
+	 */
+	public GameObject rotateTo(float angle) {
+		return rotateTo(angle, false);
+	}
+
+	/**
+	 * This function rotates this object either to the left or to the right by {@code maxRotationSpeed} (or 1 if {@code maxRotationSpeed < 0}).
+	 *
+	 * @param left Whether to rotate left or right.
+	 * @return This reference.
+	 */
 	public GameObject rotateToward(boolean left) {
 		float rotationDelta = new Vector2D(1, 0).setAngle(this.rotation + (left ? 1 : -1)).angleBetween(new Vector2D(1, 0).setAngle(this.rotation));
 		if (maxRotationSpeed >= 0) {
@@ -151,12 +200,41 @@ public abstract class GameObject implements GameSerializable {
 		return rotateBy(rotationDelta);
 	}
 
-	public boolean rotateToPoint(Vector2D target) {
+	/**
+	 * @param target Target to face.
+	 * @param force Whether to force full rotation or adhere to {@code maxRotationSpeed}.
+	 * @param threshold Return value threshold.
+	 * @return Whether this object is facing the target point within threshold.
+	 */
+	public boolean rotateToPoint(Vector2D target, boolean force, float threshold) {
 		float rotationDelta = Vector2D.subtract(target, this.position).angleBetween(Vector2D.fromAM(this.rotation, 1));
-		rotateBy(rotationDelta);
+		rotateBy(rotationDelta, force);
 
 		rotationDelta = Vector2D.subtract(target, this.position).angleBetween(Vector2D.fromAM(this.rotation, 1));
-		return rotationDelta <= 0.5 / 180 * Math.PI;
+		return rotationDelta <= threshold;
+	}
+
+	/**
+	 * Equivalent to calling {@code rotateToPoint(target, force, 0.5 / 180 * Math.PI)}
+	 * @see GameObject#rotateToPoint(Vector2D, boolean, float)
+	 *
+	 * @param target Target to face.
+	 * @param force Whether to force full rotation or adhere to {@code maxRotationSpeed}.
+	 * @return Whether this object is facing the target point within {@code 0.5 / 180 * Math.PI} threshold.
+	 */
+	public boolean rotateToPoint(Vector2D target, boolean force) {
+		return rotateToPoint(target, force, (float)(0.5 / 180 * Math.PI));
+	}
+
+	/**
+	 * Equivalent to calling {@code rotateToPoint(target, false)}
+	 *
+	 * @param target Target to face.
+	 * @return Whether this object is facing the target point within {@code 0.5 / 180 * Math.PI} threshold.
+	 * @see GameObject#rotateToPoint(Vector2D, boolean)
+	 */
+	public boolean rotateToPoint(Vector2D target) {
+		return rotateToPoint(target, false);
 	}
 
 	protected GameObject membersFromJson(JsonObject sourceObj) {

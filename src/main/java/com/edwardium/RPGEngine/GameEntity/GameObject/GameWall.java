@@ -24,7 +24,7 @@ public class GameWall extends GameObject {
 
 		this.shape = points;
 		this.hitbox = new GameHitbox(points);
-		this.vertices = Vertex.arrayFromVector2D(points);
+		this.vertices = Vertex.shapeFromVector2D(points);
 
 		this.mass = Float.POSITIVE_INFINITY;
 	}
@@ -34,7 +34,7 @@ public class GameWall extends GameObject {
 		this.membersFromJson(sourceObj);
 
 		this.hitbox = new GameHitbox(shape);
-		this.vertices = Vertex.arrayFromVector2D(shape);
+		this.vertices = Vertex.shapeFromVector2D(shape);
 
 		this.mass = Float.POSITIVE_INFINITY;
 	}

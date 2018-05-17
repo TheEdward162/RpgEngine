@@ -249,7 +249,7 @@ public class GameHitbox implements GameSerializable {
 
 	}
 
-	private static Color defaultHitboxColor = new Color(1, 0, 0);
+	private static Color defaultHitboxColor = Color.RED;
 	public static void renderHitbox(Renderer renderer, Vector2D position, float rotation, GameHitbox hitbox) {
 		renderHitbox(renderer, position, rotation, hitbox, defaultHitboxColor);
 	}

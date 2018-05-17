@@ -263,12 +263,12 @@ public class OpenGLRenderer extends Renderer {
 		glOrtho(viewport.getTopLeft().getX(), viewport.getBottomRight().getX(), viewport.getBottomRight().getY(), viewport.getTopLeft().getY(), 0.0f, 1.0f);
 
 		// for lights
-		drawShape(Vertex.arrayFromVector2D(new Vector2D[] {
+		drawShape(Vertex.shapeFromVector2D(new Vector2D[] {
 				viewport.getTopLeft(),
 				viewport.getBottomLeft(),
 				viewport.getBottomRight(),
 				viewport.getTopRight()
-		}), new RenderInfo(null, 1f, 0f, new TextureInfo("default", new Color(0.5f, 0.5f, 0.5f)), true));
+		}), new RenderInfo(null, 1f, 0f, new TextureInfo("default", Color.GREY), true));
 	}
 
 	@Override

@@ -49,25 +49,25 @@ public class Rectangle implements GameSerializable {
 	}
 
 	/**
+	 * Equivalent to calling pointCollision(r, point, margin, margin)
+	 * @see Rectangle#pointCollision(Rectangle, Vector2D, float, float)
+	 *
 	 * @param r Rectangle r.
 	 * @param point Vector representing a point.
 	 * @param margin Margin on both axes.
 	 * @return Whether the point lies inside this rectangle and the margin.
-	 *
-	 * Equivaled to calling pointCollision(r, point, margin, margin)
-	 * @see Rectangle#pointCollision(Rectangle, Vector2D, float, float)
 	 */
 	public static boolean pointCollision(Rectangle r, Vector2D point, float margin) {
 		return pointCollision(r, point, margin, margin);
 	}
 
 	/**
+	 * Equivalent to calling pointCollision(r, point, 0)
+	 * @see Rectangle#pointCollision(Rectangle, Vector2D, float)
+	 *
 	 * @param r Rectangle r.
 	 * @param point Vector representing a point.
 	 * @return Whether the point lies inside this rectangle.
-	 *
-	 * Equivaled to calling pointCollision(r, point, 0)
-	 * @see Rectangle#pointCollision(Rectangle, Vector2D, float)
 	 */
 	public static boolean pointCollision(Rectangle r, Vector2D point) {
 		return pointCollision(r, point, 0);
@@ -86,9 +86,9 @@ public class Rectangle implements GameSerializable {
 	}
 
 	/**
-	 * @param copy Rectangle to copy.
-	 *
 	 * Copy constructor.
+	 *
+	 * @param copy Rectangle to copy.
 	 */
 	public Rectangle(Rectangle copy) {
 		this.setTopLeft(new Vector2D(copy.getTopLeft()));
@@ -144,10 +144,10 @@ public class Rectangle implements GameSerializable {
 	}
 
 	/**
+	 * Shifts this rectangle by shift.
+	 *
 	 * @param shift Vector to shift by.
 	 * @return This reference.
-	 *
-	 * Shifts this rectangle by shift.
 	 */
 	public Rectangle shiftBy(Vector2D shift) {
 		this.getTopLeft().add(shift);
@@ -157,11 +157,11 @@ public class Rectangle implements GameSerializable {
 	}
 
 	/**
+	 * Equivalent to calling {@code scale(s, s)}
+	 * @see Rectangle#scale(float, float)
+	 *
 	 * @param s Factor to scale by.
 	 * @return This reference.
-	 *
-	 * Equivalent to calling scale(s, s)
-	 * @see Rectangle#scale(float, float)
 	 */
 	public Rectangle scale(float s) {
 		return scale(s, s);

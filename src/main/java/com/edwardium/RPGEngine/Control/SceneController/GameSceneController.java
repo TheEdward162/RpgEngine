@@ -28,7 +28,7 @@ public abstract class GameSceneController extends SceneController {
 
 	protected static final float UPDATE_STEP_TIME = 1 / 600f;
 	protected static boolean d_drawHitboxes = false;
-	protected static Color highlightColor = new Color(255, 255, 0);
+	protected static Color r_highlightColor = Color.fromRGB(255, 255, 0);
 
 	public Vector2D cameraPos;
 	public Vector2D cursorPos;
@@ -80,20 +80,24 @@ public abstract class GameSceneController extends SceneController {
 	}
 	protected abstract void updateGame(float elapsedTime, int currentUpdateIndex, int maxUpdateIndex);
 
-	protected void render(Renderer renderer, GameObject highlightObject) {
-		renderer.pushTransformMatrix();
-		renderer.applyTransformMatrix(null, null, cameraPos);
-
+	@Override
+	public void render(Renderer renderer) {
 		// objects
 		for (GameObject gameObject : gameObjects) {
 			gameObject.render(renderer);
 
-			if (highlightObject == gameObject) {
-				gameObject.renderHitbox(renderer, highlightColor);
-			} else if (d_drawHitboxes) {
+			if (d_drawHitboxes) {
 				gameObject.renderHitbox(renderer);
 			}
 		}
+	}
+
+	protected void renderBegin(Renderer renderer) {
+		renderer.pushTransformMatrix();
+		renderer.applyTransformMatrix(null, null, cameraPos);
+	}
+
+	protected void renderEnd(Renderer renderer) {
 		renderer.popTransformMatrix();
 	}
 
@@ -209,27 +213,27 @@ public abstract class GameSceneController extends SceneController {
 	}
 
 	/**
+	 * Equivalent to calling {@code getClosestItem(position, filters, maxDistance, position)}
+	 * @see GameSceneController#getClosestItem(Vector2D, EnumSet, Float, Vector2D)
+	 *
 	 * @param position Position.
 	 * @param filters Item filters.
 	 * @param maxDistance Max distance to allow the object to be from position. Not used if null.
 	 * @return Item closest to position that passes item filters, optionally no further than maxDistance. Can be null.
-	 *
-	 * Equivalent to calling getClosestItem(position, filters, maxDistance, position)
-	 * @see GameSceneController#getClosestItem(Vector2D, EnumSet, Float, Vector2D)
 	 */
 	public GameItem getClosestItem(Vector2D position, EnumSet<PlaySceneController.ItemFilter> filters, Float maxDistance) {
 		return getClosestItem(position, filters, maxDistance, position);
 	}
 
 	/**
+	 * This method is usefull if you need to select the closest item to a point, but it also needs to be in close proximity to mouse cursor.
+	 * Setting maxDistanceSource to cursor position and maxDistance to some radius allows you to select items closest to some point with mouse.
+	 *
 	 * @param position Position.
 	 * @param filters Item filters.
 	 * @param maxDistance Max distance to allow the object to be from maxDistanceSource. Not used if null.
 	 * @param maxDistanceSource Point from which to calculate distance for maxDistance.
 	 * @return Item closest to position that passed item filters. This item also also has to be in maxDistance radius around maxDistanceSource. Can be null.
-	 *
-	 * This method is usefull if you need to select the closest item to a point, but it also needs to be in close proximity to mouse cursor.
-	 * Setting maxDistanceSource to cursor position and maxDistance to some radius allows you to select items closest to some point with mouse.
 	 */
 	public GameItem getClosestItem(Vector2D position, EnumSet<PlaySceneController.ItemFilter> filters, Float maxDistance, Vector2D maxDistanceSource) {
 		GameItem closest = null;

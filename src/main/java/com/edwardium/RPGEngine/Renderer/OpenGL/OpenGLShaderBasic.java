@@ -55,11 +55,8 @@ public class OpenGLShaderBasic {
 	/**
 	 * Create a shader object from the given classpath resource.
 	 *
-	 * @param resource
-	 *            the class path
-	 * @param type
-	 *            the shader type
-	 *
+	 * @param resource The class path
+	 * @param type The shader type
 	 * @return the shader object id
 	 */
 	private Integer createShader(String resource, int type)  {
@@ -69,15 +66,10 @@ public class OpenGLShaderBasic {
 	/**
 	 * Create a shader object from the given classpath resource.
 	 *
-	 * @param path
-	 *            the class path
-	 * @param type
-	 *            the shader type
-	 * @param version
-	 *            the GLSL version to prepend to the shader source, or null
-	 *
+	 * @param path The class path
+	 * @param type The shader type
+	 * @param version The GLSL version to prepend to the shader source, or null
 	 * @return the shader object id
-	 *
 	 */
 	private Integer createShader(String path, int type, String version) {
 		int shader = glCreateShader(type);

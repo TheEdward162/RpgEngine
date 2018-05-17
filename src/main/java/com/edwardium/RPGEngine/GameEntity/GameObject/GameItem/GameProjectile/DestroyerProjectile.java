@@ -13,6 +13,8 @@ import com.edwardium.RPGEngine.Utility.Vector2D;
 import javax.json.JsonObject;
 
 public class DestroyerProjectile extends GameProjectile {
+	private static final Color color = new Color(1f, 0.502f, 1f);
+
 	public DestroyerProjectile(Vector2D position, Vector2D velocity) {
 		super(position, "Destroyer Projectile", velocity);
 
@@ -48,7 +50,7 @@ public class DestroyerProjectile extends GameProjectile {
 
 	@Override
 	public void updateLights(PlaySceneController gsc) {
-		gsc.registerLight(new Light(this.position, new Color(1f, 0.502f, 0f), 25f, 0f));
+		gsc.registerLight(new Light(this.position, color, 25f, 0f));
 		super.updateLights(gsc);
 	}
 
@@ -56,7 +58,7 @@ public class DestroyerProjectile extends GameProjectile {
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
 			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, new Vector2D(23f, 9f), this.velocity.getAngle(),
-					new Color(1, 0.502f, 0), true));
+					color, true));
 		}
 		super.render(gameRenderer);
 	}

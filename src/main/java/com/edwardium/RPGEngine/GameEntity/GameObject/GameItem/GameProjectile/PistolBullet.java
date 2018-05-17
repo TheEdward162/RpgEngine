@@ -50,7 +50,7 @@ public class PistolBullet extends GameProjectile {
 	@Override
 	public void render(Renderer gameRenderer) {
 		if (isDrawn) {
-			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, new Vector2D(10f, 4.5f), this.velocity.getAngle(), new Color(0.4f, 0.4f, 0.4f), true));
+			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, new Vector2D(10f, 4.5f), this.velocity.getAngle(), Color.DARKGREY, true));
 		}
 		super.render(gameRenderer);
 	}

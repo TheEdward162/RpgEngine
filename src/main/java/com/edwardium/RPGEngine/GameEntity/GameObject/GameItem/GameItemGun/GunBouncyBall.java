@@ -55,7 +55,7 @@ public class GunBouncyBall extends GameItemGun {
 
 				Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity);
 				BouncyBallProjectile projectile = new BouncyBallProjectile(Vector2D.add(by.position, by.getFacingDirection().setMagnitude(50f)), velocityVector);
-				projectile.rotation = velocityVector.getAngle();
+				projectile.rotateTo(velocityVector.getAngle(), true);
 
 				this.currentProjectile = projectile;
 				gsc.registerGameObject(projectile);

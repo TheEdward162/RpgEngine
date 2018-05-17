@@ -79,7 +79,7 @@ public class Vertex {
 		return result;
 	}
 
-	public static Vertex[] arrayFromVector2D(Vector2D[] sourceArray) {
+	public static Vertex[] shapeFromVector2D(Vector2D[] sourceArray) {
 		Vector2D topCorner = new Vector2D();
 		Vector2D bottomCorner = new Vector2D();
 

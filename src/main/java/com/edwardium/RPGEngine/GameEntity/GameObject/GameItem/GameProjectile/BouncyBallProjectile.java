@@ -13,7 +13,6 @@ import com.edwardium.RPGEngine.Utility.Vector2D;
 import javax.json.JsonObject;
 
 public class BouncyBallProjectile extends GameProjectile {
-
 	private int maximumBounces = 3;
 	private int bounces = 0;
 

@@ -52,7 +52,7 @@ public class GunSMG extends GameItemGun {
 				velocityVector.setAngle(velocityVector.getAngle() + randomizedAngle);
 
 				PistolBullet bullet = new PistolBullet(by.getFacingDirection().setMagnitude(38f).add(by.position), velocityVector);
-				bullet.rotation = velocityVector.getAngle();
+				bullet.rotateTo(velocityVector.getAngle(), true);
 
 				gsc.registerGameObject(bullet);
 

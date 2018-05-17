@@ -41,7 +41,7 @@ public class GunPistol extends GameItemGun {
 
 				Vector2D velocityVector = Vector2D.subtract(to, by.position).setMagnitude(fireVelocity);
 				PistolBullet bullet = new PistolBullet(by.getFacingDirection().setMagnitude(38f).add(by.position), velocityVector);
-				bullet.rotation = velocityVector.getAngle();
+				bullet.rotateTo(velocityVector.getAngle(), true);
 				gsc.registerGameObject(bullet);
 
 				this.fireAnimation.run();

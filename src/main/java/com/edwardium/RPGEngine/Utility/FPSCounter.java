@@ -11,9 +11,9 @@ public class FPSCounter {
 	private FPSCounter() {}
 
 	/**
-	 * @param length Length of the time history.
-	 *
 	 * Initializes the counter and sets the size of the internal history array.
+	 *
+	 * @param length Length of the time history.
 	 */
 	public static void init(int length) {
 		history = new double[length];

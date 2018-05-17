@@ -269,10 +269,10 @@ public class GameCharacter extends GameObject {
 			//gameRenderer.drawCircle(new Renderer.RenderInfo(this.position, 25f, null, new Color(0f, 0f, 0f, 0.3f), true));
 
 			// body
-			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, new Vector2D(15, 25), this.getFacingDirection().getAngle(), new Color(1f, 1f, 0f, 1f), true));
+			gameRenderer.drawRectangle(new Renderer.RenderInfo(this.position, new Vector2D(15, 25), this.getFacingDirection().getAngle(), Color.YELLOW, true));
 
 			// facing direction
-			gameRenderer.drawLine( Vector2D.add(this.position, this.getFacingDirection().setMagnitude(30)), new Renderer.RenderInfo(this.position, 2f, null, new Color(1f, 0f, 0f, 1f), true));
+			gameRenderer.drawLine( Vector2D.add(this.position, this.getFacingDirection().setMagnitude(30)), new Renderer.RenderInfo(this.position, 2f, null, Color.RED, true));
 
 			// draw held item
 			GameItem activeItem = this.inventory.getActiveItem();
@@ -284,10 +284,10 @@ public class GameCharacter extends GameObject {
 			}
 
 			// name and HP
-			gameRenderer.drawString(gameRenderer.basicFont, this.name, new Renderer.RenderInfo(new Vector2D(30, -30).add(this.position), 1f, 0f, new Color(0f, 1f, 0f, 1f), false));
+			gameRenderer.drawString(gameRenderer.basicFont, this.name, new Renderer.RenderInfo(new Vector2D(30, -30).add(this.position), 1f, 0f, Color.GREEN, false));
 
 			String healthString = Math.round(health) + " / " + Math.round(maxHeath);
-			gameRenderer.drawString(gameRenderer.basicFont, healthString, new Renderer.RenderInfo(new Vector2D(50, -10).add(this.position), 1f, 0f, new Color(0f, 1f, 0f, 1f), false));
+			gameRenderer.drawString(gameRenderer.basicFont, healthString, new Renderer.RenderInfo(new Vector2D(50, -10).add(this.position), 1f, 0f, Color.GREEN, false));
 		}
 
 		super.render(gameRenderer);

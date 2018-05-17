@@ -10,6 +10,7 @@ import com.edwardium.RPGEngine.Renderer.OpenGL.OpenGLRenderer;
 import com.edwardium.RPGEngine.Renderer.Renderer;
 import com.edwardium.RPGEngine.Renderer.TextureInfo;
 import com.edwardium.RPGEngine.Utility.FPSCounter;
+import com.edwardium.RPGEngine.Utility.Vector2D;
 
 import java.util.Random;
 
@@ -38,6 +39,8 @@ public class Engine implements Runnable {
 	private boolean running = false;
 	private SceneController lastSceneController = null;
 	private SceneController currentSceneController;
+
+	private Vector2D cornerStringNextPos = new Vector2D();
 
 	private Engine() {
 		if (gameEngine != null)
@@ -195,17 +198,57 @@ public class Engine implements Runnable {
 	}
 
 	private void render() {
+		cornerStringNextPos = gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(5, -5);
 		gameRenderer.beforeLoop();
 
 		currentSceneController.render(gameRenderer);
 
-		gameRenderer.drawString(gameRenderer.basicFont, "VSYNC: " + (gameRenderer.getVSync() ? "ON" : "OFF"),
-				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(5, -20),1f, 0f, new Color(), false));
-
-		gameRenderer.drawString(gameRenderer.basicFont, "FPS: " + String.format("%.1f", FPSCounter.getFPS()),
-				new Renderer.RenderInfo(gameRenderer.getWindowSize().divide(2).scale(-1, 1).add(5, -5), 1f, 0f, new Color(1f, 0f, 0f), false));
-
 		gameRenderer.afterLoop();
+	}
+
+	/**
+	 * Draws string in the bottom-left corner of the screen, each consecutive call to this function in the same
+	 * render frame draws the string one line higher.
+	 *
+	 * @param string String to draw.
+	 * @param color Color of the drawn string.
+	 * @param bottomMargin Bottom margin of the drawn string.
+	 */
+	public void drawCornerString(String string, Color color, float bottomMargin) {
+		cornerStringNextPos.add(0f, -bottomMargin);
+		gameRenderer.drawString(gameRenderer.basicFont, string,
+				new Renderer.RenderInfo(cornerStringNextPos,1f, 0f, color, false));
+		cornerStringNextPos.add(0f, -15);
+	}
+
+	/**
+	 * Equivalent to {@code drawCornerString(string, color, 0)}
+	 * @see Engine#drawCornerString(String, Color, float)
+	 *
+	 * @param string String to draw.
+	 * @param color Color of the drawn string.
+	 */
+	public void drawCornerString(String string, Color color) {
+		drawCornerString(string, color, 0);
+	}
+
+	/**
+	 * Equivalent to {@code drawCornerString(string, new Color(), 0)}
+	 * @see Engine#drawCornerString(String, Color)
+	 *
+	 * @param string String to draw.
+	 */
+	public void drawCornerString(String string) {
+		drawCornerString(string, new Color());
+	}
+
+	/**
+	 * Draws default corner string common for the whole game.
+	 * This is vsync status and FPS.
+	 */
+	public void drawDefaultCornerStrings() {
+		drawCornerString(String.format("FPS: %.1f", FPSCounter.getFPS()), Color.CYAN);
+		drawCornerString("VSYNC: " + (gameRenderer.getVSync() ? "ON" : "OFF"));
 	}
 
 	public boolean getVSync() {
@@ -235,9 +278,9 @@ public class Engine implements Runnable {
 		switch (type) {
 			case INITSPLASH:
 				ColorAnimation colorAnim = new ColorAnimation(2f);
-				colorAnim.addColorStop(new Color(0, 0, 0), 0f);
-				colorAnim.addColorStop(new Color(), 0.5f);
-				colorAnim.addColorStop(new Color(0, 0, 0), 1f);
+				colorAnim.addColorStop(Color.BLACK, 0f);
+				colorAnim.addColorStop(Color.WHITE, 0.5f);
+				colorAnim.addColorStop(Color.BLACK, 1f);
 
 				FusedAnimation anim = new FusedAnimation(5, 0, new TextureInfo("initsplash"), null, colorAnim);
 				currentSceneController = new SplashSceneController(gameInput, anim, 2f);
