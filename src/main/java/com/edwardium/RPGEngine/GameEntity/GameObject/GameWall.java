@@ -48,8 +48,9 @@ public class GameWall extends GameObject {
 	}
 
 	@Override
-	public void collideWith(GameObject other, Vector2D mnySideNormal, Vector2D otherSideNormal) {
-		other.position.subtract(mnySideNormal);
+	public void collideWith(GameObject other, Vector2D mySideNormal, Vector2D otherSideNormal) {
+		if (other.mass > 0 && other.mass < Float.POSITIVE_INFINITY)
+			other.position.subtract(mySideNormal);
 
 //		Vector2D rejection = other.velocity.rejection(mnySideNormal.getNormal());
 //		if (rejection.angleBetween(mnySideNormal) == 0) {

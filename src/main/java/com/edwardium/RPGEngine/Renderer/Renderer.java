@@ -36,7 +36,7 @@ public abstract class Renderer {
 		}
 	}
 
-	public enum StringAlignment { TOPLEFT, CENTER, BOTTOMRIGHT }
+	public enum StringAlignment { TOPLEFT, TOPRIGHT, CENTER, BOTTOMLEFT, BOTTOMRIGHT }
 
 	public static final int MAX_LIGHTS = 64;
 

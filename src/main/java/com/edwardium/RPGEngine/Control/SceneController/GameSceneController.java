@@ -28,7 +28,7 @@ public abstract class GameSceneController extends SceneController {
 
 	protected static final float UPDATE_STEP_TIME = 1 / 600f;
 	protected static boolean d_drawHitboxes = false;
-	protected static Color r_highlightColor = Color.fromRGB(255, 255, 0);
+	public static final Color R_HIGHLIGHT_COLOR = Color.YELLOW;
 
 	public Vector2D cameraPos;
 	public Vector2D cursorPos;

@@ -105,6 +105,16 @@ public class Vector2D implements GameSerializable {
 	}
 
 	/**
+	 * @param a Vector a.
+	 * @param x The x change.
+	 * @param y The y change.
+	 * @return New vector that is a subtraction of (x, y) from a.
+	 */
+	public static Vector2D subtract(Vector2D a, float x, float y) {
+		return new Vector2D(a).subtract(x, y);
+	}
+
+	/**
 	 * @param a Vector to divide.
 	 * @param d Factor.
 	 * @return New vector that is a copy of a divided by d.
@@ -461,6 +471,18 @@ public class Vector2D implements GameSerializable {
 	public Vector2D subtract(Vector2D other) {
 		this.posX -= other.posX;
 		this.posY -= other.posY;
+
+		return this;
+	}
+
+	/**
+	 * @param x The x change.
+	 * @param y The y change.
+	 * @return This reference.
+	 */
+	public Vector2D subtract(float x, float y) {
+		this.posX -= x;
+		this.posY -= y;
 
 		return this;
 	}

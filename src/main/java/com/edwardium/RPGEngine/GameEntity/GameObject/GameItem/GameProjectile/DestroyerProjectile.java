@@ -13,7 +13,7 @@ import com.edwardium.RPGEngine.Utility.Vector2D;
 import javax.json.JsonObject;
 
 public class DestroyerProjectile extends GameProjectile {
-	private static final Color color = new Color(1f, 0.502f, 1f);
+	private static final Color color = new Color(1f, 0.502f, 0f);
 
 	public DestroyerProjectile(Vector2D position, Vector2D velocity) {
 		super(position, "Destroyer Projectile", velocity);

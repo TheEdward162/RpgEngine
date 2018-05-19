@@ -1,6 +1,7 @@
 package com.edwardium.RPGEngine.Control.SceneController;
 
 import com.edwardium.RPGEngine.Control.Engine;
+import com.edwardium.RPGEngine.Control.UI;
 import com.edwardium.RPGEngine.GameEntity.GameAI.PlayerAI;
 import com.edwardium.RPGEngine.GameEntity.GameAI.SimpleEnemyAI;
 import com.edwardium.RPGEngine.GameEntity.GameHitbox;
@@ -64,7 +65,7 @@ public class PlaySceneController extends GameSceneController {
 
 	private Light[] currentLights;
 	private int currentLightsSize = 0;
-	protected static final Light ambientLight = new Light(new Vector2D(), Color.GREY, -1f, 0f);
+	private static final Light ambientLight = new Light(new Vector2D(), Color.GREY, -1f, 0f);
 
 	// air density
 	private float environmentDensity = 1.2f;
@@ -114,7 +115,7 @@ public class PlaySceneController extends GameSceneController {
 		player = new GameCharacter(new Vector2D(550, 0), "player", 10);
 		player.factionFlag = GameCharacter.CharacterFaction.addFaction(player.factionFlag, GameCharacter.CharacterFaction.PLAYER);
 
-		if (!loadState("Saves/exitsave.json")) {
+		if (!loadState("Saves/editor-exitsave.json")) {
 			GameItem pistol = new GunPistol(new Vector2D(player.position));
 			registerGameObject(pistol);
 			GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));
@@ -293,7 +294,7 @@ public class PlaySceneController extends GameSceneController {
 			itemToHighlight = getClosestItem(cursorPos, EnumSet.of(ItemFilter.ACTIVABLE), player.pickupRange, player.position);
 		}
 		if (itemToHighlight != null) {
-			itemToHighlight.renderHitbox(renderer, r_highlightColor);
+			itemToHighlight.renderHitbox(renderer, R_HIGHLIGHT_COLOR);
 		}
 
 		super.renderEnd(renderer);
@@ -301,7 +302,7 @@ public class PlaySceneController extends GameSceneController {
 		GameInventory.renderInventory(player.inventory, renderer, renderer.getWindowSize().divide(2).inverse(), new Vector2D(1, 1));
 
 		Engine.gameEngine.drawDefaultCornerStrings();
-		Engine.gameEngine.drawCornerString(String.format("Time factor: %.2f", this.timeFactor));
+		UI.drawCornerString(renderer, UI.Corner.BOTTOMLEFT, String.format("Time factor: %.2f", this.timeFactor));
 	}
 
 	@Override

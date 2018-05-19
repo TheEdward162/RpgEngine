@@ -174,6 +174,7 @@ public class OpenGLRenderer extends Renderer {
 		gameTextures.put("default", new OpenGLTexture("Assets/Textures/default.png", GL_TEXTURE0));
 		gameTextures.put("debug", new OpenGLTexture("Assets/Textures/debug1.png", GL_TEXTURE0));
 
+		gameTextures.put("editor", new OpenGLTexture("Assets/Textures/editor.png", GL_TEXTURE0));
 		gameTextures.put("sheet1", new OpenGLTexture("Assets/Textures/sheet1.png", GL_TEXTURE0));
 
 		gameTextures.put("initsplash", new OpenGLTexture("Assets/splash.png", GL_TEXTURE0));
@@ -432,9 +433,20 @@ public class OpenGLRenderer extends Renderer {
 		// y position is the text baseline
 		Vector2D alignedPosition = new Vector2D(info.position);
 		switch (alignment) {
+			case TOPLEFT:
+				alignedPosition.subtract(0, -fontVertices.baseline);
+				break;
+			case TOPRIGHT:
+				alignedPosition.subtract(fontVertices.size.getX() * info.scale.getX(), -fontVertices.baseline);
+				break;
 			case CENTER:
-				alignedPosition.subtract(new Vector2D(fontVertices.size.getX() / 2 * info.scale.getX(),
-						(fontVertices.size.getY() / 2 - fontVertices.baseline) * info.scale.getY()));
+				alignedPosition.subtract(fontVertices.size.getX() / 2 * info.scale.getX(),
+						(fontVertices.size.getY() / 2 - fontVertices.baseline) * info.scale.getY());
+				break;
+			case BOTTOMLEFT:
+				break;
+			case BOTTOMRIGHT:
+				alignedPosition.subtract(fontVertices.size.getX() * info.scale.getX(), 0);
 				break;
 		}
 		applyTransformMatrix(info.scale, info.rotation, alignedPosition);
@@ -454,7 +466,7 @@ public class OpenGLRenderer extends Renderer {
 	}
 	@Override
 	public void drawString(Font font, String text, RenderInfo info) {
-		drawString(font, text, info, StringAlignment.TOPLEFT);
+		drawString(font, text, info, StringAlignment.BOTTOMLEFT);
 	}
 
 	@Override
