@@ -99,7 +99,7 @@ public class EditorSceneController extends GameSceneController {
 	public EditorSceneController(Input gameInput) {
 		super(gameInput);
 
-		if (!loadState("Saves/editor-exitsave.json")) {
+		if (!loadState("Saves/exitsave.json")) {
 			player = new GameCharacter(new Vector2D(), "Player", 10);
 			player.factionFlag = GameCharacter.CharacterFaction.addFaction(player.factionFlag, GameCharacter.CharacterFaction.PLAYER);
 
@@ -300,7 +300,7 @@ public class EditorSceneController extends GameSceneController {
 
 	@Override
 	public void cleanup() {
-		saveState("Saves/editor-exitsave.json");
+		saveState("Saves/exitsave.json");
 
 		gameInput.unwatchKey(GLFW_KEY_Q);
 		gameInput.unwatchKey(GLFW_KEY_E);

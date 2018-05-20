@@ -118,7 +118,7 @@ public class OpenGLRenderer extends Renderer {
 		// Set the clear color
 		// Let there be midnight blue :3
 		//glClearColor(0.098f, 0.098f, 0.439f, 0.0f);
-		glClearColor(0.1f, 0.1f, 0.1f, 1f);
+		glClearColor(Color.DARKGREY.R(), Color.DARKGREY.G(), Color.DARKGREY.B(), 1f);
 
 		setupPrimitives();
 		setupShaders();

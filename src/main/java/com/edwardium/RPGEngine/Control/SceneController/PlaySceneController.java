@@ -115,7 +115,7 @@ public class PlaySceneController extends GameSceneController {
 		player = new GameCharacter(new Vector2D(550, 0), "player", 10);
 		player.factionFlag = GameCharacter.CharacterFaction.addFaction(player.factionFlag, GameCharacter.CharacterFaction.PLAYER);
 
-		if (!loadState("Saves/editor-exitsave.json")) {
+		if (!loadState("Saves/exitsave.json")) {
 			GameItem pistol = new GunPistol(new Vector2D(player.position));
 			registerGameObject(pistol);
 			GameItem destroyerGun = new GunDestroyer(new Vector2D(player.position));

@@ -1,0 +1,16 @@
+com.edwardium.RPGEngine
+com.edwardium.RPGEngine.Control
+com.edwardium.RPGEngine.Control.SceneController
+com.edwardium.RPGEngine.Control.SceneController.Editor
+com.edwardium.RPGEngine.GameEntity
+com.edwardium.RPGEngine.GameEntity.GameAI
+com.edwardium.RPGEngine.GameEntity.GameObject
+com.edwardium.RPGEngine.GameEntity.GameObject.GameCharacter
+com.edwardium.RPGEngine.GameEntity.GameObject.GameItem
+com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameItemGun
+com.edwardium.RPGEngine.GameEntity.GameObject.GameItem.GameProjectile
+com.edwardium.RPGEngine.IO
+com.edwardium.RPGEngine.Renderer
+com.edwardium.RPGEngine.Renderer.Animation
+com.edwardium.RPGEngine.Renderer.OpenGL
+com.edwardium.RPGEngine.Utility

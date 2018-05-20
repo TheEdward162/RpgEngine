@@ -84,10 +84,10 @@ public class Engine implements Runnable {
 
 		gameInput.setGameCursorCenter(gameRenderer.getWindowSize().divide(2));
 
-		changeSceneController(SceneControllerType.GAME);
+//		changeSceneController(SceneControllerType.GAME);
 
-//		changeSceneController(SceneControllerType.MENU);
-//		changeSceneController(SceneControllerType.INITSPLASH);
+		changeSceneController(SceneControllerType.MENU);
+		changeSceneController(SceneControllerType.INITSPLASH);
 
 		gameRenderer.setVSync(true);
 		gameRenderer.show();
@@ -200,6 +200,7 @@ public class Engine implements Runnable {
 
 	private void render() {
 		UI.resetCorners(gameRenderer.getWindowSize());
+
 		gameRenderer.beforeLoop();
 
 		currentSceneController.render(gameRenderer);
